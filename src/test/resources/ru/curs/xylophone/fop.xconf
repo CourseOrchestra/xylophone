@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<!-- $Id: fop.xconf 1339442 2012-05-17 01:42:56Z gadams $ -->
+
+<!--
+
+This is an example configuration file for FOP.
+This file contains the same settings as the default values
+and will have no effect if used unchanged.
+
+Relative config url's will be resolved relative to
+the location of this file.
+
+-->
+
+<!-- NOTE: This is the version of the configuration -->
+<fop version="1.0">
+
+  <!-- Base URL for resolving relative URLs -->
+  <base>.</base>
+
+  <!-- Source resolution in dpi (dots/pixels per inch) for determining the size of pixels in SVG and bitmap images, default: 72dpi -->
+  <source-resolution>72</source-resolution>
+  <!-- Target resolution in dpi (dots/pixels per inch) for specifying the target resolution for generated bitmaps, default: 72dpi -->
+  <target-resolution>72</target-resolution>
+
+  <!-- Default page-height and page-width, in case
+       value is specified as auto -->
+  <default-page-settings height="11in" width="8.26in"/>
+
+  <!-- Information for specific renderers -->
+  <!-- Uses renderer mime type for renderers -->
+  <renderers>
+    <renderer mime="application/pdf">
+      <filterList>
+        <!-- provides compression using zlib flate (default is on) -->
+        <value>flate</value>
+        <!-- encodes binary data into printable ascii characters (default off)
+             This provides about a 4:5 expansion of data size -->
+        <!-- <value>ascii-85</value> -->
+      </filterList>
+
+      <fonts>
+        <directory>C:/Windows/Fonts</directory>
+      </fonts>
+    </renderer>
+
+    <!--
+           The bit depth and type of images produced
+           (this is the default setting)
+      -->
+<!-- 
+    <images mode="b+w" bits-per-pixel="8"/>
+    <renderer-resolution>240</renderer-resolution>
+    <line-width-correction>2.5</line-width-correction>
+    <resource-group-file>resources.afp</resource-group-file>
+
+ -->
+
+    <renderer mime="application/postscript"> </renderer>
+
+    <renderer mime="application/vnd.hp-PCL">
+      <directory>C:/Windows/Fonts</directory>
+    </renderer>
+
+
+  </renderers>
+
+</fop>

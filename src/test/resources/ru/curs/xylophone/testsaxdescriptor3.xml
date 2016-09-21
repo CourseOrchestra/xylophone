@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<element name="report">
+	<!-- Вывод листов: всё объединено в одну итерацию -->
+	<iteration>
+		<element name="titlepage">
+			<!-- Статическое название листа -->
+			<output worksheet="Титульный" sourcesheet="Лист1" range="A3:B4" />
+			<iteration>
+				<element name="line">
+					<output range="A5:Z5" />
+				</element>
+				<element name="group">
+					<output range="A6:Z6" pagebreak ="true"/>
+					<iteration>
+						<element name="line">
+							<output range="A7:Z7" />
+						</element>
+					</iteration>
+				</element>
+			</iteration>
+		</element>
+		<element name="sheet">
+			<!-- Динамическое название листа -->
+			<output worksheet="~{@name}" sourcesheet="Лист2" />
+			<!-- <iteration mode="horizontal"> <element name="(before)"> <output range="A1" 
+				/> </element> <element name="column"> <output range="B1" /> </element> </iteration> -->
+			<!-- Выводим строки: итерация с режимом вывода умолчанию, сверху вниз -->
+			<iteration>
+				<element name="row">
+					<iteration mode="horizontal">
+						<!-- Заголовок строки -->
+						<element name="(before)">
+							<output range="A2" />
+						</element>
+						<!-- И за ним слева направо строку с данными -->
+						<element name="cell">
+							<output range="B2" />
+						</element>
+					</iteration>
+				</element>
+			</iteration>
+		</element>
+	</iteration>
+</element>

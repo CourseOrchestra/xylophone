@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<element name="report">
+	<!-- Вывод единственного титульного листа, с иерархией -->
+	<iteration index="0">
+		<element name="titlepage">
+			<!-- Статическое название листа -->
+			<output worksheet="Титульный" sourcesheet="Лист1" range="A3:B4" />
+			<iteration>
+				<element name="line">
+					<output range="A5:Z5" />
+				</element>
+				<element name="group">
+					<output range="A6:Z6" pagebreak="true" />
+					<iteration>
+						<element name="line">
+							<output range="A7:Z7" />
+						</element>
+					</iteration>
+				</element>
+			</iteration>
+		</element>
+	</iteration>
+	<!-- Вывод всех прочих листов, со сводными таблицами -->
+	<iteration>
+		<element name="sheet">
+			<!-- Динамическое название листа -->
+			<output worksheet="~{@name}" sourcesheet="Лист2"/>
+			<!-- Выводим пустую ячейку в ЛВУ сводной таблицы -->
+			<output range="A1" />
+			<!-- И за ним слева направо заголовки столбцов -->
+			<iteration mode="horizontal">
+				<element name="column">
+					<output range="B1" />
+				</element>
+			</iteration>
+			<!-- Выводим строки: итерация с режимом вывода умолчанию, сверху вниз -->
+			<iteration>
+				<element name="row">
+					<!-- Заголовок строки -->
+					<output range="A2" />
+					<!-- И за ним слева направо строку с данными -->
+					<iteration mode="horizontal">
+						<element name="cell">
+							<output range="B2" />
+						</element>
+					</iteration>
+				</element>
+			</iteration>
+		</element>
+	</iteration>
+</element>

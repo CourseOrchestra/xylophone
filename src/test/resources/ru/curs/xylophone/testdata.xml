@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<report>
+	<titlepage>
+		<line name="Строка 1" value="10" />
+		<group name="Строка 2" value="23">
+			<line name="Строка 2.1" value="30" />
+			<line name="Строка 2.2" value="92" />
+		</group>
+		<line name="Строка 3" value="11" />
+	</titlepage>
+	<sheet name="Раздел А">
+		<column name="2009" />
+		<column name="2010" />
+		<column name="2011" />
+		<row name="Позиция 1">
+			<cell value="1" />
+			<cell value="33" />
+			<cell value="34" />
+		</row>
+		<row name="Позиция 2">
+			<cell value="93" />
+			<cell value="9" />
+			<cell value="1" />
+		</row>
+		<row name="Позиция 3">
+			<cell value="1" />
+			<cell value="50" />
+			<cell value="2" />
+		</row>
+	</sheet>
+	<sheet name="Раздел Б">
+
+	</sheet>
+</report>

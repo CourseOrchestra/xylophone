@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<element name="report">
+	<!-- Вывод листов: всё объединено в одну итерацию -->
+	<iteration>
+		<element name="titlepage">
+			<!-- Статическое название листа -->
+			<output worksheet="Титульный" range="A3:B4" />
+			<iteration>
+				<element name="line">
+					<output range="A5:Z5" />
+				</element>
+				<element name="group">
+					<output range="A6:Z6" />
+					<iteration>
+						<element name="line">
+							<output range="A7:Z7" />
+						</element>
+					</iteration>
+				</element>
+			</iteration>
+		</element>
+		<element name="sheet">
+			<!-- Динамическое название листа -->
+			<output worksheet="~{@name}" />
+			<!-- Для вывода заголовков надо перестроить структуру XML <output range="A11" 
+				/> <iteration mode="horizontal"> <element name="column"> <output range="B11" 
+				/> </element> </iteration> -->
+			<!-- Выводим строки: итерация с режимом вывода умолчанию, сверху вниз -->
+			<iteration>
+				<element name="row">
+					<!-- Заголовок строки -->
+					<output range="A12" />
+					<!-- И за ним слева направо строку с данными -->
+					<iteration mode="horizontal">
+						<element name="cell">
+							<output range="B12" />
+						</element>
+					</iteration>
+				</element>
+			</iteration>
+		</element>
+	</iteration>
+</element>
