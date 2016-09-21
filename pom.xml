@@ -8,7 +8,7 @@
 	<name>xylophone java library</name>
 	<description>xylophone - LGPL Java library</description>
 	<packaging>jar</packaging>
-	<url>https://mysite.com</url>
+	<url>https://sourceforge.net/projects/kurs-xylophone/</url>
 
 	<organization>
 		<name>CURS</name>
@@ -16,9 +16,8 @@
 	</organization>
 
 	<scm>
-		<connection>...</connection>
-		<developerConnection>...</developerConnection>
-		<url>...</url>
+		<connection>scm:svn:https://svn.code.sf.net/p/kurs-xylophone/code/trunk/</connection>
+		<url>https://svn.code.sf.net/p/kurs-xylophone/code/trunk/</url>
 	</scm>
 
 	<licenses>
