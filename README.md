@@ -1,6 +1,6 @@
 # xylophone
 Excel reports generating library
 
-[![Build Status](http://share.curs.ru:1112/buildStatus/icon?job=xylophone-trunk)](http://share.curs.ru:1112/job/xylophone-trunk/)
+[![Build Status](https://ci.corchestra.ru/buildStatus/icon?job=xylophone-trunk)](https://ci.corchestra.ru/job/xylophone-trunk/)
 
 https://corchestra.ru/wiki/index.php?title=Xylophone
