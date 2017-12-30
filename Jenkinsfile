@@ -5,7 +5,7 @@ node {
     def buildInfo
 
     stage ('Clone') {
-            git url: gitUrl, branch: '${BRANCH_NAME}'
+        checkout scm
     }
 
     stage ('Artifactory configuration') {
