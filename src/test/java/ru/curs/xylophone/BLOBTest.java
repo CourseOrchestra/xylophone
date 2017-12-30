@@ -21,7 +21,7 @@ public class BLOBTest {
 		assertTrue(a.isNull());
 		assertNull(a.getInStream());
 		assertFalse(a.isModified());
-		assertEquals(0, a.size());
+		assertEquals(1, a.size());
 
 		a.setNull();
 		assertNull(a.getInStream());
