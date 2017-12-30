@@ -16,8 +16,12 @@ node {
         buildInfo.env.capture = true
     }
 
-    stage ('Exec Maven') {
-        rtMaven.run pom: 'pom.xml', goals: 'clean install', buildInfo: buildInfo
+    try{
+        stage ('Exec Maven') {
+            rtMaven.run pom: 'pom.xml', goals: 'clean install', buildInfo: buildInfo
+        }
+    } finally {
+        junit 'build/reports/**/*.xml'
     }
 
     stage ('Publish build info') {
