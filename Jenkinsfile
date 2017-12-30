@@ -1,5 +1,4 @@
 node {
-    def gitUrl = 'https://github.com/CourseOrchestra/xylophone.git'
     def server = Artifactory.server 'ART'
     def rtMaven = Artifactory.newMavenBuild()
     def buildInfo
