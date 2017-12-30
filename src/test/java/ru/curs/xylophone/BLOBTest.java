@@ -17,7 +17,7 @@ public class BLOBTest {
 	@Test
 	public void test1() throws IOException {
 		// 1. Нулевой BLOB
-		System.out.println('Now we break the test');
+		System.out.println("Now we break the test");
 		XML2SpreadseetBLOB a = new XML2SpreadseetBLOB();
 		assertTrue(a.isNull());
 		assertNull(a.getInStream());
