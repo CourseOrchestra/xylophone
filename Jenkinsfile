@@ -5,7 +5,7 @@ node {
     def buildInfo
 
     stage ('Clone') {
-            git url: gitUrl
+            git url: gitUrl, branch: 'dev'
     }
 
     stage ('Artifactory configuration') {
