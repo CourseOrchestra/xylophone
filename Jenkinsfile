@@ -23,7 +23,9 @@ node {
         junit 'target/surefire-reports/**/*.xml'
     }
 
-    stage ('Publish build info') {
-        server.publishBuildInfo buildInfo
+    if (env.BRANCH_NAME == 'dev') {
+        stage ('Publish build info') {
+            server.publishBuildInfo buildInfo
+        }
     }
 }
