@@ -203,26 +203,23 @@ public class Excel2Print {
 		Document doc = getDoc();
 
 		if (printerName == null) {
-			OutputStream out = new ByteArrayOutputStream();
-			try {
+			try (OutputStream out = new ByteArrayOutputStream()){
 				Fop fop = getFopFactory().newFop(MimeConstants.MIME_FOP_PRINT,
 						out);
 
 				fopTransform(doc, fop);
-			} finally {
-				out.close();
 			}
 		} else {
 			PrintService[] services = PrinterJob.lookupPrintServices();
 			PrintService srv = null;
 			StringBuilder printerNames = new StringBuilder();
-			for (int i = 0; i < services.length; i++) {
-				if (printerName.equals(services[i].getName())) {
-					srv = services[i];
+			for (PrintService service : services) {
+				if (printerName.equals(service.getName())) {
+					srv = service;
 				} else {
 					if (printerNames.length() > 0)
 						printerNames.append("; ");
-					printerNames.append(services[i].getName());
+					printerNames.append(service.getName());
 				}
 			}
 			if (srv == null) {
