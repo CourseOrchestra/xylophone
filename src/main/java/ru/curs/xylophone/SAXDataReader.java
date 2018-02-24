@@ -152,7 +152,7 @@ final class SAXDataReader extends XMLDataReader {
 	void process() throws XML2SpreadSheetError {
 
 		final class Parser extends DefaultHandler {
-			private final Deque<SAXElementDescriptor> elementsStack = new LinkedList<SAXElementDescriptor>();
+			private final Deque<SAXElementDescriptor> elementsStack = new LinkedList<>();
 
 			private void bypass() {
 				elementsStack.push(new SAXElementDescriptor());

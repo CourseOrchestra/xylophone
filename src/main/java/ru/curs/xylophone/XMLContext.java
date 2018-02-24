@@ -53,7 +53,7 @@ import org.xml.sax.Attributes;
  */
 abstract class XMLContext {
 
-	private static final Pattern P = Pattern.compile("~\\{([^}]+)\\}");
+	private static final Pattern P = Pattern.compile("~\\{([^}]+)}");
 	private static final String CURRENT = "current";
 	private static final String POSITION = "position";
 	private static final Pattern FUNCTION = Pattern.compile("((" + CURRENT

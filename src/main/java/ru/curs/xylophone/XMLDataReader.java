@@ -60,7 +60,7 @@ abstract class XMLDataReader {
 	private static final Pattern RANGE = Pattern
 			.compile("(-?[0-9]+):(-?[0-9]+)");
 	private static final Pattern XQUERY = Pattern
-			.compile("([^\\[]+)\\[@([^=]+)=('([^']+)'|\"([^\"]+)\")\\]");
+			.compile("([^\\[]+)\\[@([^=]+)=('([^']+)'|\"([^\"]+)\")]");
 
 	private final ReportWriter writer;
 	private final DescriptorElement descriptor;
@@ -174,8 +174,7 @@ abstract class XMLDataReader {
 						
 						boolean pagebreak = (new AttrReader<Boolean>() {
 							@Override
-							Boolean getIfNotEmpty(String value)
-									throws XML2SpreadSheetError {
+							Boolean getIfNotEmpty(String value) {
 								return "true".equalsIgnoreCase(value);
 							}
 
@@ -223,8 +222,7 @@ abstract class XMLDataReader {
 		}
 
 		@Override
-		public void endElement(String uri, String localName, String name)
-				throws SAXException {
+		public void endElement(String uri, String localName, String name) {
 			switch (parserState) {
 			case ELEMENT:
 				elementsStack.pop();

@@ -161,7 +161,7 @@ abstract class ReportWriter {
 	 * @param horizontal
 	 *            true для режима слева направо, false для режима сверху вниз.
 	 */
-	public void startSequence(boolean horizontal) throws XML2SpreadSheetError {
+	public void startSequence(boolean horizontal) {
 		// На вершине стека должен находиться как минимум диапазон листа. Если
 		// пользователь не создал листа, делаем это за него.
 		// if (blocks.isEmpty())
