@@ -17,14 +17,23 @@
 
 package org.apache.poi.hslf.dev;
 
-import org.apache.poi.hslf.*;
-import org.apache.poi.hslf.record.*;
-import org.apache.poi.hslf.usermodel.SlideShow;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Map;
 
+import org.apache.poi.hslf.record.Document;
+import org.apache.poi.hslf.record.Notes;
+import org.apache.poi.hslf.record.NotesAtom;
+import org.apache.poi.hslf.record.PersistPtrHolder;
+import org.apache.poi.hslf.record.PositionDependentRecord;
+import org.apache.poi.hslf.record.Record;
+import org.apache.poi.hslf.record.Slide;
+import org.apache.poi.hslf.record.SlideAtom;
+import org.apache.poi.hslf.record.SlideListWithText;
+import org.apache.poi.hslf.record.SlidePersistAtom;
+import org.apache.poi.hslf.usermodel.HSLFSlideShow;
+import org.apache.poi.hslf.usermodel.HSLFSlideShowImpl;
 import org.apache.poi.util.LittleEndian;
-
-import java.io.*;
-import java.util.Hashtable;
 
 /**
  * Gets all the different things that have Slide IDs (of sorts)
@@ -34,7 +43,7 @@ import java.util.Hashtable;
 public final class SlideIdListing {
 	private static byte[] fileContents;
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws IOException {
 		if(args.length < 1) {
 			System.err.println("Need to give a filename");
 			System.exit(1);
@@ -42,8 +51,8 @@ public final class SlideIdListing {
 
 
 		// Create the slideshow object, for normal working with
-		HSLFSlideShow hss = new HSLFSlideShow(args[0]);
-		SlideShow ss = new SlideShow(hss);
+		HSLFSlideShowImpl hss = new HSLFSlideShowImpl(args[0]);
+		HSLFSlideShow ss = new HSLFSlideShow(hss);
 
 		// Grab the base contents
 		fileContents = hss.getUnderlyingBytes();
@@ -122,10 +131,10 @@ public final class SlideIdListing {
 
 				// Check the sheet offsets
 				int[] sheetIDs = pph.getKnownSlideIDs();
-				Hashtable sheetOffsets = pph.getSlideLocationsLookup();
+				Map<Integer,Integer> sheetOffsets = pph.getSlideLocationsLookup();
 				for(int j=0; j<sheetIDs.length; j++) {
-					Integer id = Integer.valueOf(sheetIDs[j]);
-					Integer offset = (Integer)sheetOffsets.get(id);
+					Integer id = sheetIDs[j];
+					Integer offset = sheetOffsets.get(id);
 
 					System.out.println("  Knows about sheet " + id);
 					System.out.println("    That sheet lives at " + offset);
@@ -146,6 +155,8 @@ public final class SlideIdListing {
 			pos += baos.size();
 		}
 
+		ss.close();
+		
 		System.out.println("");
 	}
 

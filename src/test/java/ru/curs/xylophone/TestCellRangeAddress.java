@@ -4,9 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import ru.curs.xylophone.CellAddress;
-
 public class TestCellRangeAddress {
+
 	@Test
 	public void testCellAddress() {
 		CellAddress ca = new CellAddress("D12");

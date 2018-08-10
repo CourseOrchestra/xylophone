@@ -18,32 +18,63 @@
 package org.apache.poi.hslf.model;
 
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Composite;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsEnvironment;
+import java.awt.Image;
+import java.awt.Paint;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.Stroke;
+import java.awt.Toolkit;
 import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
 import java.awt.font.TextLayout;
-import java.awt.image.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Arc2D;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.GeneralPath;
+import java.awt.geom.Line2D;
+import java.awt.geom.Path2D;
+import java.awt.geom.RoundRectangle2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
+import java.awt.image.ImageObserver;
+import java.awt.image.RenderedImage;
 import java.awt.image.renderable.RenderableImage;
-import java.awt.geom.*;
 import java.text.AttributedCharacterIterator;
 import java.util.Map;
-import org.apache.poi.hslf.usermodel.RichTextRun;
+
 import org.apache.poi.hslf.exceptions.HSLFException;
-import org.apache.poi.util.POILogger;
+import org.apache.poi.hslf.usermodel.HSLFFreeformShape;
+import org.apache.poi.hslf.usermodel.HSLFGroupShape;
+import org.apache.poi.hslf.usermodel.HSLFSimpleShape;
+import org.apache.poi.hslf.usermodel.HSLFTextBox;
+import org.apache.poi.hslf.usermodel.HSLFTextRun;
+import org.apache.poi.sl.draw.DrawPaint;
+import org.apache.poi.sl.usermodel.StrokeStyle;
+import org.apache.poi.sl.usermodel.VerticalAlignment;
+import org.apache.poi.util.NotImplemented;
 import org.apache.poi.util.POILogFactory;
+import org.apache.poi.util.POILogger;
+import org.apache.poi.util.SuppressForbidden;
 
 /**
  * Translates Graphics2D calls into PowerPoint.
- *
- * @author Yegor Kozlov
  */
 public final class PPGraphics2D extends Graphics2D implements Cloneable {
 
-    protected POILogger log = POILogFactory.getLogger(this.getClass());
+    private static final POILogger LOG = POILogFactory.getLogger(PPGraphics2D.class);
 
     //The ppt object to write into.
-    private ShapeGroup _group;
+    private HSLFGroupShape _group;
 
     private AffineTransform _transform;
     private Stroke _stroke;
@@ -58,7 +89,7 @@ public final class PPGraphics2D extends Graphics2D implements Cloneable {
      *
      * @param group           The shape group to write the graphics calls into.
      */
-    public PPGraphics2D(ShapeGroup group){
+    public PPGraphics2D(HSLFGroupShape group){
         this._group = group;
 
         _transform = new AffineTransform();
@@ -73,7 +104,7 @@ public final class PPGraphics2D extends Graphics2D implements Cloneable {
     /**
      * @return  the shape group being used for drawing
      */
-    public ShapeGroup getShapeGroup(){
+    public HSLFGroupShape getShapeGroup(){
         return _group;
     }
 
@@ -107,7 +138,7 @@ public final class PPGraphics2D extends Graphics2D implements Cloneable {
      * @see       java.awt.Color
      * @see       java.awt.Graphics#setColor
      */
-     public Color getColor(){
+    public Color getColor(){
         return _foreground;
     }
 
@@ -165,7 +196,7 @@ public final class PPGraphics2D extends Graphics2D implements Cloneable {
      * color during the rendering process, or <code>null</code>
      * @see java.awt.Graphics#setColor
      */
-     public void setPaint(Paint paint){
+    public void setPaint(Paint paint){
         if(paint == null) return;
 
         this._paint = paint;
@@ -213,8 +244,8 @@ public final class PPGraphics2D extends Graphics2D implements Cloneable {
      * @see #setComposite
      */
     public void draw(Shape shape){
-        GeneralPath path = new GeneralPath(_transform.createTransformedShape(shape));
-        Freeform p = new Freeform(_group);
+        Path2D.Double path = new Path2D.Double(_transform.createTransformedShape(shape));
+        HSLFFreeformShape p = new HSLFFreeformShape(_group);
         p.setPath(path);
         p.getFill().setForegroundColor(null);
         applyStroke(p);
@@ -250,26 +281,25 @@ public final class PPGraphics2D extends Graphics2D implements Cloneable {
      * @see #setClip
      */
     public void drawString(String s, float x, float y) {
-        TextBox txt = new TextBox(_group);
-        txt.getTextRun().supplySlideShow(_group.getSheet().getSlideShow());
-        txt.getTextRun().setSheet(_group.getSheet());
+        HSLFTextBox txt = new HSLFTextBox(_group);
+        txt.setSheet(_group.getSheet());
         txt.setText(s);
 
-        RichTextRun rt = txt.getTextRun().getRichTextRuns()[0];
-        rt.setFontSize(_font.getSize());
-        rt.setFontName(_font.getFamily());
+        HSLFTextRun rt = txt.getTextParagraphs().get(0).getTextRuns().get(0);
+        rt.setFontSize((double)_font.getSize());
+        rt.setFontFamily(_font.getFamily());
 
-        if (getColor() != null) rt.setFontColor(getColor());
+        if (getColor() != null) rt.setFontColor(DrawPaint.createSolidPaint(getColor()));
         if (_font.isBold()) rt.setBold(true);
         if (_font.isItalic()) rt.setItalic(true);
 
-        txt.setMarginBottom(0);
-        txt.setMarginTop(0);
-        txt.setMarginLeft(0);
-        txt.setMarginRight(0);
-        txt.setWordWrap(TextBox.WrapNone);
-        txt.setHorizontalAlignment(TextBox.AlignLeft);
-        txt.setVerticalAlignment(TextBox.AnchorMiddle);
+        txt.setBottomInset(0);
+        txt.setTopInset(0);
+        txt.setLeftInset(0);
+        txt.setRightInset(0);
+        txt.setWordWrap(false);
+        txt.setHorizontalCentered(false);
+        txt.setVerticalAlignment(VerticalAlignment.MIDDLE);
 
 
         TextLayout layout = new TextLayout(s, _font, getFontRenderContext());
@@ -296,7 +326,7 @@ public final class PPGraphics2D extends Graphics2D implements Cloneable {
           Java graphics sets string coordinates by the baseline of the first character
           so we need to shift down by the height of the textbox
         */
-        txt.setAnchor(new Rectangle2D.Float(x, y, width, height));
+        txt.setAnchor(new Rectangle((int)x, (int)y, (int)width, (int)height));
 
         _group.addShape(txt);
     }
@@ -316,8 +346,8 @@ public final class PPGraphics2D extends Graphics2D implements Cloneable {
      * @see #setClip
      */
     public void fill(Shape shape){
-        GeneralPath path = new GeneralPath(_transform.createTransformedShape(shape));
-        Freeform p = new Freeform(_group);
+        Path2D.Double path = new Path2D.Double(_transform.createTransformedShape(shape));
+        HSLFFreeformShape p = new HSLFFreeformShape(_group);
         p.setPath(path);
         applyPaint(p);
         p.setLineColor(null);   //Fills must be "No Line"
@@ -358,9 +388,10 @@ public final class PPGraphics2D extends Graphics2D implements Cloneable {
      *          <code>Clip</code>.  If <code>s</code> is <code>null</code>,
      *          this method clears the current <code>Clip</code>.
      */
+    @NotImplemented
     public void clip(Shape s){
-        if (log.check(POILogger.WARN)) {
-            log.log(POILogger.WARN, "Not implemented");
+        if (LOG.check(POILogger.WARN)) {
+            LOG.log(POILogger.WARN, "Not implemented");
         }
     }
 
@@ -380,9 +411,10 @@ public final class PPGraphics2D extends Graphics2D implements Cloneable {
      * @see         java.awt.Graphics#setClip(Shape)
      * @since       JDK1.1
      */
+    @NotImplemented
     public Shape getClip(){
-        if (log.check(POILogger.WARN)) {
-            log.log(POILogger.WARN, "Not implemented");
+        if (LOG.check(POILogger.WARN)) {
+            LOG.log(POILogger.WARN, "Not implemented");
         }
         return null;
     }
@@ -648,11 +680,12 @@ public final class PPGraphics2D extends Graphics2D implements Cloneable {
      * @see      java.awt.image.ImageObserver
      * @see      java.awt.image.ImageObserver#imageUpdate(java.awt.Image, int, int, int, int, int)
      */
+    @NotImplemented
     public boolean drawImage(Image img, int x, int y,
                              Color bgcolor,
                              ImageObserver observer){
-        if (log.check(POILogger.WARN)) {
-            log.log(POILogger.WARN, "Not implemented");
+        if (LOG.check(POILogger.WARN)) {
+            LOG.log(POILogger.WARN, "Not implemented");
         }
 
         return false;
@@ -696,12 +729,13 @@ public final class PPGraphics2D extends Graphics2D implements Cloneable {
      * @see      java.awt.image.ImageObserver
      * @see      java.awt.image.ImageObserver#imageUpdate(java.awt.Image, int, int, int, int, int)
      */
+    @NotImplemented
     public boolean drawImage(Image img, int x, int y,
                              int width, int height,
                              Color bgcolor,
                              ImageObserver observer){
-        if (log.check(POILogger.WARN)) {
-            log.log(POILogger.WARN, "Not implemented");
+        if (LOG.check(POILogger.WARN)) {
+            LOG.log(POILogger.WARN, "Not implemented");
         }
 
         return false;
@@ -755,12 +789,13 @@ public final class PPGraphics2D extends Graphics2D implements Cloneable {
      * @see         java.awt.image.ImageObserver#imageUpdate(java.awt.Image, int, int, int, int, int)
      * @since       JDK1.1
      */
+    @NotImplemented
     public boolean drawImage(Image img,
                              int dx1, int dy1, int dx2, int dy2,
                              int sx1, int sy1, int sx2, int sy2,
                              ImageObserver observer){
-        if (log.check(POILogger.WARN)) {
-            log.log(POILogger.WARN, "Not implemented");
+        if (LOG.check(POILogger.WARN)) {
+            LOG.log(POILogger.WARN, "Not implemented");
         }
         return false;
     }
@@ -818,13 +853,14 @@ public final class PPGraphics2D extends Graphics2D implements Cloneable {
      * @see         java.awt.image.ImageObserver#imageUpdate(java.awt.Image, int, int, int, int, int)
      * @since       JDK1.1
      */
+    @NotImplemented
     public boolean drawImage(Image img,
                              int dx1, int dy1, int dx2, int dy2,
                              int sx1, int sy1, int sx2, int sy2,
                              Color bgcolor,
                              ImageObserver observer){
-        if (log.check(POILogger.WARN)) {
-            log.log(POILogger.WARN, "Not implemented");
+        if (LOG.check(POILogger.WARN)) {
+            LOG.log(POILogger.WARN, "Not implemented");
         }
         return false;
     }
@@ -861,10 +897,11 @@ public final class PPGraphics2D extends Graphics2D implements Cloneable {
      * @see      java.awt.image.ImageObserver
      * @see      java.awt.image.ImageObserver#imageUpdate(java.awt.Image, int, int, int, int, int)
      */
+    @NotImplemented
     public boolean drawImage(Image img, int x, int y,
                              ImageObserver observer) {
-        if (log.check(POILogger.WARN)) {
-            log.log(POILogger.WARN, "Not implemented");
+        if (LOG.check(POILogger.WARN)) {
+            LOG.log(POILogger.WARN, "Not implemented");
         }
         return false;
     }
@@ -897,7 +934,6 @@ public final class PPGraphics2D extends Graphics2D implements Cloneable {
      * @see         java.awt.Graphics#create
      */
     public void dispose() {
-        ;
     }
 
     /**
@@ -1049,9 +1085,10 @@ public final class PPGraphics2D extends Graphics2D implements Cloneable {
      * @see         java.awt.Graphics#setClip(int, int, int, int)
      * @since       JDK1.1
      */
+    @NotImplemented
     public void setClip(Shape clip) {
-        if (log.check(POILogger.WARN)) {
-            log.log(POILogger.WARN, "Not implemented");
+        if (LOG.check(POILogger.WARN)) {
+            LOG.log(POILogger.WARN, "Not implemented");
         }
     }
 
@@ -1124,7 +1161,6 @@ public final class PPGraphics2D extends Graphics2D implements Cloneable {
     }
 
     public void copyArea(int x, int y, int width, int height, int dx, int dy) {
-        ;
     }
 
     /**
@@ -1349,9 +1385,10 @@ public final class PPGraphics2D extends Graphics2D implements Cloneable {
      * @see java.awt.Graphics#setPaintMode
      * @see java.awt.AlphaComposite
      */
+    @NotImplemented
     public void setComposite(Composite comp){
-        if (log.check(POILogger.WARN)) {
-            log.log(POILogger.WARN, "Not implemented");
+        if (LOG.check(POILogger.WARN)) {
+            LOG.log(POILogger.WARN, "Not implemented");
         }
     }
 
@@ -1362,9 +1399,10 @@ public final class PPGraphics2D extends Graphics2D implements Cloneable {
      *              which defines a compositing style.
      * @see #setComposite
      */
+    @NotImplemented
     public Composite getComposite(){
-        if (log.check(POILogger.WARN)) {
-            log.log(POILogger.WARN, "Not implemented");
+        if (LOG.check(POILogger.WARN)) {
+            LOG.log(POILogger.WARN, "Not implemented");
         }
         return null;
     }
@@ -1456,7 +1494,7 @@ public final class PPGraphics2D extends Graphics2D implements Cloneable {
      * @param hints the rendering hints to be set
      * @see RenderingHints
      */
-    public void addRenderingHints(Map hints){
+    public void addRenderingHints(Map<?,?> hints){
         this._hints.putAll(hints);
     }
 
@@ -1505,9 +1543,10 @@ public final class PPGraphics2D extends Graphics2D implements Cloneable {
      * @see #setComposite
      * @see #setClip
      */
+    @NotImplemented
     public void drawString(AttributedCharacterIterator iterator, float x, float y) {
-        if (log.check(POILogger.WARN)) {
-            log.log(POILogger.WARN, "Not implemented");
+        if (LOG.check(POILogger.WARN)) {
+            LOG.log(POILogger.WARN, "Not implemented");
         }
     }
 
@@ -1581,8 +1620,9 @@ public final class PPGraphics2D extends Graphics2D implements Cloneable {
      * @param hints the rendering hints to be set
      * @see RenderingHints
      */
-    public void setRenderingHints(Map hints){
-        this._hints = new RenderingHints(hints);
+    public void setRenderingHints(Map<?,?> hints){
+        this._hints = new RenderingHints(null);
+        this._hints.putAll(hints);
     }
 
     /**
@@ -1610,9 +1650,10 @@ public final class PPGraphics2D extends Graphics2D implements Cloneable {
      * @see #clip
      * @see #setClip(Shape)
      */
-     public boolean drawImage(Image img, AffineTransform xform, ImageObserver obs) {
-         if (log.check(POILogger.WARN)) {
-             log.log(POILogger.WARN, "Not implemented");
+    @NotImplemented
+    public boolean drawImage(Image img, AffineTransform xform, ImageObserver obs) {
+         if (LOG.check(POILogger.WARN)) {
+             LOG.log(POILogger.WARN, "Not implemented");
          }
         return false;
     }
@@ -1653,11 +1694,12 @@ public final class PPGraphics2D extends Graphics2D implements Cloneable {
      * @see      java.awt.image.ImageObserver
      * @see      java.awt.image.ImageObserver#imageUpdate(java.awt.Image, int, int, int, int, int)
      */
+    @NotImplemented
     public boolean drawImage(Image img, int x, int y,
                              int width, int height,
                              ImageObserver observer) {
-        if (log.check(POILogger.WARN)) {
-            log.log(POILogger.WARN, "Not implemented");
+        if (LOG.check(POILogger.WARN)) {
+            LOG.log(POILogger.WARN, "Not implemented");
         }
         return false;
     }
@@ -1685,6 +1727,7 @@ public final class PPGraphics2D extends Graphics2D implements Cloneable {
      * @see       java.awt.Graphics#getFontMetrics()
      */
     @SuppressWarnings("deprecation")
+    @SuppressForbidden
     public FontMetrics getFontMetrics(Font f) {
         return Toolkit.getDefaultToolkit().getFontMetrics(f);
     }
@@ -1704,9 +1747,10 @@ public final class PPGraphics2D extends Graphics2D implements Cloneable {
      * drawn twice, then all pixels are restored to their original values.
      * @param     c1 the XOR alternation color
      */
+    @NotImplemented
     public void setXORMode(Color c1) {
-        if (log.check(POILogger.WARN)) {
-            log.log(POILogger.WARN, "Not implemented");
+        if (LOG.check(POILogger.WARN)) {
+            LOG.log(POILogger.WARN, "Not implemented");
         }
     }
 
@@ -1717,9 +1761,10 @@ public final class PPGraphics2D extends Graphics2D implements Cloneable {
      * overwrite mode.  All subsequent rendering operations will
      * overwrite the destination with the current color.
      */
+    @NotImplemented
     public void setPaintMode() {
-        if (log.check(POILogger.WARN)) {
-            log.log(POILogger.WARN, "Not implemented");
+        if (LOG.check(POILogger.WARN)) {
+            LOG.log(POILogger.WARN, "Not implemented");
         }
     }
 
@@ -1754,10 +1799,11 @@ public final class PPGraphics2D extends Graphics2D implements Cloneable {
      * @see #setClip
      * @see #drawRenderedImage
      */
-     public void drawRenderedImage(RenderedImage img, AffineTransform xform) {
-         if (log.check(POILogger.WARN)) {
-             log.log(POILogger.WARN, "Not implemented");
-         }
+    @NotImplemented
+    public void drawRenderedImage(RenderedImage img, AffineTransform xform) {
+        if (LOG.check(POILogger.WARN)) {
+            LOG.log(POILogger.WARN, "Not implemented");
+        }
     }
 
     /**
@@ -1781,25 +1827,26 @@ public final class PPGraphics2D extends Graphics2D implements Cloneable {
      * @see #clip
      * @see #setClip
      */
+    @NotImplemented
     public void drawRenderableImage(RenderableImage img, AffineTransform xform) {
-        if (log.check(POILogger.WARN)) {
-            log.log(POILogger.WARN, "Not implemented");
+        if (LOG.check(POILogger.WARN)) {
+            LOG.log(POILogger.WARN, "Not implemented");
         }
     }
 
-    protected void applyStroke(SimpleShape shape) {
+    protected void applyStroke(HSLFSimpleShape shape) {
         if (_stroke instanceof BasicStroke){
             BasicStroke bs = (BasicStroke)_stroke;
             shape.setLineWidth(bs.getLineWidth());
             float[] dash = bs.getDashArray();
             if (dash != null) {
                 //TODO: implement more dashing styles
-                shape.setLineDashing(Line.PEN_DASH);
+                shape.setLineDash(StrokeStyle.LineDash.DASH);
             }
         }
     }
 
-    protected void applyPaint(SimpleShape shape) {
+    protected void applyPaint(HSLFSimpleShape shape) {
         if (_paint instanceof Color) {
             shape.getFill().setForegroundColor((Color)_paint);
         }

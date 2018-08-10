@@ -17,22 +17,32 @@
 
 package org.apache.poi.hmef.attribute;
 
+import java.text.DateFormat;
+import java.text.DateFormatSymbols;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import org.apache.poi.hmef.Attachment;
 import org.apache.poi.hmef.HMEFMessage;
-import org.apache.poi.hpsf.Util;
+import org.apache.poi.hpsf.Filetime;
 import org.apache.poi.hsmf.datatypes.MAPIProperty;
 import org.apache.poi.util.LittleEndian;
+import org.apache.poi.util.LocaleUtil;
 import org.apache.poi.util.POILogFactory;
 import org.apache.poi.util.POILogger;
 
 /**
  * A pure-MAPI attribute holding a Date, which applies 
- *  to a {@link HMEFMessage} or one of its {@link Attachment}s.
+ * to a {@link HMEFMessage} or one of its {@link Attachment}s.
+ * 
+ * Timestamps are usually given in UTC.
+ * 
+ * @see <a href="https://msdn.microsoft.com/en-us/library/cc433482(v=exchg.80).aspx">[MS-OXOMSG]: Email Object Protocol</a>
+ * @see <a href="https://msdn.microsoft.com/en-us/library/cc433490(v=exchg.80).aspx">[MS-OXPROPS]: Exchange Server Protocols Master Property List</a>
  */
 public final class MAPIDateAttribute extends MAPIAttribute {
-   private static POILogger logger = POILogFactory.getLogger(MAPIDateAttribute.class);
+   private final static POILogger logger = POILogFactory.getLogger(MAPIDateAttribute.class);
    private Date data;
    
    /**
@@ -43,7 +53,7 @@ public final class MAPIDateAttribute extends MAPIAttribute {
       super(property, type, data);
       
       // The value is a 64 bit Windows Filetime
-      this.data = Util.filetimeToDate(
+      this.data = Filetime.filetimeToDate(
             LittleEndian.getLong(data, 0)
       );
    }
@@ -53,7 +63,10 @@ public final class MAPIDateAttribute extends MAPIAttribute {
    }
    
    public String toString() {
-      return getProperty().toString() + " " + data.toString();
+       DateFormatSymbols dfs = DateFormatSymbols.getInstance(Locale.ROOT);
+       DateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", dfs);
+       df.setTimeZone(LocaleUtil.TIMEZONE_UTC);
+       return getProperty() + " " + df.format(data);
    }
    
    /**
@@ -67,7 +80,7 @@ public final class MAPIDateAttribute extends MAPIAttribute {
          return ((MAPIDateAttribute)attr).getDate();
       }
       
-      logger.log(POILogger.WARN, "Warning, non date property found: " + attr.toString());
+      logger.log(POILogger.WARN, "Warning, non date property found: " + attr);
       return null;
   }
 }

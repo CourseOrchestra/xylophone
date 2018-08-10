@@ -17,7 +17,6 @@
 
 package org.apache.poi.hwpf.model;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
 import org.apache.poi.hwpf.usermodel.CharacterProperties;
@@ -26,6 +25,7 @@ import org.apache.poi.util.Internal;
 import org.apache.poi.util.LittleEndian;
 import org.apache.poi.util.POILogFactory;
 import org.apache.poi.util.POILogger;
+import org.apache.poi.util.StringUtil;
 
 /**
  * Comment me
@@ -40,8 +40,8 @@ public final class StyleDescription implements HDFType
     
   private final static int PARAGRAPH_STYLE = 1;
   private final static int CHARACTER_STYLE = 2;
-  private final static int TABLE_STYLE = 3;
-  private final static int NUMBERING_STYLE = 4;
+  // private final static int TABLE_STYLE = 3;
+  // private final static int NUMBERING_STYLE = 4;
 
   private int _baseLength;
   private StdfBase _stdfBase;
@@ -86,7 +86,7 @@ public final class StyleDescription implements HDFType
         if ( readStdfPost2000 )
         {
             _stdfPost2000 = new StdfPost2000( std, offset );
-            offset += StdfPost2000.getSize();
+            // offset += StdfPost2000.getSize();
         }
 
       //first byte(s) of variable length section of std is the length of the
@@ -104,14 +104,7 @@ public final class StyleDescription implements HDFType
           nameLength = std[nameStart];
       }
 
-      try
-      {
-        _name = new String(std, nameStart, nameLength * multiplier, "UTF-16LE");
-      }
-      catch (UnsupportedEncodingException ignore)
-      {
-        // ignore
-      }
+      _name = StringUtil.getFromUnicodeLE(std, nameStart, (nameLength*multiplier)/2);
 
       //length then null terminator.
       int grupxStart = ((nameLength + 1) * multiplier) + nameStart;
@@ -133,7 +126,7 @@ public final class StyleDescription implements HDFType
 
 
           // the upx will always start on a word boundary.
-          if(upxSize % 2 == 1)
+          if((upxSize & 1) == 1)
           {
               ++varOffset;
           }

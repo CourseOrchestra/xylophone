@@ -93,8 +93,6 @@ public final class SlideListWithText extends RecordContainer {
 				}
 
 				int clen = endPos - i - 1;
-				boolean emptySet = false;
-				if(clen == 0) { emptySet = true; }
 
 				// Create a SlideAtomsSets, not caring if they're empty
 				//if(emptySet) { continue; }
@@ -149,18 +147,22 @@ public final class SlideListWithText extends RecordContainer {
 	}
 
 	public void setInstance(int inst){
-		LittleEndian.putShort(_header, (short)((inst << 4) | 0xF));
+		LittleEndian.putShort(_header, 0, (short)((inst << 4) | 0xF));
 	}
 
 	/**
 	 * Get access to the SlideAtomsSets of the children of this record
 	 */
-	public SlideAtomsSet[] getSlideAtomsSets() { return slideAtomsSets; }
+	public SlideAtomsSet[] getSlideAtomsSets() {
+	    return slideAtomsSets;
+    }
 
 	/**
 	* Get access to the SlideAtomsSets of the children of this record
 	*/
-	public void setSlideAtomsSets( SlideAtomsSet[] sas ) { slideAtomsSets = sas; }
+	public void setSlideAtomsSets( SlideAtomsSet[] sas ) {
+	    slideAtomsSets = sas.clone();
+    }
 
 	/**
 	 * Return the value we were given at creation
@@ -194,7 +196,7 @@ public final class SlideListWithText extends RecordContainer {
 		/** Create one to hold the Records for one Slide's text */
 		public SlideAtomsSet(SlidePersistAtom s, Record[] r) {
 			slidePersistAtom = s;
-			slideRecords = r;
+			slideRecords = r.clone();
 		}
 	}
 }

@@ -46,22 +46,33 @@ public final class Document extends PositionDependentRecordContainer
 	 * Returns the DocumentAtom of this Document
 	 */
 	public DocumentAtom getDocumentAtom() { return documentAtom; }
+	
 	/**
 	 * Returns the Environment of this Notes, which lots of
-	 *  settings for the document in it
+	 * settings for the document in it
 	 */
 	public Environment getEnvironment() { return environment; }
+	
 	/**
 	 * Returns the PPDrawingGroup, which holds an Escher Structure
-	 *  that contains information on pictures in the slides.
+	 * that contains information on pictures in the slides.
 	 */
 	public PPDrawingGroup getPPDrawingGroup() { return ppDrawing; }
+	
 	/**
 	 * Returns the ExObjList, which holds the references to
-	 *  external objects used in the slides. This may be null, if
-	 *  there are no external references.
+	 * external objects used in the slides. This may be null, if
+	 * there are no external references.
+	 *  
+	 * @param create if true, create an ExObjList if it doesn't exist
 	 */
-	public ExObjList getExObjList() { return exObjList; }
+	public ExObjList getExObjList(boolean create) {
+	    if (exObjList == null && create) {
+	        exObjList = new ExObjList();
+	        addChildAfter(exObjList, getDocumentAtom());
+	    }
+	    return exObjList;
+    }
 
 	/**
 	 * Returns all the SlideListWithTexts that are defined for
@@ -175,6 +186,10 @@ public final class Document extends PositionDependentRecordContainer
 		// The new SlideListWithText should go in
 		//  just before the EndDocumentRecord
 		Record endDoc = _children[_children.length - 1];
+		if(endDoc.getRecordType() == RecordTypes.RoundTripCustomTableStyles12Atom.typeID) {
+		    // last record can optionally be a RoundTripCustomTableStyles12Atom
+		    endDoc = _children[_children.length - 2];
+		}
 		if(endDoc.getRecordType() != RecordTypes.EndDocument.typeID) {
 			throw new IllegalStateException("The last child record of a Document should be EndDocument, but it was " + endDoc);
 		}

@@ -18,10 +18,15 @@
 package org.apache.poi.hslf.dev;
 
 import java.io.ByteArrayOutputStream;
-import java.util.Hashtable;
+import java.io.IOException;
+import java.util.Map;
 
-import org.apache.poi.hslf.HSLFSlideShow;
-import org.apache.poi.hslf.record.*;
+import org.apache.poi.hslf.record.CurrentUserAtom;
+import org.apache.poi.hslf.record.PersistPtrHolder;
+import org.apache.poi.hslf.record.PositionDependentRecord;
+import org.apache.poi.hslf.record.Record;
+import org.apache.poi.hslf.record.UserEditAtom;
+import org.apache.poi.hslf.usermodel.HSLFSlideShowImpl;
 import org.apache.poi.util.LittleEndian;
 
 /**
@@ -32,7 +37,7 @@ import org.apache.poi.util.LittleEndian;
 public final class UserEditAndPersistListing {
 	private static byte[] fileContents;
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws IOException {
 		if(args.length < 1) {
 			System.err.println("Need to give a filename");
 			System.exit(1);
@@ -40,16 +45,13 @@ public final class UserEditAndPersistListing {
 
 
 		// Create the slideshow object, for normal working with
-		HSLFSlideShow ss = new HSLFSlideShow(args[0]);
+		HSLFSlideShowImpl ss = new HSLFSlideShowImpl(args[0]);
 		fileContents = ss.getUnderlyingBytes();
 		System.out.println("");
 
 		// Find any persist ones first
-		Record[] records = ss.getRecords();
 		int pos = 0;
-		for(int i=0; i<records.length; i++) {
-			Record r = records[i];
-
+		for(Record r : ss.getRecords()) {
 			if(r.getRecordType() == 6001l) {
 				// PersistPtrFullBlock
 				System.out.println("Found PersistPtrFullBlock at " + pos + " (" + Integer.toHexString(pos) + ")");
@@ -60,11 +62,9 @@ public final class UserEditAndPersistListing {
 				PersistPtrHolder pph = (PersistPtrHolder)r;
 
 				// Check the sheet offsets
-				int[] sheetIDs = pph.getKnownSlideIDs();
-				Hashtable sheetOffsets = pph.getSlideLocationsLookup();
-				for(int j=0; j<sheetIDs.length; j++) {
-					Integer id = Integer.valueOf(sheetIDs[j]);
-					Integer offset = (Integer)sheetOffsets.get(id);
+				Map<Integer,Integer> sheetOffsets = pph.getSlideLocationsLookup();
+				for(int id : pph.getKnownSlideIDs()) {
+					Integer offset = sheetOffsets.get(id);
 
 					System.out.println("  Knows about sheet " + id);
 					System.out.println("    That sheet lives at " + offset);
@@ -89,9 +89,7 @@ public final class UserEditAndPersistListing {
 
 		pos = 0;
 		// Now look for UserEditAtoms
-		for(int i=0; i<records.length; i++) {
-			Record r = records[i];
-
+		for(Record r : ss.getRecords()) {
 			if(r instanceof UserEditAtom) {
 				UserEditAtom uea = (UserEditAtom)r;
 				System.out.println("Found UserEditAtom at " + pos + " (" + Integer.toHexString(pos) + ")");
@@ -114,8 +112,10 @@ public final class UserEditAndPersistListing {
 		CurrentUserAtom cua = ss.getCurrentUserAtom();
 		System.out.println("Checking Current User Atom");
 		System.out.println("  Thinks the CurrentEditOffset is " + cua.getCurrentEditOffset());
-
+		
 		System.out.println("");
+
+		ss.close();
 	}
 
 

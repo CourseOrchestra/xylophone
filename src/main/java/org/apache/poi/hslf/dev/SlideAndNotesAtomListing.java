@@ -17,8 +17,14 @@
 
 package org.apache.poi.hslf.dev;
 
-import org.apache.poi.hslf.*;
-import org.apache.poi.hslf.record.*;
+import java.io.IOException;
+
+import org.apache.poi.hslf.record.Notes;
+import org.apache.poi.hslf.record.NotesAtom;
+import org.apache.poi.hslf.record.Record;
+import org.apache.poi.hslf.record.Slide;
+import org.apache.poi.hslf.record.SlideAtom;
+import org.apache.poi.hslf.usermodel.HSLFSlideShowImpl;
 
 
 /**
@@ -28,13 +34,13 @@ import org.apache.poi.hslf.record.*;
  *  Slides, Master Slides and Notes
  */
 public final class SlideAndNotesAtomListing {
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws IOException {
 		if(args.length < 1) {
 			System.err.println("Need to give a filename");
 			System.exit(1);
 		}
 
-		HSLFSlideShow ss = new HSLFSlideShow(args[0]);
+		HSLFSlideShowImpl ss = new HSLFSlideShowImpl(args[0]);
 		System.out.println("");
 
 		// Find either Slides or Notes
@@ -59,5 +65,7 @@ public final class SlideAndNotesAtomListing {
 				System.out.println("");
 			}
 		}
+		
+		ss.close();
 	}
 }

@@ -38,7 +38,6 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
  * @author Nick Burch
  */
 public final class Word6Extractor extends POIOLE2TextExtractor {
-	private POIFSFileSystem fs;
 	private HWPFOldDocument doc;
 
 	/**
@@ -64,7 +63,6 @@ public final class Word6Extractor extends POIOLE2TextExtractor {
      * @deprecated Use {@link #Word6Extractor(DirectoryNode)} instead
      */
     @Deprecated
-    @SuppressWarnings( "unused" )
     public Word6Extractor( DirectoryNode dir, POIFSFileSystem fs )
             throws IOException
     {
@@ -106,8 +104,8 @@ public final class Word6Extractor extends POIOLE2TextExtractor {
 	            ret[i] = doc.getTextTable().getTextPieces().get(i).getStringBuilder().toString();
 	            
 	            // Fix the line endings
-	            ret[i].replaceAll("\r", "\ufffe");
-                ret[i].replaceAll("\ufffe","\r\n");
+	            ret[i] = ret[i].replaceAll("\r", "\ufffe");
+	            ret[i] = ret[i].replaceAll("\ufffe","\r\n");
 	        }
 	    }
 

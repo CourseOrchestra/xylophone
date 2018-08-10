@@ -20,58 +20,65 @@ package org.apache.poi.hsmf.datatypes;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Locale;
 
 import org.apache.poi.hsmf.datatypes.Types.MAPIType;
 
 public abstract class Chunk {
-   public static final String DEFAULT_NAME_PREFIX = "__substg1.0_";
-   
-   protected int chunkId;
-   protected MAPIType type;
-   protected String namePrefix;
-	
-   protected Chunk(String namePrefix, int chunkId, MAPIType type) {
-      this.namePrefix = namePrefix;
-      this.chunkId = chunkId;
-      this.type = type;
-   }
-   protected Chunk(int chunkId, MAPIType type) {
-       this(DEFAULT_NAME_PREFIX, chunkId, type);
-   }
+    public static final String DEFAULT_NAME_PREFIX = "__substg1.0_";
 
-   /**
-    * Gets the id of this chunk
-    */
-   public int getChunkId() {
-       return this.chunkId;
-   }
+    private final int chunkId;
+    private final MAPIType type;
+    private final String namePrefix;
 
-   /**
-    * Gets the numeric type of this chunk.
-    */
-   public MAPIType getType() {
-       return this.type;
-   }
+    protected Chunk(String namePrefix, int chunkId, MAPIType type) {
+        this.namePrefix = namePrefix;
+        this.chunkId = chunkId;
+        this.type = type;
+    }
 
-   /**
-    * Creates a string to use to identify this chunk in the POI file system object.
-    */
-   public String getEntryName() {
-       String type = this.type.asFileEnding();
+    protected Chunk(int chunkId, MAPIType type) {
+        this(DEFAULT_NAME_PREFIX, chunkId, type);
+    }
 
-       String chunkId = Integer.toHexString(this.chunkId);
-       while(chunkId.length() < 4) chunkId = "0" + chunkId;
+    /**
+     * Gets the id of this chunk
+     */
+    public int getChunkId() {
+        return this.chunkId;
+    }
 
-       return this.namePrefix + chunkId.toUpperCase() + type.toUpperCase();
-   }
+    /**
+     * Gets the numeric type of this chunk.
+     */
+    public MAPIType getType() {
+        return this.type;
+    }
 
-   /**
-    * Writes the value of this chunk back out again.
-    */
-   public abstract void writeValue(OutputStream out) throws IOException;
+    /**
+     * Creates a string to use to identify this chunk in the POI file system
+     * object.
+     */
+    public String getEntryName() {
+        String type = this.type.asFileEnding();
 
-   /**
-    * Reads the value of this chunk using an InputStream
-    */
-   public abstract void readValue(InputStream value) throws IOException;
+        String chunkId = Integer.toHexString(this.chunkId);
+        while (chunkId.length() < 4) {
+            chunkId = "0" + chunkId;
+        }
+
+        return this.namePrefix
+            + chunkId.toUpperCase(Locale.ROOT)
+            + type.toUpperCase(Locale.ROOT);
+    }
+
+    /**
+     * Writes the value of this chunk back out again.
+     */
+    public abstract void writeValue(OutputStream out) throws IOException;
+
+    /**
+     * Reads the value of this chunk using an InputStream
+     */
+    public abstract void readValue(InputStream value) throws IOException;
 }

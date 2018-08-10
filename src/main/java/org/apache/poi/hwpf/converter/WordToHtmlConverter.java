@@ -19,12 +19,15 @@ package org.apache.poi.hwpf.converter;
 import static org.apache.poi.hwpf.converter.AbstractWordUtils.TWIPS_PER_INCH;
 
 import java.io.File;
-import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Stack;
 
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -57,8 +60,6 @@ import org.w3c.dom.Text;
  * This implementation doesn't create images or links to them. This can be
  * changed by overriding {@link #processImage(Element, boolean, Picture)}
  * method.
- * 
- * @author Sergey Vladimirov (vlsergey {at} gmail {dot} com)
  */
 @Beta
 public class WordToHtmlConverter extends AbstractWordConverter
@@ -79,9 +80,27 @@ public class WordToHtmlConverter extends AbstractWordConverter
         }
     }
 
-    private static final POILogger logger = POILogFactory
-            .getLogger( WordToHtmlConverter.class );
+    private static final POILogger logger = POILogFactory.getLogger( WordToHtmlConverter.class );
 
+    private final Deque<BlockProperies> blocksProperies = new LinkedList<BlockProperies>();
+
+    private final HtmlDocumentFacade htmlDocumentFacade;
+
+    private Element notes;
+
+    /**
+     * Creates new instance of {@link WordToHtmlConverter}. Can be used for
+     * output several {@link HWPFDocument}s into single HTML document.
+     * 
+     * @param document XML DOM Document used as HTML document
+     */
+    public WordToHtmlConverter( Document document ) {
+        this.htmlDocumentFacade = new HtmlDocumentFacade( document );
+    }
+
+    public WordToHtmlConverter( HtmlDocumentFacade htmlDocumentFacade ) {
+        this.htmlDocumentFacade = htmlDocumentFacade;
+    }
     
     private static String getSectionStyle( Section section )
     {
@@ -111,51 +130,40 @@ public class WordToHtmlConverter extends AbstractWordConverter
     }
 
     /**
-     * Java main() interface to interact with {@link WordToHtmlConverter}
+     * Java main() interface to interact with {@link WordToHtmlConverter}<p>
      * 
-     * <p>
-     * Usage: WordToHtmlConverter infile outfile
-     * </p>
+     * Usage: WordToHtmlConverter infile outfile<p>
+     * 
      * Where infile is an input .doc file ( Word 95-2007) which will be rendered
      * as HTML into outfile
      */
     public static void main( String[] args )
-    {
-        if ( args.length < 2 )
-        {
-            System.err
-                    .println( "Usage: WordToHtmlConverter <inputFile.doc> <saveTo.html>" );
+    throws IOException, ParserConfigurationException, TransformerException {
+        if ( args.length < 2 ) {
+            System.err.println( "Usage: WordToHtmlConverter <inputFile.doc> <saveTo.html>" );
             return;
         }
 
         System.out.println( "Converting " + args[0] );
         System.out.println( "Saving output to " + args[1] );
-        try
-        {
-            Document doc = WordToHtmlConverter.process( new File( args[0] ) );
 
-            FileWriter out = new FileWriter( args[1] );
-            DOMSource domSource = new DOMSource( doc );
-            StreamResult streamResult = new StreamResult( out );
+        Document doc = WordToHtmlConverter.process( new File( args[0] ) );
 
-            TransformerFactory tf = TransformerFactory.newInstance();
-            Transformer serializer = tf.newTransformer();
-            // TODO set encoding from a command argument
-            serializer.setOutputProperty( OutputKeys.ENCODING, "UTF-8" );
-            serializer.setOutputProperty( OutputKeys.INDENT, "yes" );
-            serializer.setOutputProperty( OutputKeys.METHOD, "html" );
-            serializer.transform( domSource, streamResult );
-            out.close();
-        }
-        catch ( Exception e )
-        {
-            e.printStackTrace();
-        }
+        DOMSource domSource = new DOMSource( doc );
+        StreamResult streamResult = new StreamResult( new File(args[1]) );
+
+        TransformerFactory tf = TransformerFactory.newInstance();
+        Transformer serializer = tf.newTransformer();
+        // TODO set encoding from a command argument
+        serializer.setOutputProperty( OutputKeys.ENCODING, "UTF-8" );
+        serializer.setOutputProperty( OutputKeys.INDENT, "yes" );
+        serializer.setOutputProperty( OutputKeys.METHOD, "html" );
+        serializer.transform( domSource, streamResult );
     }
 
-    static Document process( File docFile ) throws Exception
+    static Document process( File docFile ) throws IOException, ParserConfigurationException
     {
-        final HWPFDocumentCore wordDocument = WordToHtmlUtils.loadDoc( docFile );
+        final HWPFDocumentCore wordDocument = AbstractWordUtils.loadDoc( docFile );
         WordToHtmlConverter wordToHtmlConverter = new WordToHtmlConverter(
                 XMLHelper.getDocumentBuilderFactory().newDocumentBuilder()
                         .newDocument() );
@@ -163,38 +171,17 @@ public class WordToHtmlConverter extends AbstractWordConverter
         return wordToHtmlConverter.getDocument();
     }
 
-    private final Stack<BlockProperies> blocksProperies = new Stack<BlockProperies>();
-
-    private final HtmlDocumentFacade htmlDocumentFacade;
-
-    private Element notes = null;
-
-    /**
-     * Creates new instance of {@link WordToHtmlConverter}. Can be used for
-     * output several {@link HWPFDocument}s into single HTML document.
-     * 
-     * @param document
-     *            XML DOM Document used as HTML document
-     */
-    public WordToHtmlConverter( Document document )
-    {
-        this.htmlDocumentFacade = new HtmlDocumentFacade( document );
-    }
-
-    public WordToHtmlConverter( HtmlDocumentFacade htmlDocumentFacade )
-    {
-        this.htmlDocumentFacade = htmlDocumentFacade;
-    }
-
     @Override
     protected void afterProcess()
     {
-        if ( notes != null )
+        if ( notes != null ) {
             htmlDocumentFacade.getBody().appendChild( notes );
+        }
 
         htmlDocumentFacade.updateStylesheet();
     }
 
+    @Override
     public Document getDocument()
     {
         return htmlDocumentFacade.getDocument();
@@ -211,8 +198,8 @@ public class WordToHtmlConverter extends AbstractWordConverter
         BlockProperies blockProperies = this.blocksProperies.peek();
         Triplet triplet = getCharacterRunTriplet( characterRun );
 
-        if ( WordToHtmlUtils.isNotEmpty( triplet.fontName )
-                && !WordToHtmlUtils.equals( triplet.fontName,
+        if ( AbstractWordUtils.isNotEmpty( triplet.fontName )
+                && !AbstractWordUtils.equals( triplet.fontName,
                         blockProperies.pFontName ) )
         {
             style.append( "font-family:" + triplet.fontName + ";" );
@@ -231,8 +218,9 @@ public class WordToHtmlConverter extends AbstractWordConverter
         }
 
         WordToHtmlUtils.addCharactersProperties( characterRun, style );
-        if ( style.length() != 0 )
+        if ( style.length() != 0 ) {
             htmlDocumentFacade.addStyleClass( span, "s", style.toString() );
+        }
 
         Text textNode = htmlDocumentFacade.createText( text );
         span.appendChild( textNode );
@@ -252,26 +240,31 @@ public class WordToHtmlConverter extends AbstractWordConverter
             parent = bookmarkElement;
         }
 
-        if ( range != null )
+        if ( range != null ) {
             processCharacters( wordDocument, currentTableLevel, range, parent );
+        }
     }
 
     @Override
     protected void processDocumentInformation(
             SummaryInformation summaryInformation )
     {
-        if ( WordToHtmlUtils.isNotEmpty( summaryInformation.getTitle() ) )
+        if ( AbstractWordUtils.isNotEmpty( summaryInformation.getTitle() ) ) {
             htmlDocumentFacade.setTitle( summaryInformation.getTitle() );
+        }
 
-        if ( WordToHtmlUtils.isNotEmpty( summaryInformation.getAuthor() ) )
+        if ( AbstractWordUtils.isNotEmpty( summaryInformation.getAuthor() ) ) {
             htmlDocumentFacade.addAuthor( summaryInformation.getAuthor() );
+        }
 
-        if ( WordToHtmlUtils.isNotEmpty( summaryInformation.getKeywords() ) )
+        if ( AbstractWordUtils.isNotEmpty( summaryInformation.getKeywords() ) ) {
             htmlDocumentFacade.addKeywords( summaryInformation.getKeywords() );
+        }
 
-        if ( WordToHtmlUtils.isNotEmpty( summaryInformation.getComments() ) )
+        if ( AbstractWordUtils.isNotEmpty( summaryInformation.getComments() ) ) {
             htmlDocumentFacade
                     .addDescription( summaryInformation.getComments() );
+        }
     }
 
     @Override
@@ -327,11 +320,13 @@ public class WordToHtmlConverter extends AbstractWordConverter
         Element basicLink = htmlDocumentFacade.createHyperlink( hyperlink );
         currentBlock.appendChild( basicLink );
 
-        if ( textRange != null )
+        if ( textRange != null ) {
             processCharacters( wordDocument, currentTableLevel, textRange,
                     basicLink );
+        }
     }
 
+    @Override
     protected void processImage( Element currentBlock, boolean inlined,
             Picture picture, String imageSourcePath )
     {
@@ -350,11 +345,11 @@ public class WordToHtmlConverter extends AbstractWordConverter
 
         if ( aspectRatioX > 0 )
         {
-            imageWidth = picture.getDxaGoal() * aspectRatioX / 1000
+            imageWidth = picture.getDxaGoal() * aspectRatioX / 1000.f
                     / TWIPS_PER_INCH;
-            cropRight = picture.getDxaCropRight() * aspectRatioX / 1000
+            cropRight = picture.getDxaCropRight() * aspectRatioX / 1000.f
                     / TWIPS_PER_INCH;
-            cropLeft = picture.getDxaCropLeft() * aspectRatioX / 1000
+            cropLeft = picture.getDxaCropLeft() * aspectRatioX / 1000.f
                     / TWIPS_PER_INCH;
         }
         else
@@ -366,11 +361,11 @@ public class WordToHtmlConverter extends AbstractWordConverter
 
         if ( aspectRatioY > 0 )
         {
-            imageHeight = picture.getDyaGoal() * aspectRatioY / 1000
+            imageHeight = picture.getDyaGoal() * aspectRatioY / 1000.f
                     / TWIPS_PER_INCH;
-            cropTop = picture.getDyaCropTop() * aspectRatioY / 1000
+            cropTop = picture.getDyaCropTop() * aspectRatioY / 1000.f
                     / TWIPS_PER_INCH;
-            cropBottom = picture.getDyaCropBottom() * aspectRatioY / 1000
+            cropBottom = picture.getDyaCropBottom() * aspectRatioY / 1000.f
                     / TWIPS_PER_INCH;
         }
         else
@@ -381,7 +376,7 @@ public class WordToHtmlConverter extends AbstractWordConverter
         }
 
         Element root;
-        if ( cropTop != 0 || cropRight != 0 || cropBottom != 0 || cropLeft != 0 )
+        if ( Math.abs(cropTop)+Math.abs(cropRight)+Math.abs(cropBottom)+Math.abs(cropLeft) > 0 )
         {
             float visibleWidth = Math
                     .max( 0, imageWidth - cropLeft - cropRight );
@@ -491,6 +486,7 @@ public class WordToHtmlConverter extends AbstractWordConverter
         flow.appendChild( htmlDocumentFacade.createLineBreak() );
     }
 
+    @Override
     protected void processPageref( HWPFDocumentCore hwpfDocument,
             Element currentBlock, Range textRange, int currentTableLevel,
             String pageref )
@@ -498,11 +494,13 @@ public class WordToHtmlConverter extends AbstractWordConverter
         Element basicLink = htmlDocumentFacade.createHyperlink( "#" + pageref );
         currentBlock.appendChild( basicLink );
 
-        if ( textRange != null )
+        if ( textRange != null ) {
             processCharacters( hwpfDocument, currentTableLevel, textRange,
                     basicLink );
+        }
     }
 
+    @Override
     protected void processParagraph( HWPFDocumentCore hwpfDocument,
             Element parentElement, int currentTableLevel, Paragraph paragraph,
             String bulletText )
@@ -535,13 +533,13 @@ public class WordToHtmlConverter extends AbstractWordConverter
             else
             {
                 pFontSize = -1;
-                pFontName = WordToHtmlUtils.EMPTY;
+                pFontName = AbstractWordUtils.EMPTY;
             }
             blocksProperies.push( new BlockProperies( pFontName, pFontSize ) );
         }
         try
         {
-            if ( WordToHtmlUtils.isNotEmpty( bulletText ) )
+            if ( AbstractWordUtils.isNotEmpty( bulletText ) )
             {
                 if ( bulletText.endsWith( "\t" ) )
                 {
@@ -550,9 +548,9 @@ public class WordToHtmlConverter extends AbstractWordConverter
                      * least simplest case shall be handled
                      */
                     final float defaultTab = TWIPS_PER_INCH / 2;
+                    // char have some space
                     float firstLinePosition = paragraph.getIndentFromLeft()
-                            + paragraph.getFirstLineIndent() + 20; // char have
-                                                                   // some space
+                            + paragraph.getFirstLineIndent() + 20f;
 
                     float nextStop = (float) ( Math.ceil( firstLinePosition
                             / defaultTab ) * defaultTab );
@@ -590,13 +588,15 @@ public class WordToHtmlConverter extends AbstractWordConverter
             blocksProperies.pop();
         }
 
-        if ( style.length() > 0 )
+        if ( style.length() > 0 ) {
             htmlDocumentFacade.addStyleClass( pElement, "p", style.toString() );
+        }
 
         WordToHtmlUtils.compactSpans( pElement );
         return;
     }
 
+    @Override
     protected void processSection( HWPFDocumentCore wordDocument,
             Section section, int sectionCounter )
     {
@@ -618,13 +618,14 @@ public class WordToHtmlConverter extends AbstractWordConverter
                 Integer.MIN_VALUE );
     }
 
+    @Override
     protected void processTable( HWPFDocumentCore hwpfDocument, Element flow,
             Table table )
     {
         Element tableHeader = htmlDocumentFacade.createTableHeader();
         Element tableBody = htmlDocumentFacade.createTableBody();
 
-        final int[] tableCellEdges = WordToHtmlUtils
+        final int[] tableCellEdges = AbstractWordUtils
                 .buildTableCellEdgesArray( table );
         final int tableRows = table.numRows();
 
@@ -676,18 +677,21 @@ public class WordToHtmlConverter extends AbstractWordConverter
                         currentEdgeIndex, tableCell );
                 currentEdgeIndex += colSpan;
 
-                if ( colSpan == 0 )
+                if ( colSpan == 0 ) {
                     continue;
+                }
 
-                if ( colSpan != 1 )
+                if ( colSpan != 1 ) {
                     tableCellElement.setAttribute( "colspan",
                             String.valueOf( colSpan ) );
+                }
 
                 final int rowSpan = getNumberRowsSpanned( table,
                         tableCellEdges, r, c, tableCell );
-                if ( rowSpan > 1 )
+                if ( rowSpan > 1 ) {
                     tableCellElement.setAttribute( "rowspan",
                             String.valueOf( rowSpan ) );
+                }
 
                 processParagraphes( hwpfDocument, tableCellElement, tableCell,
                         table.getTableLevel() );
@@ -697,17 +701,19 @@ public class WordToHtmlConverter extends AbstractWordConverter
                     tableCellElement.appendChild( htmlDocumentFacade
                             .createParagraph() );
                 }
-                if ( tableCellStyle.length() > 0 )
+                if ( tableCellStyle.length() > 0 ) {
                     htmlDocumentFacade.addStyleClass( tableCellElement,
                             tableCellElement.getTagName(),
                             tableCellStyle.toString() );
+                }
 
                 tableRowElement.appendChild( tableCellElement );
             }
 
-            if ( tableRowStyle.length() > 0 )
+            if ( tableRowStyle.length() > 0 ) {
                 tableRowElement.setAttribute( "class", htmlDocumentFacade
                         .getOrCreateCssClass( "r", tableRowStyle.toString() ) );
+            }
 
             if ( tableRow.isTableHeader() )
             {

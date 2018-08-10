@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.NoSuchElementException;
 
-import org.apache.poi.hwpf.model.io.HWPFOutputStream;
 import org.apache.poi.util.Internal;
 import org.apache.poi.util.LittleEndian;
 import org.apache.poi.util.POILogFactory;
@@ -34,7 +33,7 @@ import org.apache.poi.util.POILogger;
 @Internal
 public final class ListTables
 {
-  private static POILogger log = POILogFactory.getLogger(ListTables.class);
+  private final static POILogger log = POILogFactory.getLogger(ListTables.class);
 
     /**
      * Both PlfLst and the following LVLs
@@ -81,9 +80,9 @@ public final class ListTables
     }
 
     public void writeListDataTo( FileInformationBlock fib,
-            HWPFOutputStream tableStream ) throws IOException
+            ByteArrayOutputStream tableStream ) throws IOException
     {
-        final int startOffset = tableStream.getOffset();
+        final int startOffset = tableStream.size();
         fib.setFcPlfLst( startOffset );
 
     int listSize = _listMap.size();
@@ -92,11 +91,10 @@ public final class ListTables
     ByteArrayOutputStream levelBuf = new ByteArrayOutputStream();
 
     byte[] shortHolder = new byte[2];
-    LittleEndian.putShort(shortHolder, (short)listSize);
+    LittleEndian.putShort(shortHolder, 0, (short)listSize);
     tableStream.write(shortHolder);
 
-    for(Integer x : _listMap.keySet()) {
-      ListData lst = _listMap.get(x);
+    for(ListData lst : _listMap.values()) {
       tableStream.write(lst.toByteArray());
       ListLevel[] lvls = lst.getLevels();
       for (int y = 0; y < lvls.length; y++)
@@ -110,12 +108,12 @@ public final class ListTables
          * account for the array of LVLs. -- Page 76 of 621 -- [MS-DOC] --
          * v20110315 Word (.doc) Binary File Format
          */
-        fib.setLcbPlfLst( tableStream.getOffset() - startOffset );
+        fib.setLcbPlfLst( tableStream.size() - startOffset );
         tableStream.write( levelBuf.toByteArray() );
     }
 
     public void writeListOverridesTo( FileInformationBlock fib,
-            HWPFOutputStream tableStream ) throws IOException
+            ByteArrayOutputStream tableStream ) throws IOException
     {
         _plfLfo.writeTo( fib, tableStream );
     }
@@ -136,9 +134,22 @@ public final class ListTables
         return _plfLfo.getIlfoByLsid( lsid );
     }
 
+    /**
+     * Get the ListLevel for a given lsid and level
+     * @param lsid
+     * @param level
+     * @return ListLevel if found, or <code>null</code> if ListData can't be found or if level is > that available
+     */
   public ListLevel getLevel(int lsid, int level)
   {
     ListData lst = _listMap.get(Integer.valueOf(lsid));
+    if (lst == null) {
+        if (log.check(POILogger.WARN)) {
+            log.log(POILogger.WARN, "ListData for " +
+                    lsid + " was null.");
+        }
+        return null;
+    }
     if(level < lst.numLevels()) {
     	ListLevel lvl = lst.getLevels()[level];
     	return lvl;

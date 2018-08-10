@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,7 +31,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.poi.POIDocument;
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.HWPFDocumentCore;
 import org.apache.poi.hwpf.HWPFOldDocument;
@@ -63,7 +61,6 @@ import org.apache.poi.hwpf.usermodel.Picture;
 import org.apache.poi.hwpf.usermodel.Range;
 import org.apache.poi.poifs.common.POIFSConstants;
 import org.apache.poi.poifs.filesystem.DirectoryEntry;
-import org.apache.poi.poifs.filesystem.DirectoryNode;
 import org.apache.poi.poifs.filesystem.Entry;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.util.Beta;
@@ -379,31 +376,27 @@ public final class HWPFLister
                 while ( sprmIt.hasNext() )
                 {
                     SprmOperation sprm = sprmIt.next();
-                    System.out.println( "\t" + sprm.toString() );
+                    System.out.println( "\t" + sprm);
                 }
             }
 
-            if ( true )
+            String text = new Range( chpx.getStart(), chpx.getEnd(),
+                    _doc.getOverallRange() )
             {
-                String text = new Range( chpx.getStart(), chpx.getEnd(),
-                        _doc.getOverallRange() )
+                public String toString()
                 {
-                    public String toString()
-                    {
-                        return "CHPX range (" + super.toString() + ")";
-                    }
-                }.text();
-                StringBuilder stringBuilder = new StringBuilder();
-                for ( char c : text.toCharArray() )
-                {
-                    if ( c < 30 )
-                        stringBuilder
-                                .append( "\\0x" + Integer.toHexString( c ) );
-                    else
-                        stringBuilder.append( c );
+                    return "CHPX range (" + super.toString() + ")";
                 }
-                System.out.println( stringBuilder );
+            }.text();
+            StringBuilder stringBuilder = new StringBuilder();
+            for ( char c : text.toCharArray() )
+            {
+                if ( c < 30 )
+                    stringBuilder.append("\\0x").append(Integer.toHexString(c));
+                else
+                    stringBuilder.append( c );
             }
+            System.out.println( stringBuilder );
         }
     }
 
@@ -458,12 +451,7 @@ public final class HWPFLister
 
     public void dumpFileSystem() throws Exception
     {
-        java.lang.reflect.Field field = POIDocument.class
-                .getDeclaredField( "directory" );
-        field.setAccessible( true );
-        DirectoryNode directoryNode = (DirectoryNode) field.get( _doc );
-
-        System.out.println( dumpFileSystem( directoryNode ) );
+        System.out.println( dumpFileSystem( _doc.getDirectory() ) );
     }
 
     private String dumpFileSystem( DirectoryEntry directory )
@@ -531,10 +519,7 @@ public final class HWPFLister
 
             HWPFDocument doc = (HWPFDocument) _doc;
 
-            java.lang.reflect.Field fMainStream = HWPFDocumentCore.class
-                    .getDeclaredField( "_mainStream" );
-            fMainStream.setAccessible( true );
-            byte[] mainStream = (byte[]) fMainStream.get( _doc );
+            byte[] mainStream = _doc.getMainStream();
 
             PlexOfCps binTable = new PlexOfCps( doc.getTableStream(), doc
                     .getFileInformationBlock().getFcPlcfbtePapx(), doc
@@ -584,12 +569,6 @@ public final class HWPFLister
             }
         }
 
-        Method newParagraph = Paragraph.class.getDeclaredMethod(
-                "newParagraph", Range.class, PAPX.class );
-        newParagraph.setAccessible( true );
-        java.lang.reflect.Field _props = Paragraph.class
-                .getDeclaredField( "_props" );
-        _props.setAccessible( true );
 
         for ( PAPX papx : _doc.getParagraphTable().getParagraphs() )
         {
@@ -597,16 +576,12 @@ public final class HWPFLister
 
             if ( withProperties )
             {
-                Paragraph paragraph = (Paragraph) newParagraph.invoke( null,
-                        _doc.getOverallRange(), papx );
-                System.out.println( _props.get( paragraph ) );
+                Paragraph paragraph = Paragraph.newParagraph( _doc.getOverallRange(), papx );
+                System.out.println( paragraph.getProps() );
             }
 
-            if ( true )
-            {
-                SprmIterator sprmIt = new SprmIterator( papx.getGrpprl(), 2 );
-                dumpSprms( sprmIt, "\t" );
-            }
+            SprmIterator sprmIt = new SprmIterator( papx.getGrpprl(), 2 );
+            dumpSprms( sprmIt, "\t" );
         }
     }
 
@@ -649,7 +624,7 @@ public final class HWPFLister
         while ( sprmIt.hasNext() )
         {
             SprmOperation sprm = sprmIt.next();
-            System.out.println( linePrefix + sprm.toString() );
+            System.out.println( linePrefix + sprm);
         }
     }
 
@@ -659,7 +634,7 @@ public final class HWPFLister
         for ( int p = 0; p < range.numParagraphs(); p++ )
         {
             Paragraph paragraph = range.getParagraph( p );
-            System.out.println( p + ":\t" + paragraph.toString() );
+            System.out.println( p + ":\t" + paragraph);
 
             if ( withText )
                 System.out.println( paragraph.text() );
@@ -678,7 +653,7 @@ public final class HWPFLister
                 .getAllPictures();
         for ( Picture picture : allPictures )
         {
-            System.out.println( picture.toString() );
+            System.out.println(picture);
         }
     }
 

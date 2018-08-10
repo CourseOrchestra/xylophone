@@ -381,7 +381,7 @@ public final class CharacterSprmUncompressor extends SprmUncompressor
 
         //byte cInc = (byte)(((byte)(param & 0xfe00) >>> 4) >> 1);
         byte cInc = (byte) ((operand & 0xff00) >>> 8);
-        cInc = (byte) (cInc >>> 1);
+        cInc >>>= 1;
         if (cInc != 0)
         {
           newCHP.setHps (Math.max (newCHP.getHps () + (cInc * 2), 2));
@@ -389,12 +389,12 @@ public final class CharacterSprmUncompressor extends SprmUncompressor
 
         //byte hpsPos = (byte)((param & 0xff0000) >>> 8);
         byte hpsPos = (byte) ((operand & 0xff0000) >>> 16);
-        if (hpsPos != 0x80)
+        if (hpsPos != (byte)0x80)
         {
           newCHP.setHpsPos (hpsPos);
         }
         boolean fAdjust = (operand & 0x0100) > 0;
-        if (fAdjust && hpsPos != 128 && hpsPos != 0 && oldCHP.getHpsPos () == 0)
+        if (fAdjust && (hpsPos & 0xFF) != 128 && hpsPos != 0 && oldCHP.getHpsPos () == 0)
         {
           newCHP.setHps (Math.max (newCHP.getHps () + ( -2), 2));
         }

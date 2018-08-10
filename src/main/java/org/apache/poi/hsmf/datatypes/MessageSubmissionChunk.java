@@ -19,106 +19,119 @@ package org.apache.poi.hsmf.datatypes;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.poi.hsmf.datatypes.Types.MAPIType;
 import org.apache.poi.util.IOUtils;
+import org.apache.poi.util.LocaleUtil;
 import org.apache.poi.util.POILogFactory;
 import org.apache.poi.util.POILogger;
 
 /**
- * A Chunk that holds the details given back by the
- *  server at submission time.
- * This includes the date the message was given to the
- *  server, and an ID that's used if you want to cancel
- *  a message or similar
+ * A Chunk that holds the details given back by the server at submission time.
+ * This includes the date the message was given to the server, and an ID that's
+ * used if you want to cancel a message or similar
  */
 public class MessageSubmissionChunk extends Chunk {
-   private static POILogger logger = POILogFactory.getLogger(MessageSubmissionChunk.class);
-   private String rawId;
-   private Calendar date;
+    private static final POILogger LOG = POILogFactory.getLogger(MessageSubmissionChunk.class);
+    private String rawId;
+    private Calendar date;
 
-   private static final Pattern datePatern = 
-            Pattern.compile("(\\d\\d)(\\d\\d)(\\d\\d)(\\d\\d)(\\d\\d)(\\d\\d)Z?"); 
+    private static final Pattern datePatern = Pattern
+        .compile("(\\d\\d)(\\d\\d)(\\d\\d)(\\d\\d)(\\d\\d)(\\d\\d)Z?");
 
-   /**
-    * Creates a Byte Chunk.
-    */
-   public MessageSubmissionChunk(String namePrefix, int chunkId, MAPIType type) {
-      super(namePrefix, chunkId, type);
-   }
+    /**
+     * Creates a Byte Chunk.
+     */
+    public MessageSubmissionChunk(String namePrefix, int chunkId,
+            MAPIType type) {
+        super(namePrefix, chunkId, type);
+    }
 
-   /**
-    * Create a Byte Chunk, with the specified
-    *  type.
-    */
-   public MessageSubmissionChunk(int chunkId, MAPIType type) {
-      super(chunkId, type);
-   }
+    /**
+     * Create a Byte Chunk, with the specified type.
+     */
+    public MessageSubmissionChunk(int chunkId, MAPIType type) {
+        super(chunkId, type);
+    }
 
-   public void readValue(InputStream value) throws IOException {
-      // Stored in the file as us-ascii
-      try {
-         byte[] data = IOUtils.toByteArray(value); 
-         rawId = new String(data, "ASCII");
-      } catch(UnsupportedEncodingException e) {
-         throw new RuntimeException("Core encoding not found, JVM broken?", e);
-      }
-      
-      // Now process the date
-      String[] parts = rawId.split(";");
-      for(String part : parts) {
-         if(part.startsWith("l=")) {
-            // Format of this bit appears to be l=<id>-<time>-<number>
-            if(part.indexOf('-') != -1 && 
-                  part.indexOf('-') != part.lastIndexOf('-')) {
-               String dateS = part.substring(part.indexOf('-')+1, part.lastIndexOf('-'));
-               
-               // Should be yymmddhhmmssZ
-               Matcher m = datePatern.matcher(dateS);
-               if(m.matches()) {
-                  date = Calendar.getInstance();
-                  date.set(Calendar.YEAR,  Integer.parseInt(m.group(1)) + 2000);
-                  date.set(Calendar.MONTH, Integer.parseInt(m.group(2)) - 1); // Java is 0 based
-                  date.set(Calendar.DATE,  Integer.parseInt(m.group(3)));
-                  date.set(Calendar.HOUR_OF_DAY, Integer.parseInt(m.group(4)));
-                  date.set(Calendar.MINUTE,      Integer.parseInt(m.group(5)));
-                  date.set(Calendar.SECOND,      Integer.parseInt(m.group(6)));
-                  date.set(Calendar.MILLISECOND, 0);
-               } else {
-            	   logger.log(POILogger.WARN, "Warning - unable to make sense of date " + dateS);
-               }
+    @Override
+    public void readValue(InputStream value) throws IOException {
+        // Stored in the file as us-ascii
+        byte[] data = IOUtils.toByteArray(value);
+        rawId = new String(data, Charset.forName("ASCII"));
+
+        // Now process the date
+        String[] parts = rawId.split(";");
+        for (String part : parts) {
+            if (part.startsWith("l=")) {
+                // Format of this bit appears to be l=<id>-<time>-<number>
+                // ID may contain hyphens.
+
+                String dateS = null;
+                final int numberPartBegin = part.lastIndexOf('-');
+                if (numberPartBegin != -1) {
+                    final int datePartBegin = part.lastIndexOf('-',
+                            numberPartBegin - 1);
+                    if (datePartBegin != -1 &&
+                    // cannot extract date if only one hyphen is in the
+                    // string...
+                            numberPartBegin > datePartBegin) {
+                        dateS = part.substring(datePartBegin + 1,
+                                numberPartBegin);
+                    }
+                }
+                if (dateS != null) {
+                    // Should be yymmddhhmmssZ
+                    Matcher m = datePatern.matcher(dateS);
+                    if (m.matches()) {
+                        date = LocaleUtil.getLocaleCalendar();
+
+                        // work around issues with dates like 1989, which appear as "89" here
+                        int year = Integer.parseInt(m.group(1));
+                        date.set(Calendar.YEAR, year + (year > 80 ? 1900 : 2000));
+
+                        // Java is 0 based
+                        date.set(Calendar.MONTH, Integer.parseInt(m.group(2)) - 1);
+                        date.set(Calendar.DATE, Integer.parseInt(m.group(3)));
+                        date.set(Calendar.HOUR_OF_DAY,
+                                Integer.parseInt(m.group(4)));
+                        date.set(Calendar.MINUTE, Integer.parseInt(m.group(5)));
+                        date.set(Calendar.SECOND, Integer.parseInt(m.group(6)));
+                        date.clear(Calendar.MILLISECOND);
+                    } else {
+                        LOG.log(POILogger.WARN,
+                                "Warning - unable to make sense of date "
+                                        + dateS);
+                    }
+                }
             }
-         }
-      }
-   }
+        }
+    }
 
-   public void writeValue(OutputStream out) throws IOException {
-      try {
-         byte[] data = rawId.getBytes("ASCII"); 
-         out.write(data);
-      } catch(UnsupportedEncodingException e) {
-         throw new RuntimeException("Core encoding not found, JVM broken?", e);
-      }
-   }
-   
-   /**
-    * @return the date that the server accepted the
-    *  message, as found from the message ID it generated.
-    *
-    */
-   public Calendar getAcceptedAtTime() {
-      return date;
-   }
-   
-   /**
-    * @return the full ID that the server generated when
-    *  it accepted the message.
-    */
-   public String getSubmissionId() {
-      return rawId;
-   }
+    @Override
+    public void writeValue(OutputStream out) throws IOException {
+        byte[] data = rawId.getBytes(Charset.forName("ASCII"));
+        out.write(data);
+    }
+
+    /**
+     * @return the date that the server accepted the message, as found from the
+     *         message ID it generated.
+     *
+     */
+    public Calendar getAcceptedAtTime() {
+        return date;
+    }
+
+    /**
+     * @return the full ID that the server generated when it accepted the
+     *         message.
+     */
+    public String getSubmissionId() {
+        return rawId;
+    }
 }

@@ -17,22 +17,21 @@
 
 package org.apache.poi.hslf.record;
 
-import org.apache.poi.util.LittleEndian;
 import java.io.IOException;
 import java.io.OutputStream;
+
+import org.apache.poi.hslf.exceptions.HSLFException;
+import org.apache.poi.util.LittleEndian;
 
 /**
  * A TextHeaderAtom  (type 3999). Holds information on what kind of
  *  text is contained in the TextBytesAtom / TextCharsAtom that follows
  *  straight after
- *
- * @author Nick Burch
  */
 
-public final class TextHeaderAtom extends RecordAtom implements ParentAwareRecord
-{
+public final class TextHeaderAtom extends RecordAtom implements ParentAwareRecord {
+    public static final long _type = RecordTypes.TextHeaderAtom.typeID;
 	private byte[] _header;
-	private static long _type = 3999l;
 	private RecordContainer parentRecord;
 
 	public static final int TITLE_TYPE = 0;
@@ -46,12 +45,26 @@ public final class TextHeaderAtom extends RecordAtom implements ParentAwareRecor
 
 	/** The kind of text it is */
 	private int textType;
+	/** position in the owning SlideListWithText */
+	private int index = -1;
 
 	public int getTextType() { return textType; }
 	public void setTextType(int type) { textType = type; }
+	
+    /**
+     * @return  0-based index of the text run in the SLWT container
+     */
+	public int getIndex() { return index; }
 
-	public RecordContainer getParentRecord() { return parentRecord; }
-	public void setParentRecord(RecordContainer record) { this.parentRecord = record; }
+    /**
+     *  @param index 0-based index of the text run in the SLWT container
+     */
+	public void setIndex(int index) { this.index = index; }
+
+	@Override
+    public RecordContainer getParentRecord() { return parentRecord; }
+	@Override
+    public void setParentRecord(RecordContainer record) { this.parentRecord = record; }
 
 	/* *************** record code follows ********************** */
 
@@ -63,7 +76,7 @@ public final class TextHeaderAtom extends RecordAtom implements ParentAwareRecor
 		if(len < 12) {
 			len = 12;
 			if(source.length - start < 12) {
-				throw new RuntimeException("Not enough data to form a TextHeaderAtom (always 12 bytes long) - found " + (source.length - start));
+				throw new HSLFException("Not enough data to form a TextHeaderAtom (always 12 bytes long) - found " + (source.length - start));
 			}
 		}
 
@@ -90,13 +103,15 @@ public final class TextHeaderAtom extends RecordAtom implements ParentAwareRecor
 	/**
 	 * We are of type 3999
 	 */
-	public long getRecordType() { return _type; }
+	@Override
+    public long getRecordType() { return _type; }
 
 	/**
 	 * Write the contents of the record back, so it can be written
 	 *  to disk
 	 */
-	public void writeOut(OutputStream out) throws IOException {
+	@Override
+    public void writeOut(OutputStream out) throws IOException {
 		// Header - size or type unchanged
 		out.write(_header);
 

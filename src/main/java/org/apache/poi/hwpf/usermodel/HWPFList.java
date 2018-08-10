@@ -17,10 +17,6 @@
 
 package org.apache.poi.hwpf.usermodel;
 
-import org.apache.poi.util.POILogFactory;
-
-import org.apache.poi.util.POILogger;
-
 import org.apache.poi.hwpf.model.ListTables;
 
 import org.apache.poi.util.Internal;
@@ -52,14 +48,11 @@ import org.apache.poi.hwpf.sprm.ParagraphSprmCompressor;
  */
 public final class HWPFList
 {
-    private static POILogger log = POILogFactory.getLogger( HWPFList.class );
-
     private boolean _ignoreLogicalLeftIdentation = false;
     private LFO _lfo;
     private LFOData _lfoData;
     private ListData _listData;
     private ListTables _listTables;
-    private boolean _registered;
     private StyleSheet _styleSheet;
 
     /**
@@ -84,7 +77,6 @@ public final class HWPFList
     {
         _listTables = listTables;
         _styleSheet = styleSheet;
-        _registered = true;
 
         /* See documentation for sprmPIlfo (0x460B) */
         if ( ilfo == 0 || ilfo == 0xF801 )
@@ -218,8 +210,7 @@ public final class HWPFList
         int styleIndex = _listData.getLevelStyle( level );
         CharacterProperties base = _styleSheet.getCharacterStyle( styleIndex );
 
-        byte[] grpprl = CharacterSprmCompressor.compressCharacterProperty( chp,
-                base );
+        byte[] grpprl = CharacterSprmCompressor.compressCharacterProperty( chp, base );
         listLevel.setNumberProperties( grpprl );
     }
 
@@ -237,8 +228,7 @@ public final class HWPFList
         int styleIndex = _listData.getLevelStyle( level );
         ParagraphProperties base = _styleSheet.getParagraphStyle( styleIndex );
 
-        byte[] grpprl = ParagraphSprmCompressor.compressParagraphProperty( pap,
-                base );
+        byte[] grpprl = ParagraphSprmCompressor.compressParagraphProperty( pap, base );
         listLevel.setLevelProperties( grpprl );
     }
 

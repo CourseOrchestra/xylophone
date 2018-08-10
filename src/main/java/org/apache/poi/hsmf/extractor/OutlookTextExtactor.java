@@ -16,19 +16,23 @@
 ==================================================================== */
 package org.apache.poi.hsmf.extractor;
 
+import static org.apache.poi.util.StringUtil.startsWithIgnoreCase;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.TimeZone;
+import java.util.Locale;
 
 import org.apache.poi.POIOLE2TextExtractor;
 import org.apache.poi.hsmf.MAPIMessage;
 import org.apache.poi.hsmf.datatypes.AttachmentChunks;
+import org.apache.poi.hsmf.datatypes.StringChunk;
 import org.apache.poi.hsmf.exceptions.ChunkNotFoundException;
 import org.apache.poi.poifs.filesystem.DirectoryNode;
 import org.apache.poi.poifs.filesystem.NPOIFSFileSystem;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.util.LocaleUtil;
 import org.apache.poi.util.StringUtil.StringsIterator;
 
 /**
@@ -39,18 +43,8 @@ public class OutlookTextExtactor extends POIOLE2TextExtractor {
    public OutlookTextExtactor(MAPIMessage msg) {
       super(msg);
    }
-   /**
-    * Use {@link #OutlookTextExtactor(DirectoryNode)} instead
-    */
-   @Deprecated
-   public OutlookTextExtactor(DirectoryNode poifsDir, POIFSFileSystem fs) throws IOException {
-      this(new MAPIMessage(poifsDir, fs));
-   }
    public OutlookTextExtactor(DirectoryNode poifsDir) throws IOException {
       this(new MAPIMessage(poifsDir));
-   }
-   public OutlookTextExtactor(POIFSFileSystem fs) throws IOException {
-      this(new MAPIMessage(fs));
    }
    public OutlookTextExtactor(NPOIFSFileSystem fs) throws IOException {
       this(new MAPIMessage(fs));
@@ -61,10 +55,16 @@ public class OutlookTextExtactor extends POIOLE2TextExtractor {
    
    public static void main(String[] args) throws Exception {
       for(String filename : args) {
-         OutlookTextExtactor extractor = new OutlookTextExtactor(
-               new NPOIFSFileSystem(new File(filename))
-         );
-         System.out.println( extractor.getText() );
+         NPOIFSFileSystem poifs = null;
+         OutlookTextExtactor extractor = null;
+         try {
+             poifs = new NPOIFSFileSystem(new File(filename));
+             extractor = new OutlookTextExtactor(poifs);
+             System.out.println( extractor.getText() );
+         } finally {
+             if (extractor != null) extractor.close();
+             if (poifs != null) poifs.close();
+         }
       }
    }
 
@@ -117,15 +117,15 @@ public class OutlookTextExtactor extends POIOLE2TextExtractor {
       // Date - try two ways to find it
       try {
          // First try via the proper chunk
-         SimpleDateFormat f = new SimpleDateFormat("E, d MMM yyyy HH:mm:ss Z");
-         f.setTimeZone(TimeZone.getTimeZone("UTC"));
+         SimpleDateFormat f = new SimpleDateFormat("E, d MMM yyyy HH:mm:ss Z", Locale.ROOT);
+         f.setTimeZone(LocaleUtil.getUserTimeZone());
          s.append("Date: " + f.format(msg.getMessageDate().getTime()) + "\n");
       } catch(ChunkNotFoundException e) {
          try {
             // Failing that try via the raw headers 
             String[] headers = msg.getHeaders();
             for(String header: headers) {
-               if(header.toLowerCase().startsWith("date:")) {
+               if(startsWithIgnoreCase(header, "date:")) {
                   s.append(
                         "Date:" + 
                         header.substring(header.indexOf(':')+1) +
@@ -146,12 +146,15 @@ public class OutlookTextExtactor extends POIOLE2TextExtractor {
       // Display attachment names
       // To get the attachments, use ExtractorFactory
       for(AttachmentChunks att : msg.getAttachmentFiles()) {
-         String ats = att.attachLongFileName.getValue();
-         if(att.attachMimeTag != null && 
-               att.attachMimeTag.getValue() != null) {
-            ats = att.attachMimeTag.getValue() + " = " + ats; 
+         StringChunk name = att.getAttachLongFileName();
+         if (name == null) name = att.getAttachFileName();
+         String attName = name == null ? null : name.getValue();
+          
+         if(att.getAttachMimeTag() != null && 
+               att.getAttachMimeTag().getValue() != null) {
+             attName = att.getAttachMimeTag().getValue() + " = " + attName; 
          }
-         s.append("Attachment: " + ats + "\n");
+         s.append("Attachment: " + attName + "\n");
       }
       
       try {

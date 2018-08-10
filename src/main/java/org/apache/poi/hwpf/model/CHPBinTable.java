@@ -17,6 +17,7 @@
 
 package org.apache.poi.hwpf.model;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,7 +32,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.poi.hwpf.model.io.HWPFFileSystem;
-import org.apache.poi.hwpf.model.io.HWPFOutputStream;
 import org.apache.poi.hwpf.sprm.SprmBuffer;
 import org.apache.poi.hwpf.sprm.SprmIterator;
 import org.apache.poi.hwpf.sprm.SprmOperation;
@@ -53,7 +53,7 @@ public class CHPBinTable
             .getLogger( CHPBinTable.class );
 
   /** List of character properties.*/
-  protected ArrayList<CHPX> _textRuns = new ArrayList<CHPX>();
+  protected List<CHPX> _textRuns = new ArrayList<CHPX>();
 
   public CHPBinTable()
   {
@@ -156,16 +156,7 @@ public class CHPBinTable
 
                 if ( hasChp )
                 {
-                    SprmBuffer newSprmBuffer;
-                    try
-                    {
-                        newSprmBuffer = (SprmBuffer) sprmBuffer.clone();
-                    }
-                    catch ( CloneNotSupportedException e )
-                    {
-                        // shall not happen
-                        throw new Error( e );
-                    }
+                    SprmBuffer newSprmBuffer = sprmBuffer.clone();
 
                     CHPX chpx = new CHPX( textPiece.getStart(),
                             textPiece.getEnd(), newSprmBuffer );
@@ -457,14 +448,14 @@ public class CHPBinTable
     public void writeTo( HWPFFileSystem sys, int fcMin,
             CharIndexTranslator translator ) throws IOException
     {
-        HWPFOutputStream docStream = sys.getStream( "WordDocument" );
-        HWPFOutputStream tableStream = sys.getStream( "1Table" );
+        ByteArrayOutputStream docStream = sys.getStream( "WordDocument" );
+        ByteArrayOutputStream tableStream = sys.getStream( "1Table" );
 
         writeTo( docStream, tableStream, fcMin, translator );
     }
 
-    public void writeTo( HWPFOutputStream wordDocumentStream,
-            HWPFOutputStream tableStream, int fcMin,
+    public void writeTo( ByteArrayOutputStream wordDocumentStream,
+            ByteArrayOutputStream tableStream, int fcMin,
             CharIndexTranslator translator ) throws IOException
     {
 
@@ -479,7 +470,7 @@ public class CHPBinTable
         PlexOfCps bte = new PlexOfCps( 4 );
 
     // each FKP must start on a 512 byte page.
-    int docOffset = wordDocumentStream.getOffset();
+    int docOffset = wordDocumentStream.size();
     int mod = docOffset % POIFSConstants.SMALLER_BIG_BLOCK_SIZE;
     if (mod != 0)
     {
@@ -488,7 +479,7 @@ public class CHPBinTable
     }
 
     // get the page number for the first fkp
-    docOffset = wordDocumentStream.getOffset();
+    docOffset = wordDocumentStream.size();
     int pageNum = docOffset/POIFSConstants.SMALLER_BIG_BLOCK_SIZE;
 
         // get the ending fc
@@ -498,7 +489,7 @@ public class CHPBinTable
         int endingFc = translator.getByteIndex( _textRuns.get(
                 _textRuns.size() - 1 ).getEnd() );
 
-    ArrayList<CHPX> overflow = _textRuns;
+    List<CHPX> overflow = _textRuns;
     do
     {
       CHPX startingProp = overflow.get(0);
@@ -520,7 +511,7 @@ public class CHPBinTable
       }
 
       byte[] intHolder = new byte[4];
-      LittleEndian.putInt(intHolder, pageNum++);
+      LittleEndian.putInt(intHolder, 0, pageNum++);
       bte.addProperty(new GenericPropertyNode(start, end, intHolder));
 
     }

@@ -49,7 +49,7 @@ public class MAPIAttribute {
    public MAPIAttribute(MAPIProperty property, int type, byte[] data) {
       this.property = property;
       this.type = type;
-      this.data = data;
+      this.data = data.clone();
    }
 
    public MAPIProperty getProperty() {
@@ -75,7 +75,7 @@ public class MAPIAttribute {
          hex = hex.substring(0, hex.length()-1) + ", ....]";
       }
       
-      return property.toString() + " " + hex;
+      return property + " " + hex;
    }
    
    /**
@@ -111,7 +111,7 @@ public class MAPIAttribute {
          boolean isMV = false;
          boolean isVL = false;
          int typeId = typeAndMV;
-         if( (typeAndMV & Types.MULTIVALUED_FLAG) > 0 ) {
+         if( (typeAndMV & Types.MULTIVALUED_FLAG) != 0 ) {
             isMV = true;
             typeId -= Types.MULTIVALUED_FLAG;
          }

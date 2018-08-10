@@ -17,11 +17,13 @@
 
 package org.apache.poi.hslf.dev;
 
-import org.apache.poi.hslf.HSLFSlideShow;
+import java.io.IOException;
+
 import org.apache.poi.hslf.record.Document;
 import org.apache.poi.hslf.record.Record;
 import org.apache.poi.hslf.record.RecordTypes;
 import org.apache.poi.hslf.record.SlideListWithText;
+import org.apache.poi.hslf.usermodel.HSLFSlideShowImpl;
 
 /**
  * Uses record level code to Documents.
@@ -29,13 +31,13 @@ import org.apache.poi.hslf.record.SlideListWithText;
  *  and reports how many, and what sorts of things they contain
  */
 public final class SLWTListing {
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws IOException {
 		if(args.length < 1) {
 			System.err.println("Need to give a filename");
 			System.exit(1);
 		}
 
-		HSLFSlideShow ss = new HSLFSlideShow(args[0]);
+		HSLFSlideShowImpl ss = new HSLFSlideShowImpl(args[0]);
 
 		// Find the documents, and then their SLWT
 		Record[] records = ss.getRecords();
@@ -79,11 +81,13 @@ public final class SLWTListing {
 					for(int k=0; k<upTo; k++) {
 						Record r = children[k];
 						int typeID = (int)r.getRecordType();
-						String typeName = RecordTypes.recordName(typeID);
+						String typeName = RecordTypes.forTypeID(typeID).name();
 						System.out.println("   - " + typeID + " (" + typeName + ")");
 					}
 				}
 			}
 		}
+		
+		ss.close();
 	}
 }

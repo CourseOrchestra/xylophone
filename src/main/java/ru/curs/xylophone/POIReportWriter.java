@@ -106,7 +106,6 @@ abstract class POIReportWriter extends ReportWriter {
 			}
 			Font fResult = (i == 0) ? result.getFontAt((short) 0) : result
 					.createFont();
-			fResult.setBoldweight(fSource.getBoldweight());
 			// Для XLSX, похоже, не работает...
 			if (this instanceof XLSReportWriter)
 				fResult.setCharSet(fSource.getCharSet());
@@ -128,16 +127,16 @@ abstract class POIReportWriter extends ReportWriter {
 			CellStyle csSource = this.template.getCellStyleAt(i);
 			CellStyle csResult = result.createCellStyle();
 
-			csResult.setAlignment(csSource.getAlignment());
-			csResult.setBorderBottom(csSource.getBorderBottom());
-			csResult.setBorderLeft(csSource.getBorderLeft());
-			csResult.setBorderRight(csSource.getBorderRight());
-			csResult.setBorderTop(csSource.getBorderTop());
+			csResult.setAlignment(csSource.getAlignmentEnum());
+			csResult.setBorderBottom(csSource.getBorderBottomEnum());
+			csResult.setBorderLeft(csSource.getBorderLeftEnum());
+			csResult.setBorderRight(csSource.getBorderRightEnum());
+			csResult.setBorderTop(csSource.getBorderTopEnum());
 			csResult.setBottomBorderColor(csSource.getBottomBorderColor());
 			csResult.setDataFormat(df.getFormat(csSource.getDataFormatString()));
 			csResult.setFillBackgroundColor(csSource.getFillBackgroundColor());
 			csResult.setFillForegroundColor(csSource.getFillForegroundColor());
-			csResult.setFillPattern(csSource.getFillPattern());
+			csResult.setFillPattern(csSource.getFillPatternEnum());
 			Font f = fontMap.get(csSource.getFontIndex());
 			if (f != null)
 				csResult.setFont(f);
@@ -149,7 +148,7 @@ abstract class POIReportWriter extends ReportWriter {
 			csResult.setRightBorderColor(csSource.getRightBorderColor());
 			csResult.setRotation(csSource.getRotation());
 			csResult.setTopBorderColor(csSource.getTopBorderColor());
-			csResult.setVerticalAlignment(csSource.getVerticalAlignment());
+			csResult.setVerticalAlignment(csSource.getVerticalAlignmentEnum());
 			csResult.setWrapText(csSource.getWrapText());
 
 			stylesMap.put(csSource, csResult);

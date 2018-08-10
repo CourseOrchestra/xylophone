@@ -25,11 +25,16 @@ import org.apache.poi.hpbf.model.qcbits.QCTextBit;
 import org.apache.poi.hpbf.model.qcbits.UnknownQCBit;
 import org.apache.poi.poifs.filesystem.DirectoryNode;
 import org.apache.poi.util.LittleEndian;
+import org.apache.poi.util.LocaleUtil;
+import org.apache.poi.util.POILogFactory;
+import org.apache.poi.util.POILogger;
 
 /**
- * Quill -> QuillSub -> CONTENTS
+ * Read Quill Contents (/Quill/QuillSub/CONTENTS) from an HPBF (Publisher .pub) document
  */
 public final class QuillContents extends HPBFPart {
+	private static POILogger logger = POILogFactory.getLogger(QuillContents.class);
+
 	private static final String[] PATH = { "Quill", "QuillSub", "CONTENTS", };
 	private QCBit[] bits;
 
@@ -38,9 +43,10 @@ public final class QuillContents extends HPBFPart {
 
 		// Now parse the first 512 bytes, and produce
 		//  all our bits
+		byte data[] = getData();
 
 		// Check first 8 bytes
-		String f8 = new String(data, 0, 8);
+		String f8 = new String(data, 0, 8, LocaleUtil.CHARSET_1252);
 		if(! f8.equals("CHNKINK ")) {
 			throw new IllegalArgumentException("Expecting 'CHNKINK ' but was '"+f8+"'");
 		}
@@ -52,11 +58,11 @@ public final class QuillContents extends HPBFPart {
 			int offset = 0x20 + i*24;
 			if(data[offset] == 0x18 && data[offset+1] == 0x00) {
 				// Has some data
-				String thingType = new String(data, offset+2, 4);
+				String thingType = new String(data, offset+2, 4, LocaleUtil.CHARSET_1252);
 				int optA = LittleEndian.getUShort(data, offset+6);
 				int optB = LittleEndian.getUShort(data, offset+8);
 				int optC = LittleEndian.getUShort(data, offset+10);
-				String bitType = new String(data, offset+12, 4);
+				String bitType = new String(data, offset+12, 4, LocaleUtil.CHARSET_1252);
 				int from = (int)LittleEndian.getUInt(data, offset+16);
 				int len = (int)LittleEndian.getUInt(data, offset+20);
 
@@ -67,7 +73,13 @@ public final class QuillContents extends HPBFPart {
 				if(bitType.equals("TEXT")) {
 					bits[i] = new QCTextBit(thingType, bitType, bitData);
 				} else if(bitType.equals("PLC ")) {
-					bits[i] = QCPLCBit.createQCPLCBit(thingType, bitType, bitData);
+					try {
+						bits[i] = QCPLCBit.createQCPLCBit(thingType, bitType, bitData);
+					} catch (ArrayIndexOutOfBoundsException e) {
+						// bug 60685: fall back so that the rest of the document can be read
+						logger.log(POILogger.WARN, "Unable to read Quill Contents PLC Bit record. Ignoring this record.");
+						bits[i] = new UnknownQCBit(thingType, bitType, bitData);
+					}
 				} else {
 					bits[i] = new UnknownQCBit(thingType, bitType, bitData);
 				}

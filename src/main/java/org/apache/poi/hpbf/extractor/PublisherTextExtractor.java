@@ -53,10 +53,6 @@ public final class PublisherTextExtractor extends POIOLE2TextExtractor {
    public PublisherTextExtractor(InputStream is) throws IOException {
       this(new POIFSFileSystem(is));
    }
-   @Deprecated
-   public PublisherTextExtractor(DirectoryNode dir, POIFSFileSystem fs) throws IOException {
-      this(new HPBFDocument(dir, fs));
-   }
 
 	/**
 	 * Should a call to getText() return hyperlinks inline
@@ -112,10 +108,14 @@ public final class PublisherTextExtractor extends POIOLE2TextExtractor {
 		}
 
 		for(int i=0; i<args.length; i++) {
-			PublisherTextExtractor te = new PublisherTextExtractor(
-					new FileInputStream(args[i])
-			);
-			System.out.println(te.getText());
+		    FileInputStream fis = new FileInputStream(args[i]);
+		    try {
+		        PublisherTextExtractor te = new PublisherTextExtractor(fis);
+		        System.out.println(te.getText());
+		        te.close();
+		    } finally {
+		        fis.close();
+		    }
 		}
 	}
 }

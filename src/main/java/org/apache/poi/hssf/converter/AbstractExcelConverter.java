@@ -64,9 +64,9 @@ public abstract class AbstractExcelConverter
     private boolean outputLeadingSpacesAsNonBreaking = true;
 
     private boolean outputRowNumbers = true;
-
-	private boolean outputSheetNames = true;
-
+    //[xyl
+    private boolean outputSheetNames = true;
+    //xyl]
     /**
      * Generates name for output as column header in case
      * <tt>{@link #isOutputColumnHeaders()} == true</tt>
@@ -109,12 +109,13 @@ public abstract class AbstractExcelConverter
     {
         return outputHiddenRows;
     }
-    
+
+    //[xyl
     public boolean isOutputSheetNames()
     {
     	return outputSheetNames ;
     }
-
+    //xyl]
     public boolean isOutputLeadingSpacesAsNonBreaking()
     {
         return outputLeadingSpacesAsNonBreaking;
@@ -128,37 +129,33 @@ public abstract class AbstractExcelConverter
     protected boolean isTextEmpty( HSSFCell cell )
     {
         final String value;
-        switch ( cell.getCellType() )
+        switch ( cell.getCellTypeEnum() )
         {
-        case HSSFCell.CELL_TYPE_STRING:
+        case STRING:
             // XXX: enrich
             value = cell.getRichStringCellValue().getString();
             break;
-        case HSSFCell.CELL_TYPE_FORMULA:
-            switch ( cell.getCachedFormulaResultType() )
+        case FORMULA:
+            switch ( cell.getCachedFormulaResultTypeEnum() )
             {
-            case HSSFCell.CELL_TYPE_STRING:
+            case STRING:
                 HSSFRichTextString str = cell.getRichStringCellValue();
                 if ( str == null || str.length() <= 0 )
                     return false;
 
                 value = str.toString();
                 break;
-            case HSSFCell.CELL_TYPE_NUMERIC:
+            case NUMERIC:
                 HSSFCellStyle style = cell.getCellStyle();
-                if ( style == null )
-                {
-                    return false;
-                }
-
-                value = ( _formatter.formatRawCellContents(
-                        cell.getNumericCellValue(), style.getDataFormat(),
-                        style.getDataFormatString() ) );
+                double nval = cell.getNumericCellValue();
+                short df = style.getDataFormat();
+                String dfs = style.getDataFormatString();
+                value = _formatter.formatRawCellContents(nval, df, dfs);
                 break;
-            case HSSFCell.CELL_TYPE_BOOLEAN:
+            case BOOLEAN:
                 value = String.valueOf( cell.getBooleanCellValue() );
                 break;
-            case HSSFCell.CELL_TYPE_ERROR:
+            case ERROR:
                 value = ErrorEval.getText( cell.getErrorCellValue() );
                 break;
             default:
@@ -166,16 +163,16 @@ public abstract class AbstractExcelConverter
                 break;
             }
             break;
-        case HSSFCell.CELL_TYPE_BLANK:
+        case BLANK:
             value = ExcelToHtmlUtils.EMPTY;
             break;
-        case HSSFCell.CELL_TYPE_NUMERIC:
+        case NUMERIC:
             value = _formatter.formatCellValue( cell );
             break;
-        case HSSFCell.CELL_TYPE_BOOLEAN:
+        case BOOLEAN:
             value = String.valueOf( cell.getBooleanCellValue() );
             break;
-        case HSSFCell.CELL_TYPE_ERROR:
+        case ERROR:
             value = ErrorEval.getText( cell.getErrorCellValue() );
             break;
         default:
@@ -195,11 +192,12 @@ public abstract class AbstractExcelConverter
         this.outputColumnHeaders = outputColumnHeaders;
     }
 
+    //[xyl
     public void setOutputSheetNames( boolean outputSheetNames )
     {
         this.outputSheetNames = outputSheetNames;
     }
-    
+    //xyl]
     
     public void setOutputHiddenColumns( boolean outputZeroWidthColumns )
     {

@@ -21,7 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.zip.InflaterInputStream;
 
@@ -42,40 +42,19 @@ import org.apache.poi.util.StringUtil;
 /**
  * Represents embedded picture extracted from Word Document
  */
-public final class Picture
-{
-    @Deprecated
-    public static final byte[] BMP = new byte[] { 'B', 'M' };
+public final class Picture {
+    private static final POILogger log = POILogFactory
+            .getLogger( Picture.class );
 
     public static final byte[] COMPRESSED1 = { (byte) 0xFE, 0x78, (byte) 0xDA };
 
     public static final byte[] COMPRESSED2 = { (byte) 0xFE, 0x78, (byte) 0x9C };
 
-    @Deprecated
-    public static final byte[] EMF = { 0x01, 0x00, 0x00, 0x00 };
-
-    @Deprecated
-    public static final byte[] GIF = new byte[] { 'G', 'I', 'F' };
     public static final byte[] IHDR = new byte[] { 'I', 'H', 'D', 'R' };
-    @Deprecated
-    public static final byte[] JPG = new byte[] { (byte) 0xFF, (byte) 0xD8 };
-    private static final POILogger log = POILogFactory
-            .getLogger( Picture.class );
-    @Deprecated
-    public static final byte[] PNG = new byte[] { (byte) 0x89, 0x50, 0x4E,
-            0x47, 0x0D, 0x0A, 0x1A, 0x0A };
-    @Deprecated
-    public static final byte[] TIFF = new byte[] { 0x49, 0x49, 0x2A, 0x00 };
 
     @Deprecated
-    public static final byte[] TIFF1 = new byte[] { 0x4D, 0x4D, 0x00, 0x2A };
-    @Deprecated
-    public static final byte[] WMF1 = { (byte) 0xD7, (byte) 0xCD, (byte) 0xC6,
-            (byte) 0x9A, 0x00, 0x00 };
-    // Windows 3.x
-    @Deprecated
-    public static final byte[] WMF2 = { 0x01, 0x00, 0x09, 0x00, 0x00, 0x03 }; // Windows
-                                                                              // 3.x
+    private static final byte[] PNG = new byte[] { (byte) 0x89, 0x50, 0x4E,
+            0x47, 0x0D, 0x0A, 0x1A, 0x0A };
 
     private static int getBigEndianInt( byte[] data, int offset )
     {
@@ -107,7 +86,7 @@ public final class Picture
 
     private PICF _picf;
     private PICFAndOfficeArtData _picfAndOfficeArtData;
-    private List<? extends EscherRecord> _blipRecords;
+    private final List<? extends EscherRecord> _blipRecords;
 
     private byte[] content;
     private int dataBlockStartOfsset;
@@ -122,24 +101,23 @@ public final class Picture
      */
     public Picture( EscherBlipRecord blipRecord )
     {
-       this._blipRecords = Arrays.asList(new EscherBlipRecord[] {blipRecord});
+       this._blipRecords = Collections.singletonList(blipRecord);
     }
 
     /**
      * Builds a Picture object for a Picture stored in the
      *  DataStream
      */
-    public Picture( int dataBlockStartOfsset, byte[] _dataStream,
-            boolean fillBytes )
-    {
-        _picfAndOfficeArtData = new PICFAndOfficeArtData( _dataStream,
-                dataBlockStartOfsset );
+    public Picture( int dataBlockStartOfsset, byte[] _dataStream, boolean fillBytes ) { // NOSONAR
+        _picfAndOfficeArtData = new PICFAndOfficeArtData( _dataStream, dataBlockStartOfsset );
         _picf = _picfAndOfficeArtData.getPicf();
 
         this.dataBlockStartOfsset = dataBlockStartOfsset;
 
-        if ( _picfAndOfficeArtData != null && _picfAndOfficeArtData.getBlipRecords() != null) {
-           _blipRecords = _picfAndOfficeArtData.getBlipRecords();
+        if ( _picfAndOfficeArtData.getBlipRecords() != null) {
+            _blipRecords = _picfAndOfficeArtData.getBlipRecords();
+        } else {
+            _blipRecords = Collections.emptyList();
         }
         
         if ( fillBytes ) {
@@ -209,7 +187,7 @@ public final class Picture
         /*
          * http://www.codecomments.com/archive281-2004-3-158083.html
          * 
-         * Algorhitm proposed by Patrick TJ McPhee:
+         * Algorithm proposed by Patrick TJ McPhee:
          * 
          * read 2 bytes make sure they are 'ffd8'x repeatedly: read 2 bytes make
          * sure the first one is 'ff'x if the second one is 'd9'x stop else if
@@ -303,26 +281,6 @@ public final class Picture
     }
 
     /**
-     * @return the horizontal aspect ratio for picture provided by user
-     * @deprecated use more precise {@link #getHorizontalScalingFactor()}
-     */
-    @Deprecated
-    public int getAspectRatioX()
-    {
-        return _picf.getMx() / 10;
-    }
-
-    /**
-     * @return the vertical aspect ratio for picture provided by user
-     * @deprecated use more precise {@link #getVerticalScalingFactor()}
-     */
-    @Deprecated
-    public int getAspectRatioY()
-    {
-        return _picf.getMy() / 10;
-    }
-
-    /**
      * @return picture's content as byte array
      */
     public byte[] getContent()
@@ -333,6 +291,7 @@ public final class Picture
 
     /**
      * @return The amount the picture has been cropped on the left in twips
+     * @deprecated POI 3.8 beta 4.
      */
     @Deprecated
     public int getDxaCropLeft()
@@ -360,6 +319,7 @@ public final class Picture
 
     /**
      * @return The amount the picture has been cropped on the right in twips
+     * @deprecated POI 3.8 beta 4.
      */
     @Deprecated
     public int getDxaCropRight()
@@ -380,6 +340,7 @@ public final class Picture
 
     /**
      * @return The amount the picture has been cropped on the bottom in twips
+     * @deprecated POI 3.8 beta 5.
      */
     @Deprecated
     public int getDyaCropBottom()
@@ -389,6 +350,7 @@ public final class Picture
 
     /**
      * @return The amount the picture has been cropped on the top in twips
+     * @deprecated POI 3.8 beta 5.
      */
     @Deprecated
     public int getDyaCropTop()
@@ -440,10 +402,11 @@ public final class Picture
     }
 
     /**
-     * Returns picture's content as it stored in Word file, i.e. possibly in
+     * Returns picture's content as stored in the Word file, i.e. possibly in
      * compressed form.
      * 
-     * @return picture's content as it stored in Word file
+     * @return picture's content as it stored in Word file or an empty byte array
+     *      if it cannot be read.
      */
     public byte[] getRawContent()
     {
@@ -459,8 +422,11 @@ public final class Picture
 
         if ( escherRecord instanceof EscherBSERecord )
         {
-            return ( (EscherBSERecord) escherRecord ).getBlipRecord()
-                    .getPicturedata();
+            EscherBlipRecord blip = ( (EscherBSERecord) escherRecord ).getBlipRecord();
+            if (blip != null) {
+                return blip.getPicturedata();
+            
+            }
         }
         return new byte[0];
     }
@@ -622,10 +588,10 @@ public final class Picture
      */
     public void writeImageContent( OutputStream out ) throws IOException
     {
-        byte[] content = getContent();
-        if ( content != null && content.length > 0 )
+        byte[] c = getContent();
+        if ( c != null && c.length > 0 )
         {
-            out.write( content, 0, content.length );
+            out.write( c, 0, c.length );
         }
     }
 

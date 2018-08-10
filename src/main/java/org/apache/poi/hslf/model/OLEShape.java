@@ -17,42 +17,51 @@
 
 package org.apache.poi.hslf.model;
 
-import org.apache.poi.ddf.*;
-import org.apache.poi.hslf.usermodel.SlideShow;
-import org.apache.poi.hslf.usermodel.ObjectData;
-import org.apache.poi.hslf.record.ExObjList;
-import org.apache.poi.hslf.record.Record;
+import org.apache.poi.ddf.EscherContainerRecord;
+import org.apache.poi.ddf.EscherProperties;
+import org.apache.poi.ddf.EscherSpRecord;
 import org.apache.poi.hslf.record.ExEmbed;
+import org.apache.poi.hslf.record.ExObjList;
+import org.apache.poi.hslf.record.ExObjRefAtom;
+import org.apache.poi.hslf.record.HSLFEscherClientDataRecord;
+import org.apache.poi.hslf.record.Record;
 import org.apache.poi.hslf.record.RecordTypes;
-import org.apache.poi.util.LittleEndian;
+import org.apache.poi.hslf.usermodel.HSLFObjectData;
+import org.apache.poi.hslf.usermodel.HSLFPictureData;
+import org.apache.poi.hslf.usermodel.HSLFPictureShape;
+import org.apache.poi.hslf.usermodel.HSLFShape;
+import org.apache.poi.hslf.usermodel.HSLFSlideShow;
+import org.apache.poi.hslf.usermodel.HSLFTextParagraph;
+import org.apache.poi.sl.usermodel.ShapeContainer;
+import org.apache.poi.util.POILogFactory;
 import org.apache.poi.util.POILogger;
 
 
 /**
  * A shape representing embedded OLE obejct.
- *
- * @author Yegor Kozlov
  */
-public final class OLEShape extends Picture {
-    protected ExEmbed _exEmbed;
+public final class OLEShape extends HSLFPictureShape {
+    private static final POILogger LOG = POILogFactory.getLogger(OLEShape.class);
+
+    private ExEmbed _exEmbed;
 
     /**
      * Create a new <code>OLEShape</code>
      *
-    * @param idx the index of the picture
+    * @param data the picture data
      */
-    public OLEShape(int idx){
-        super(idx);
+    public OLEShape(HSLFPictureData data){
+        super(data);
     }
 
     /**
      * Create a new <code>OLEShape</code>
      *
-     * @param idx the index of the picture
+     * @param data the picture data
      * @param parent the parent shape
      */
-    public OLEShape(int idx, Shape parent) {
-        super(idx, parent);
+    public OLEShape(HSLFPictureData data, ShapeContainer<HSLFShape,HSLFTextParagraph> parent) {
+        super(data, parent);
     }
 
     /**
@@ -62,7 +71,7 @@ public final class OLEShape extends Picture {
       *        this picture in the <code>Slide</code>
       * @param parent the parent shape of this picture
       */
-     protected OLEShape(EscherContainerRecord escherRecord, Shape parent){
+    public OLEShape(EscherContainerRecord escherRecord, ShapeContainer<HSLFShape,HSLFTextParagraph> parent){
         super(escherRecord, parent);
     }
 
@@ -88,26 +97,19 @@ public final class OLEShape extends Picture {
     	EscherSpRecord spRecord = ecr.getChildById(EscherSpRecord.RECORD_ID);
         spRecord.setFlags(spRecord.getFlags()|EscherSpRecord.FLAG_OLESHAPE);
 
-        EscherContainerRecord uerCont = ecr.getChildById((short)RecordTypes.EscherClientData);
-        if (uerCont == null) {
-        	uerCont = new EscherContainerRecord();
-        	ecr.addChildRecord(uerCont);
+        HSLFEscherClientDataRecord cldata = getClientData(true);
+        ExObjRefAtom uer = null;
+        for (Record r : cldata.getHSLFChildRecords()) {
+            if (r.getRecordType() == RecordTypes.ExObjRefAtom.typeID) {
+                uer = (ExObjRefAtom)r;
+                break;
+            }
         }
-        uerCont.setRecordId((short)RecordTypes.EscherClientData);
-        uerCont.setVersion((short)0x000F); // yes, we are still a container ...
-
-        UnknownEscherRecord uer = uerCont.getChildById((short)RecordTypes.ExObjRefAtom.typeID);
         if (uer == null) {
-        	uer = new UnknownEscherRecord();
-        	uerCont.addChildRecord(uer);
+        	uer = new ExObjRefAtom();
+        	cldata.addChild(uer);
         }
-        
-        byte uerData[] = new byte[12];
-        LittleEndian.putShort( uerData, 0, (short)0 ); // options = 0
-        LittleEndian.putShort( uerData, 2, (short)RecordTypes.ExObjRefAtom.typeID); // recordId
-        LittleEndian.putInt( uerData, 4, 4 ); // remaining bytes
-        LittleEndian.putInt( uerData, 8, objectId ); // the data
-        uer.fillFields(uerData, 0, null);        
+        uer.setExObjIdRef(objectId);
     }
     
     
@@ -116,13 +118,14 @@ public final class OLEShape extends Picture {
      *
      * @return the unique identifier for the OLE object
      */
-    public ObjectData getObjectData(){
-        SlideShow ppt = getSheet().getSlideShow();
-        ObjectData[] ole = ppt.getEmbeddedObjects();
+    @SuppressWarnings("resource")
+    public HSLFObjectData getObjectData(){
+        HSLFSlideShow ppt = getSheet().getSlideShow();
+        HSLFObjectData[] ole = ppt.getEmbeddedObjects();
 
         //persist reference
         ExEmbed exEmbed = getExEmbed();
-        ObjectData data = null;
+        HSLFObjectData data = null;
         if(exEmbed != null) {
             int ref = exEmbed.getExOleObjAtom().getObjStgDataRef();
 
@@ -133,7 +136,7 @@ public final class OLEShape extends Picture {
             }
         }
         if (data==null) {
-            logger.log(POILogger.WARN, "OLE data not found");
+            LOG.log(POILogger.WARN, "OLE data not found");
         }
 
         return data;
@@ -153,13 +156,14 @@ public final class OLEShape extends Picture {
      * 6. MetaFile( 4033), optional
      * </p>
      */
+    @SuppressWarnings("resource")
     public ExEmbed getExEmbed(){
         if(_exEmbed == null){
-            SlideShow ppt = getSheet().getSlideShow();
+            HSLFSlideShow ppt = getSheet().getSlideShow();
 
-            ExObjList lst = ppt.getDocumentRecord().getExObjList();
+            ExObjList lst = ppt.getDocumentRecord().getExObjList(false);
             if(lst == null){
-                logger.log(POILogger.WARN, "ExObjList not found");
+                LOG.log(POILogger.WARN, "ExObjList not found");
                 return null;
             }
 
@@ -181,7 +185,8 @@ public final class OLEShape extends Picture {
      * @return the instance name of the embedded object
      */
     public String getInstanceName(){
-        return getExEmbed().getMenuName();
+        ExEmbed ee = getExEmbed();
+        return (ee == null) ? null : ee.getMenuName();
     }
 
     /**
@@ -191,7 +196,8 @@ public final class OLEShape extends Picture {
      * @return the full name of the embedded object
      */
     public String getFullName(){
-        return getExEmbed().getClipboardName();
+        ExEmbed ee = getExEmbed();
+        return (ee == null) ? null : ee.getClipboardName();
     }
 
     /**
@@ -202,6 +208,7 @@ public final class OLEShape extends Picture {
      * @return the ProgID
      */
     public String getProgID(){
-        return getExEmbed().getProgId();
+        ExEmbed ee = getExEmbed();
+        return (ee == null) ? null : ee.getProgId();
     }
 }

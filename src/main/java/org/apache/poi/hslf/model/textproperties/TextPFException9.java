@@ -21,7 +21,7 @@
  */
 package org.apache.poi.hslf.model.textproperties;
 
-import org.apache.poi.hslf.record.TextAutoNumberSchemeEnum;
+import org.apache.poi.sl.usermodel.AutoNumberingScheme;
 import org.apache.poi.util.LittleEndian;
 
 /**
@@ -41,12 +41,12 @@ public class TextPFException9 {
 	private final byte mask4;
 	private final Short bulletBlipRef;
 	private final Short fBulletHasAutoNumber;
-	private final TextAutoNumberSchemeEnum autoNumberScheme;
-	private final static TextAutoNumberSchemeEnum DEFAULT_AUTONUMBER_SHEME = TextAutoNumberSchemeEnum.ANM_ArabicPeriod;
+	private final AutoNumberingScheme autoNumberScheme;
+	private final static AutoNumberingScheme DEFAULT_AUTONUMBER_SHEME = AutoNumberingScheme.arabicPeriod;
 	private final Short autoNumberStartNumber;
-	private final static Short DEFAULT_START_NUMBER = new Short((short)1);
+	private final static Short DEFAULT_START_NUMBER = 1;
 	private final int recordLength;
-	public TextPFException9(final byte[] source, final int startIndex) {
+	public TextPFException9(final byte[] source, final int startIndex) { // NOSONAR
 		//this.mask1 = source[startIndex];
 		//this.mask2 = source[startIndex + 1];
 		this.mask3 = source[startIndex + 2];
@@ -71,7 +71,7 @@ public class TextPFException9 {
 			this.autoNumberScheme = null;
 			this.autoNumberStartNumber = null;
 		} else {
-			this.autoNumberScheme = TextAutoNumberSchemeEnum.valueOf(LittleEndian.getShort(source, index));
+			this.autoNumberScheme = AutoNumberingScheme.forNativeID(LittleEndian.getShort(source, index));
 			index +=2;
 			this.autoNumberStartNumber = LittleEndian.getShort(source, index);
 			index +=2;
@@ -85,7 +85,7 @@ public class TextPFException9 {
 	public Short getfBulletHasAutoNumber() {
 		return fBulletHasAutoNumber;
 	}
-	public TextAutoNumberSchemeEnum getAutoNumberScheme() {
+	public AutoNumberingScheme getAutoNumberScheme() {
 		if (null != this.autoNumberScheme) {
 			return this.autoNumberScheme;
 		}
