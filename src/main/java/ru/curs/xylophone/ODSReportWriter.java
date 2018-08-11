@@ -42,53 +42,53 @@ import java.io.InputStream;
  */
 final class ODSReportWriter extends ReportWriter {
 
-	ODSReportWriter(InputStream template, InputStream templateCopy) throws XML2SpreadSheetError {
-		// TODO Auto-generated constructor stub
-		throw new XML2SpreadSheetError("ODS is not implemented yet!..");
-	}
+    ODSReportWriter(InputStream template, InputStream templateCopy) throws XML2SpreadSheetError {
+        // TODO Auto-generated constructor stub
+        throw new XML2SpreadSheetError("ODS is not implemented yet!..");
+    }
 
-	@Override
-	void newSheet(String sheetName, String sourceSheet,
-			int startRepeatingColumn, int endRepeatingColumn,
-			int startRepeatingRow, int endRepeatingRow) {
-		// TODO Auto-generated method stub
+    @Override
+    void newSheet(String sheetName, String sourceSheet,
+            int startRepeatingColumn, int endRepeatingColumn,
+            int startRepeatingRow, int endRepeatingRow) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	void putSection(XMLContext context, CellAddress growthPoint2,
-			String sourceSheet, RangeAddress range) {
-		// TODO Auto-generated method stub
+    @Override
+    void putSection(XMLContext context, CellAddress growthPoint2,
+            String sourceSheet, RangeAddress range) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	public void flush() throws XML2SpreadSheetError {
-		// TODO Auto-generated method stub
+    @Override
+    public void flush() throws XML2SpreadSheetError {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	void mergeUp(CellAddress a1, CellAddress a2) {
-		// TODO Auto-generated method stub
+    @Override
+    void mergeUp(CellAddress a1, CellAddress a2) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	void addNamedRegion(String name, CellAddress a1, CellAddress a2) {
-		// TODO Auto-generated method stub
+    @Override
+    void addNamedRegion(String name, CellAddress a1, CellAddress a2) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	void putRowBreak(int rowNumber) {
-		// TODO Auto-generated method stub
+    @Override
+    void putRowBreak(int rowNumber) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	void putColBreak(int colNumber) {
-		// TODO Auto-generated method stub
+    @Override
+    void putColBreak(int colNumber) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 }

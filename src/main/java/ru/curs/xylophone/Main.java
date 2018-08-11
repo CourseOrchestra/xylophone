@@ -45,100 +45,100 @@ import java.io.FileOutputStream;
  *
  */
 public class Main {
-	private static final String DATA = "-data";
-	private static final String TEMPLATE = "-template";
-	private static final String DESCR = "-descr";
-	private static final String OUT = "-out";
-	private static final String SAX = "-sax";
-	private static final String COPYTEMPLATE = "-copytemplate";
+    private static final String DATA = "-data";
+    private static final String TEMPLATE = "-template";
+    private static final String DESCR = "-descr";
+    private static final String OUT = "-out";
+    private static final String SAX = "-sax";
+    private static final String COPYTEMPLATE = "-copytemplate";
 
-	private enum State {
-		READTOKEN, READDATA, READTEMPLATE, READDESCR, READOUT,
-	};
+    private enum State {
+        READTOKEN, READDATA, READTEMPLATE, READDESCR, READOUT,
+    };
 
-	/**
-	 * Главный метод класса.
-	 *
-	 * @param args
-	 *            аргументы
-	 * @throws XML2SpreadSheetError
-	 *             в случае, если произошла ошибка конвертации
-	 * @throws FileNotFoundException
-	 *             в случае, если файл не найден
-	 */
-	public static void main(String[] args) throws FileNotFoundException,
-			XML2SpreadSheetError {
+    /**
+     * Главный метод класса.
+     *
+     * @param args
+     *            аргументы
+     * @throws XML2SpreadSheetError
+     *             в случае, если произошла ошибка конвертации
+     * @throws FileNotFoundException
+     *             в случае, если файл не найден
+     */
+    public static void main(String[] args) throws FileNotFoundException,
+            XML2SpreadSheetError {
 
-		FileInputStream iff = null;
-		File descr = null;
-		File template = null;
-		FileOutputStream output = null;
-		boolean useSAX = false;
-		boolean copyTemplate = false;
+        FileInputStream iff = null;
+        File descr = null;
+        File template = null;
+        FileOutputStream output = null;
+        boolean useSAX = false;
+        boolean copyTemplate = false;
 
-		State state = State.READTOKEN;
+        State state = State.READTOKEN;
 
-		for (String s : args)
-			switch (state) {
-			case READTOKEN:
-				if (DATA.equalsIgnoreCase(s))
-					state = State.READDATA;
-				else if (TEMPLATE.equalsIgnoreCase(s))
-					state = State.READTEMPLATE;
-				else if (DESCR.equalsIgnoreCase(s))
-					state = State.READDESCR;
-				else if (OUT.equalsIgnoreCase(s))
-					state = State.READOUT;
-				else if (SAX.equalsIgnoreCase(s))
-					useSAX = true;
-				else if (COPYTEMPLATE.equalsIgnoreCase(s))
-					copyTemplate = true;
-				else
-					showHelp();
-				break;
-			case READDATA:
-				iff = new FileInputStream(new File(s));
-				state = State.READTOKEN;
-				break;
-			case READTEMPLATE:
-				template = new File(s);
-				state = State.READTOKEN;
-				break;
-			case READDESCR:
-				descr = new File(s);
-				state = State.READTOKEN;
-				break;
-			case READOUT:
-				output = new FileOutputStream(new File(s));
-				state = State.READTOKEN;
-				break;
-			default:
-				break;
-			}
+        for (String s : args)
+            switch (state) {
+            case READTOKEN:
+                if (DATA.equalsIgnoreCase(s))
+                    state = State.READDATA;
+                else if (TEMPLATE.equalsIgnoreCase(s))
+                    state = State.READTEMPLATE;
+                else if (DESCR.equalsIgnoreCase(s))
+                    state = State.READDESCR;
+                else if (OUT.equalsIgnoreCase(s))
+                    state = State.READOUT;
+                else if (SAX.equalsIgnoreCase(s))
+                    useSAX = true;
+                else if (COPYTEMPLATE.equalsIgnoreCase(s))
+                    copyTemplate = true;
+                else
+                    showHelp();
+                break;
+            case READDATA:
+                iff = new FileInputStream(new File(s));
+                state = State.READTOKEN;
+                break;
+            case READTEMPLATE:
+                template = new File(s);
+                state = State.READTOKEN;
+                break;
+            case READDESCR:
+                descr = new File(s);
+                state = State.READTOKEN;
+                break;
+            case READOUT:
+                output = new FileOutputStream(new File(s));
+                state = State.READTOKEN;
+                break;
+            default:
+                break;
+            }
 
-		checkParams(iff, descr, template, output);
-		XML2Spreadsheet.process(iff, descr, template, useSAX, copyTemplate,
-				output);
+        checkParams(iff, descr, template, output);
+        XML2Spreadsheet.process(iff, descr, template, useSAX, copyTemplate,
+                output);
 
-		System.out.println("Spreadsheet created successfully.");
-	}
+        System.out.println("Spreadsheet created successfully.");
+    }
 
-	private static void checkParams(FileInputStream iff, File descr,
-			File template, FileOutputStream output) {
-		if (iff == null || descr == null || template == null || output == null)
-			showHelp();
-	}
+    private static void checkParams(FileInputStream iff, File descr,
+            File template, FileOutputStream output) {
+        if (iff == null || descr == null || template == null || output == null)
+            showHelp();
+    }
 
-	private static void showHelp() {
-		System.out
-				.println("XML2Spreadsheet should be called with the following parameters (any order):");
-		System.out.println(DATA + " XML data file");
-		System.out.println(TEMPLATE + " XLS/XLSX template file");
-		System.out.println(DESCR + " descriptor file");
-		System.out.println("[" + SAX
-				+ "] use SAX engine (instead of DOM) to parse data file");
-		System.out.println(OUT + " output file");
+    private static void showHelp() {
+        System.out
+                .println("XML2Spreadsheet should be called with the following parameters (any order):");
+        System.out.println(DATA + " XML data file");
+        System.out.println(TEMPLATE + " XLS/XLSX template file");
+        System.out.println(DESCR + " descriptor file");
+        System.out.println("[" + SAX
+                + "] use SAX engine (instead of DOM) to parse data file");
+        System.out.println(OUT + " output file");
 
-		System.exit(1);
-	}
+        System.exit(1);
+    }
 }

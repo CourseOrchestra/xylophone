@@ -39,14 +39,14 @@ package ru.curs.xylophone;
  * Тип вывода: ODS, XLS или XLSX.
  */
 public enum OutputType {
-	/**
-	 * Формат OpenOffice.
-	 */
-	ODS, /**
-	 * Формат MS Office 97-2003.
-	 */
-	XLS, /**
-	 * Формат MS Office Open Document Format.
-	 */
-	XLSX,
+    /**
+     * Формат OpenOffice.
+     */
+    ODS, /**
+     * Формат MS Office 97-2003.
+     */
+    XLS, /**
+     * Формат MS Office Open Document Format.
+     */
+    XLSX,
 }

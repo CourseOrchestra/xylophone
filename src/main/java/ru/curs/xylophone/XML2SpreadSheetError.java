@@ -41,9 +41,9 @@ package ru.curs.xylophone;
  */
 public final class XML2SpreadSheetError extends Exception {
 
-	private static final long serialVersionUID = 4382588062277186741L;
+    private static final long serialVersionUID = 4382588062277186741L;
 
-	public XML2SpreadSheetError(String string) {
-		super(string);
-	}
+    public XML2SpreadSheetError(String string) {
+        super(string);
+    }
 }

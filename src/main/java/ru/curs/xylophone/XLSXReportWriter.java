@@ -49,26 +49,26 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  */
 final class XLSXReportWriter extends POIReportWriter {
 
-	private XSSFWorkbook wb;
+    private XSSFWorkbook wb;
 
-	XLSXReportWriter(InputStream template, InputStream templateCopy)
-			throws XML2SpreadSheetError {
-		super(template, templateCopy);
-	}
+    XLSXReportWriter(InputStream template, InputStream templateCopy)
+            throws XML2SpreadSheetError {
+        super(template, templateCopy);
+    }
 
-	@Override
-	Workbook createResultWb(InputStream templateCopy)
-			throws InvalidFormatException, IOException {
-		if (templateCopy == null) {
-			wb = new XSSFWorkbook();
-		} else {
-			wb = (XSSFWorkbook) WorkbookFactory.create(templateCopy);
-		}
-		return wb;
-	}
+    @Override
+    Workbook createResultWb(InputStream templateCopy)
+            throws InvalidFormatException, IOException {
+        if (templateCopy == null) {
+            wb = new XSSFWorkbook();
+        } else {
+            wb = (XSSFWorkbook) WorkbookFactory.create(templateCopy);
+        }
+        return wb;
+    }
 
-	@Override
-	void evaluate() {
-		XSSFFormulaEvaluator.evaluateAllFormulaCells(wb);
-	}
+    @Override
+    void evaluate() {
+        XSSFFormulaEvaluator.evaluateAllFormulaCells(wb);
+    }
 }
