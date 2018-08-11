@@ -1,8 +1,8 @@
 /*
-   (с) 2016 ООО "КУРС-ИТ"  
+   (с) 2016 ООО "КУРС-ИТ"
 
    Этот файл — часть КУРС:Xylophone.
-   
+
    КУРС:Xylophone — свободная программа: вы можете перераспространять ее и/или изменять
    ее на условиях Стандартной общественной лицензии ограниченного применения GNU (LGPL)
    в том виде, в каком она была опубликована Фондом свободного программного обеспечения; либо
@@ -13,11 +13,11 @@
    или ПРИГОДНОСТИ ДЛЯ ОПРЕДЕЛЕННЫХ ЦЕЛЕЙ. Подробнее см. в Стандартной
    общественной лицензии GNU.
 
-   Вы должны были получить копию Стандартной общественной лицензии  ограниченного 
-   применения GNU (LGPL) вместе с этой программой. Если это не так, 
+   Вы должны были получить копию Стандартной общественной лицензии  ограниченного
+   применения GNU (LGPL) вместе с этой программой. Если это не так,
    см. http://www.gnu.org/licenses/.
 
-   
+
    Copyright 2016, COURSE-IT Ltd.
 
    This program is free software: you can redistribute it and/or modify
@@ -71,24 +71,24 @@ final class ODSReportWriter extends ReportWriter {
 	@Override
 	void mergeUp(CellAddress a1, CellAddress a2) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	void addNamedRegion(String name, CellAddress a1, CellAddress a2) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	void putRowBreak(int rowNumber) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	void putColBreak(int colNumber) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }
