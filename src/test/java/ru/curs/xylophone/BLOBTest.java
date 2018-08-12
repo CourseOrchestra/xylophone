@@ -1,13 +1,13 @@
 package ru.curs.xylophone;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
-import org.junit.Test;
+import static org.junit.Assert.*;
 
 public class BLOBTest {
 
@@ -15,7 +15,7 @@ public class BLOBTest {
 			4, 65, -117, 8, 55, -2 };
 
 	@Test
-	public void test1() throws IOException {
+	public void freshBLOBisNullBLOB() {
 		// 1. Нулевой BLOB
 		XML2SpreadseetBLOB a = new XML2SpreadseetBLOB();
 		assertTrue(a.isNull());
@@ -31,33 +31,31 @@ public class BLOBTest {
 	}
 
 	@Test
-	public void test2() throws IOException {
+	public void blobHandlesOnePageData() throws IOException {
 		subTest(shortData);
 	}
 
 	@Test
-	public void test3() throws IOException {
+	public void blobHandlesMultiplePageData() throws IOException {
 		byte[] longData = new byte[100000];
-		Random rnd = new Random();
-		rnd.nextBytes(longData);
+		ThreadLocalRandom.current().nextBytes(longData);
 		subTest(longData);
 	}
 
 	@Test
-	public void test4() throws IOException {
+	public void blobSerializesOnePageData() throws IOException {
 		subTest2(shortData);
 	}
 
 	@Test
-	public void test5() throws IOException {
+	public void blobSerializesMultiplePageData() throws IOException {
 		byte[] longData = new byte[100000];
-		Random rnd = new Random();
-		rnd.nextBytes(longData);
+		ThreadLocalRandom.current().nextBytes(longData);
 		subTest2(longData);
 	}
 
 	@Test
-	public void test6() throws IOException {
+	public void blobHandlesAdditionalDataPages() throws IOException {
 		XML2SpreadseetBLOB a = new XML2SpreadseetBLOB(new InputStream() {
 			private int i = 0;
 
@@ -68,9 +66,7 @@ public class BLOBTest {
 		});
 
 		byte[] longData = new byte[90000];
-		Random rnd = new Random();
-		rnd.nextBytes(longData);
-
+		ThreadLocalRandom.current().nextBytes(longData);
 		assertFalse(a.isModified());
 		OutputStream os = a.getOutStream();
 		assertTrue(a.isModified());

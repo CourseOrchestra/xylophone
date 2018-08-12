@@ -17,22 +17,21 @@
 
 package org.apache.poi.hslf.extractor;
 
-import java.io.FileInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.poi.hslf.model.TextRun;
 import org.apache.poi.hslf.record.CString;
 import org.apache.poi.hslf.record.Record;
 import org.apache.poi.hslf.record.RecordTypes;
-import org.apache.poi.hslf.record.StyleTextPropAtom;
 import org.apache.poi.hslf.record.TextBytesAtom;
 import org.apache.poi.hslf.record.TextCharsAtom;
-import org.apache.poi.hslf.record.TextHeaderAtom;
-import org.apache.poi.poifs.filesystem.DocumentEntry;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.hslf.usermodel.HSLFSlideShow;
+import org.apache.poi.hslf.usermodel.HSLFTextParagraph;
+import org.apache.poi.poifs.filesystem.NPOIFSFileSystem;
+import org.apache.poi.util.IOUtils;
 import org.apache.poi.util.LittleEndian;
 
 /**
@@ -52,11 +51,9 @@ import org.apache.poi.util.LittleEndian;
  * Almost everyone will want to use @see PowerPointExtractor instead. There
  *  are only a very small number of cases (eg some performance sensitive
  *  lucene indexers) that would ever want to use this!
- *
- * @author Nick Burch
  */
 public final class QuickButCruddyTextExtractor {
-	private POIFSFileSystem fs;
+	private NPOIFSFileSystem fs;
 	private InputStream is;
 	private byte[] pptContents;
 
@@ -83,16 +80,18 @@ public final class QuickButCruddyTextExtractor {
 	 * Creates an extractor from a given file name
 	 * @param fileName
 	 */
-	public QuickButCruddyTextExtractor(String fileName) throws IOException {
-		this(new FileInputStream(fileName));
+	@SuppressWarnings("resource")
+    public QuickButCruddyTextExtractor(String fileName) throws IOException {
+		this(new NPOIFSFileSystem(new File(fileName)));
 	}
 
 	/**
 	 * Creates an extractor from a given input stream
 	 * @param iStream
 	 */
+    @SuppressWarnings("resource")
 	public QuickButCruddyTextExtractor(InputStream iStream) throws IOException {
-		this(new POIFSFileSystem(iStream));
+		this(new NPOIFSFileSystem(iStream));
 		is = iStream;
 	}
 
@@ -100,14 +99,13 @@ public final class QuickButCruddyTextExtractor {
 	 * Creates an extractor from a POIFS Filesystem
 	 * @param poifs
 	 */
-	public QuickButCruddyTextExtractor(POIFSFileSystem poifs) throws IOException {
+	public QuickButCruddyTextExtractor(NPOIFSFileSystem poifs) throws IOException {
 		fs = poifs;
 
 		// Find the PowerPoint bit, and get out the bytes
-		DocumentEntry docProps =
-			(DocumentEntry)fs.getRoot().getEntry("PowerPoint Document");
-		pptContents = new byte[docProps.getSize()];
-		fs.createDocumentInputStream("PowerPoint Document").read(pptContents);
+		InputStream pptIs = fs.createDocumentInputStream(HSLFSlideShow.POWERPOINT_DOCUMENT);
+		pptContents = IOUtils.toByteArray(pptIs);
+		pptIs.close();
 	}
 
 
@@ -174,18 +172,19 @@ public final class QuickButCruddyTextExtractor {
 		}
 
 		// Otherwise, check the type to see if it's text
-		long type = LittleEndian.getUShort(pptContents,startPos+2);
-		TextRun trun = null;
+		int type = LittleEndian.getUShort(pptContents,startPos+2);
 
 		// TextBytesAtom
 		if(type == RecordTypes.TextBytesAtom.typeID) {
 			TextBytesAtom tba = (TextBytesAtom)Record.createRecordForType(type, pptContents, startPos, len+8);
-			trun = new TextRun((TextHeaderAtom)null,tba,(StyleTextPropAtom)null);
+			String text = HSLFTextParagraph.toExternalString(tba.getText(), -1);
+			textV.add(text);
 		}
 		// TextCharsAtom
 		if(type == RecordTypes.TextCharsAtom.typeID) {
 			TextCharsAtom tca = (TextCharsAtom)Record.createRecordForType(type, pptContents, startPos, len+8);
-			trun = new TextRun((TextHeaderAtom)null,tca,(StyleTextPropAtom)null);
+            String text = HSLFTextParagraph.toExternalString(tca.getText(), -1);
+            textV.add(text);
 		}
 
 		// CString (doesn't go via a TextRun)
@@ -201,10 +200,6 @@ public final class QuickButCruddyTextExtractor {
 			}
 		}
 
-		// If we found text via a TextRun, save it in the vector
-		if(trun != null) {
-			textV.add(trun.getText());
-		}
 
 		// Wind on by the atom length, and check we're not at the end
 		int newPos = (startPos + 8 + len);

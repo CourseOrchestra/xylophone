@@ -17,39 +17,50 @@
 
 package org.apache.poi.hslf.blip;
 
-import org.apache.poi.hslf.model.Picture;
-import org.apache.poi.util.LittleEndian;
-
 import java.io.IOException;
+
+import org.apache.poi.util.LittleEndian;
 
 /**
  * Represents a DIB picture data in a PPT file
- *
- * @author Yegor Kozlov
  */
 public final class DIB extends Bitmap {
     /**
      * Size of the BITMAPFILEHEADER structure preceding the actual DIB bytes
      */
-    public static final int HEADER_SIZE = 14;
+    private static final int HEADER_SIZE = 14;
 
-    /**
-     * @return type of  this picture
-     * @see  org.apache.poi.hslf.model.Picture#DIB
-     */
-    public int getType(){
-        return Picture.DIB;
+    @Override
+    public PictureType getType(){
+        return PictureType.DIB;
     }
 
     /**
-     * DIB signature is <code>0x7A80</code>
+     * DIB signature is {@code 0x7A80} or {@code 0x7A90}
      *
-     * @return DIB signature (<code>0x7A80</code>)
+     * @return DIB signature ({@code 0x7A80} or {@code 0x7A90})
      */
     public int getSignature(){
-        return 0x7A80;
+        return (getUIDInstanceCount() == 1 ? 0x7A80 : 0x7A90);
     }
+
+    /**
+     * Sets the DIB signature - either {@code 0x7A80} or {@code 0x7A90}
+     */
+    public void setSignature(int signature) {
+        switch (signature) {
+            case 0x7A80:
+                setUIDInstanceCount(1);
+                break;
+            case 0x7A90:
+                setUIDInstanceCount(2);
+                break;
+            default:
+                throw new IllegalArgumentException(signature+" is not a valid instance/signature value for DIB");
+        }        
+    }    
     
+    @Override
     public byte[] getData(){
         return addBMPHeader ( super.getData() );
     }
@@ -83,6 +94,7 @@ public final class DIB extends Bitmap {
         return dib;
     }
 
+    @Override
     public void setData(byte[] data) throws IOException {
         //cut off the bitmap file-header
         byte[] dib = new byte[data.length-HEADER_SIZE];

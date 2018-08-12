@@ -1,8 +1,8 @@
 /*
-   (с) 2016 ООО "КУРС-ИТ"  
+   (с) 2016 ООО "КУРС-ИТ"
 
    Этот файл — часть КУРС:Xylophone.
-   
+
    КУРС:Xylophone — свободная программа: вы можете перераспространять ее и/или изменять
    ее на условиях Стандартной общественной лицензии ограниченного применения GNU (LGPL)
    в том виде, в каком она была опубликована Фондом свободного программного обеспечения; либо
@@ -13,11 +13,11 @@
    или ПРИГОДНОСТИ ДЛЯ ОПРЕДЕЛЕННЫХ ЦЕЛЕЙ. Подробнее см. в Стандартной
    общественной лицензии GNU.
 
-   Вы должны были получить копию Стандартной общественной лицензии  ограниченного 
-   применения GNU (LGPL) вместе с этой программой. Если это не так, 
+   Вы должны были получить копию Стандартной общественной лицензии  ограниченного
+   применения GNU (LGPL) вместе с этой программой. Если это не так,
    см. http://www.gnu.org/licenses/.
 
-   
+
    Copyright 2016, COURSE-IT Ltd.
 
    This program is free software: you can redistribute it and/or modify
@@ -42,53 +42,53 @@ import java.io.InputStream;
  */
 final class ODSReportWriter extends ReportWriter {
 
-	ODSReportWriter(InputStream template, InputStream templateCopy) throws XML2SpreadSheetError {
-		// TODO Auto-generated constructor stub
-		throw new XML2SpreadSheetError("ODS is not implemented yet!..");
-	}
+    ODSReportWriter(InputStream template, InputStream templateCopy) throws XML2SpreadSheetError {
+        // TODO Auto-generated constructor stub
+        throw new XML2SpreadSheetError("ODS is not implemented yet!..");
+    }
 
-	@Override
-	void newSheet(String sheetName, String sourceSheet,
-			int startRepeatingColumn, int endRepeatingColumn,
-			int startRepeatingRow, int endRepeatingRow) {
-		// TODO Auto-generated method stub
+    @Override
+    void newSheet(String sheetName, String sourceSheet,
+            int startRepeatingColumn, int endRepeatingColumn,
+            int startRepeatingRow, int endRepeatingRow) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	void putSection(XMLContext context, CellAddress growthPoint2,
-			String sourceSheet, RangeAddress range) {
-		// TODO Auto-generated method stub
+    @Override
+    void putSection(XMLContext context, CellAddress growthPoint2,
+            String sourceSheet, RangeAddress range) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	public void flush() throws XML2SpreadSheetError {
-		// TODO Auto-generated method stub
+    @Override
+    public void flush() throws XML2SpreadSheetError {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	void mergeUp(CellAddress a1, CellAddress a2) {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    void mergeUp(CellAddress a1, CellAddress a2) {
+        // TODO Auto-generated method stub
 
-	@Override
-	void addNamedRegion(String name, CellAddress a1, CellAddress a2) {
-		// TODO Auto-generated method stub
-		
-	}
+    }
 
-	@Override
-	void putRowBreak(int rowNumber) {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    void addNamedRegion(String name, CellAddress a1, CellAddress a2) {
+        // TODO Auto-generated method stub
 
-	@Override
-	void putColBreak(int colNumber) {
-		// TODO Auto-generated method stub
-		
-	}
+    }
+
+    @Override
+    void putRowBreak(int rowNumber) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    void putColBreak(int colNumber) {
+        // TODO Auto-generated method stub
+
+    }
 }

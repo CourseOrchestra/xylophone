@@ -17,16 +17,17 @@
 
 package org.apache.poi.hpbf.dev;
 
-import java.io.FileInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.poi.ddf.DefaultEscherRecordFactory;
 import org.apache.poi.ddf.EscherRecord;
 import org.apache.poi.poifs.filesystem.DirectoryNode;
-import org.apache.poi.poifs.filesystem.DocumentEntry;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.poifs.filesystem.NPOIFSFileSystem;
+import org.apache.poi.util.IOUtils;
 import org.apache.poi.util.LittleEndian;
+import org.apache.poi.util.LocaleUtil;
 import org.apache.poi.util.StringUtil;
 
 /**
@@ -35,21 +36,21 @@ import org.apache.poi.util.StringUtil;
  *  constructed.
  */
 public final class HPBFDumper {
-	private POIFSFileSystem fs;
-	public HPBFDumper(POIFSFileSystem fs) {
+	private NPOIFSFileSystem fs;
+	public HPBFDumper(NPOIFSFileSystem fs) {
 		this.fs = fs;
 	}
-	public HPBFDumper(InputStream inp) throws IOException {
-		this(new POIFSFileSystem(inp));
+	
+	@SuppressWarnings("resource")
+    public HPBFDumper(InputStream inp) throws IOException {
+		this(new NPOIFSFileSystem(inp));
 	}
 
 	private static byte[] getData(DirectoryNode dir, String name) throws IOException {
-		DocumentEntry docProps =
-			(DocumentEntry)dir.getEntry(name);
-
 		// Grab the document stream
-		byte[] d = new byte[docProps.getSize()];
-		dir.createDocumentInputStream(name).read(d);
+		InputStream is = dir.createDocumentInputStream(name);
+		byte[] d = IOUtils.toByteArray(is);
+		is.close();
 
 		// All done
 		return d;
@@ -75,15 +76,14 @@ public final class HPBFDumper {
 		return ret.toString();
 	}
 
-	public static void main(String[] args) throws Exception {
+	@SuppressWarnings("resource")
+    public static void main(String[] args) throws Exception {
 		if(args.length < 1) {
 			System.err.println("Use:");
 			System.err.println("  HPBFDumper <filename>");
 			System.exit(1);
 		}
-		HPBFDumper dump = new HPBFDumper(
-				new FileInputStream(args[0])
-		);
+		HPBFDumper dump = new HPBFDumper(new NPOIFSFileSystem(new File(args[0])));
 
 		System.out.println("Dumping " + args[0]);
 		dump.dumpContents();
@@ -119,7 +119,7 @@ public final class HPBFDumper {
 			er.fillFields(data, 0, erf);
 			left -= er.getRecordSize();
 
-			System.out.println(er.toString());
+			System.out.println(er);
 		}
 	}
 	protected void dumpEscherStm(DirectoryNode escherDir) throws IOException {
@@ -201,7 +201,7 @@ public final class HPBFDumper {
 		//  then 4 bytes giving the length, then
 		//  18 00
 		System.out.println(
-				new String(data, 0, 8) +
+				new String(data, 0, 8, LocaleUtil.CHARSET_1252) +
 				dumpBytes(data, 8, 0x20-8)
 		);
 
@@ -214,7 +214,7 @@ public final class HPBFDumper {
 				);
 				pos += 2;
 			}
-			String text = new String(data, pos, 4);
+			String text = new String(data, pos, 4, LocaleUtil.CHARSET_1252);
 			int blen = 8;
 			if(sixNotEight)
 				blen = 6;
@@ -265,11 +265,11 @@ public final class HPBFDumper {
 			int offset = 0x20 + i*24;
 			if(data[offset] == 0x18 && data[offset+1] == 0x00) {
 				// Has data
-				startType[i] = new String(data, offset+2, 4);
+				startType[i] = new String(data, offset+2, 4, LocaleUtil.CHARSET_1252);
 				optA[i] = LittleEndian.getUShort(data, offset+6);
 				optB[i] = LittleEndian.getUShort(data, offset+8);
 				optC[i] = LittleEndian.getUShort(data, offset+10);
-				endType[i] = new String(data, offset+12, 4);
+				endType[i] = new String(data, offset+12, 4, LocaleUtil.CHARSET_1252);
 				from[i] = (int)LittleEndian.getUInt(data, offset+16);
 				len[i] = (int)LittleEndian.getUInt(data, offset+20);
 			} else {

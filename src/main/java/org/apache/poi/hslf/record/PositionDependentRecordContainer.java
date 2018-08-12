@@ -16,14 +16,12 @@
 ==================================================================== */
 
 package org.apache.poi.hslf.record;
-import java.util.Hashtable;
+import java.util.Map;
 
 /**
  * A special (and dangerous) kind of Record Container, for which other
  *  Atoms care about where this one lives on disk.
  * Will track its position on disk.
- *
- * @author Nick Burch
  */
 
 public abstract class PositionDependentRecordContainer extends RecordContainer implements PositionDependentRecord
@@ -43,7 +41,7 @@ public abstract class PositionDependentRecordContainer extends RecordContainer i
 
 
 	/** Our location on the disk, as of the last write out */
-	protected int myLastOnDiskOffset;
+	private int myLastOnDiskOffset;
 
 	/** Fetch our location on the disk, as of the last write out */
 	public int getLastOnDiskOffset() { return myLastOnDiskOffset; }
@@ -60,7 +58,6 @@ public abstract class PositionDependentRecordContainer extends RecordContainer i
 	 * Since we're a container, we don't mind if other records move about.
 	 * If we're told they have, just return straight off.
 	 */
-	public void updateOtherRecordReferences(Hashtable<Integer,Integer> oldToNewReferencesLookup) {
-		return;
+	public void updateOtherRecordReferences(Map<Integer,Integer> oldToNewReferencesLookup) {
 	}
 }

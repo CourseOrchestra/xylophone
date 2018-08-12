@@ -18,10 +18,8 @@
 package org.apache.poi.hsmf;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,7 +28,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.poi.POIDocument;
+import org.apache.poi.POIReadOnlyDocument;
 import org.apache.poi.hmef.attribute.MAPIRtfAttribute;
 import org.apache.poi.hsmf.datatypes.AttachmentChunks;
 import org.apache.poi.hsmf.datatypes.AttachmentChunks.AttachmentChunksSorter;
@@ -51,20 +49,35 @@ import org.apache.poi.hsmf.exceptions.ChunkNotFoundException;
 import org.apache.poi.hsmf.parsers.POIFSChunkParser;
 import org.apache.poi.poifs.filesystem.DirectoryNode;
 import org.apache.poi.poifs.filesystem.NPOIFSFileSystem;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.util.CodePageUtil;
 import org.apache.poi.util.POILogFactory;
 import org.apache.poi.util.POILogger;
+import org.apache.poi.util.Removal;
 
 /**
  * Reads an Outlook MSG File in and provides hooks into its data structure.
  * 
  * If you want to develop with HSMF, you might find it worth getting
- *  some of the microsoft public documentation, such as:
+ *  some of the Microsoft public documentation, such as:
  *  
  * [MS-OXCMSG]: Message and Attachment Object Protocol Specification
  */
-public class MAPIMessage extends POIDocument {
+public class MAPIMessage extends POIReadOnlyDocument {
+
+   /**
+    * A MAPI file can be an email (NOTE) or a number of other types
+    */
+   public enum MESSAGE_CLASS {
+      APPOINTMENT,
+      CONTACT,
+      NOTE,
+      POST,
+      STICKY_NOTE,
+      TASK,
+      UNKNOWN,
+      UNSPECIFIED
+   }
+
    /** For logging problems we spot with the file */
    private POILogger logger = POILogFactory.getLogger(MAPIMessage.class);
    
@@ -77,26 +90,39 @@ public class MAPIMessage extends POIDocument {
 
    /**
     * Constructor for creating new files.
-    *
     */
    public MAPIMessage() {
       // TODO - make writing possible
-      super(new POIFSFileSystem());
+      super(new NPOIFSFileSystem());
    }
 
 
    /**
     * Constructor for reading MSG Files from the file system.
-    * @param filename
+    * 
+    * @param filename Name of the file to read
     * @throws IOException
     */
    public MAPIMessage(String filename) throws IOException {
-      this(new FileInputStream(new File(filename)));
+      this(new File(filename));
+   }
+   /**
+    * Constructor for reading MSG Files from the file system.
+    * 
+    * @param file The file to read from
+    * @throws IOException
+    */
+   public MAPIMessage(File file) throws IOException {
+      this(new NPOIFSFileSystem(file));
    }
 
    /**
     * Constructor for reading MSG Files from an input stream.
-    * @param in
+    * 
+    * <p>Note - this will buffer the whole message into memory
+    *  in order to process. For lower memory use, use {@link #MAPIMessage(File)}
+    *  
+    * @param in The InputStream to buffer then read from
     * @throws IOException
     */
    public MAPIMessage(InputStream in) throws IOException {
@@ -104,31 +130,17 @@ public class MAPIMessage extends POIDocument {
    }
    /**
     * Constructor for reading MSG Files from a POIFS filesystem
-    * @param fs
-    * @throws IOException
-    */
-   public MAPIMessage(POIFSFileSystem fs) throws IOException {
-      this(fs.getRoot());
-   }
-   /**
-    * Constructor for reading MSG Files from a POIFS filesystem
-    * @param fs
+    * 
+    * @param fs Open POIFS FileSystem containing the message
     * @throws IOException
     */
    public MAPIMessage(NPOIFSFileSystem fs) throws IOException {
       this(fs.getRoot());
    }
    /**
-    * @deprecated Use {@link #MAPIMessage(DirectoryNode)} instead
-    */
-   @Deprecated
-   public MAPIMessage(DirectoryNode poifsDir, POIFSFileSystem fs) throws IOException {
-      this(poifsDir);
-   }
-   /**
     * Constructor for reading MSG Files from a certain
     *  point within a POIFS filesystem
-    * @param poifsDir
+    * @param poifsDir Directory containing the message
     * @throws IOException
     */
    public MAPIMessage(DirectoryNode poifsDir) throws IOException {
@@ -141,7 +153,7 @@ public class MAPIMessage extends POIDocument {
       ArrayList<AttachmentChunks> attachments = new ArrayList<AttachmentChunks>();
       ArrayList<RecipientChunks>  recipients  = new ArrayList<RecipientChunks>();
       for(ChunkGroup group : chunkGroups) {
-         // Should only ever be one of these
+         // Should only ever be one of each of these
          if(group instanceof Chunks) {
             mainChunks = (Chunks)group;
          } else if(group instanceof NameIdChunks) {
@@ -150,7 +162,7 @@ public class MAPIMessage extends POIDocument {
             recipients.add( (RecipientChunks)group );
          }
 
-         // Add to list(s)
+         // Can be multiple of these - add to list(s)
          if(group instanceof AttachmentChunks) {
             attachments.add( (AttachmentChunks)group );
          }
@@ -187,7 +199,7 @@ public class MAPIMessage extends POIDocument {
     * @throws ChunkNotFoundException
     */
    public String getTextBody() throws ChunkNotFoundException {
-      return getStringFromChunk(mainChunks.textBodyChunk);
+      return getStringFromChunk(mainChunks.getTextBodyChunk());
    }
 
    /**
@@ -197,14 +209,10 @@ public class MAPIMessage extends POIDocument {
     * @throws ChunkNotFoundException
     */
    public String getHtmlBody() throws ChunkNotFoundException {
-      if(mainChunks.htmlBodyChunkBinary != null) {
-         return mainChunks.htmlBodyChunkBinary.getAs7bitString();
+      if(mainChunks.getHtmlBodyChunkBinary() != null) {
+         return mainChunks.getHtmlBodyChunkBinary().getAs7bitString();
       }
-      return getStringFromChunk(mainChunks.htmlBodyChunkString);
-   }
-   @Deprecated
-   public String getHmtlBody() throws ChunkNotFoundException {
-      return getHtmlBody();
+      return getStringFromChunk(mainChunks.getHtmlBodyChunkString());
    }
 
    /**
@@ -214,7 +222,7 @@ public class MAPIMessage extends POIDocument {
     * @throws ChunkNotFoundException
     */
    public String getRtfBody() throws ChunkNotFoundException {
-      ByteChunk chunk = mainChunks.rtfBodyChunk;
+      ByteChunk chunk = mainChunks.getRtfBodyChunk();
       if(chunk == null) {
          if(returnNullOnMissingChunk) {
             return null;
@@ -238,7 +246,7 @@ public class MAPIMessage extends POIDocument {
     * @throws ChunkNotFoundException
     */
    public String getSubject() throws ChunkNotFoundException {
-      return getStringFromChunk(mainChunks.subjectChunk);
+      return getStringFromChunk(mainChunks.getSubjectChunk());
    }
 
    /**
@@ -247,7 +255,7 @@ public class MAPIMessage extends POIDocument {
     * @throws ChunkNotFoundException
     */
    public String getDisplayFrom() throws ChunkNotFoundException {
-      return getStringFromChunk(mainChunks.displayFromChunk);
+      return getStringFromChunk(mainChunks.getDisplayFromChunk());
    }
 
    /**
@@ -260,7 +268,7 @@ public class MAPIMessage extends POIDocument {
     * @throws ChunkNotFoundException
     */
    public String getDisplayTo() throws ChunkNotFoundException {
-      return getStringFromChunk(mainChunks.displayToChunk);
+      return getStringFromChunk(mainChunks.getDisplayToChunk());
    }
 
    /**
@@ -273,7 +281,7 @@ public class MAPIMessage extends POIDocument {
     * @throws ChunkNotFoundException
     */
    public String getDisplayCC() throws ChunkNotFoundException {
-      return getStringFromChunk(mainChunks.displayCCChunk);
+      return getStringFromChunk(mainChunks.getDisplayCCChunk());
    }
 
    /**
@@ -287,7 +295,7 @@ public class MAPIMessage extends POIDocument {
     * @throws ChunkNotFoundException
     */
    public String getDisplayBCC() throws ChunkNotFoundException {
-      return getStringFromChunk(mainChunks.displayBCCChunk);
+      return getStringFromChunk(mainChunks.getDisplayBCCChunk());
    }
 
    /**
@@ -422,7 +430,7 @@ public class MAPIMessage extends POIDocument {
       
       // Nothing suitable in the headers, try HTML
       try {
-         String html = getHmtlBody();
+         String html = getHtmlBody();
          if(html != null && html.length() > 0) {
             // Look for a content type in the meta headers
             Pattern p = Pattern.compile(
@@ -512,7 +520,7 @@ public class MAPIMessage extends POIDocument {
     * Returns all the headers, one entry per line
     */
    public String[] getHeaders() throws ChunkNotFoundException {
-      String headers = getStringFromChunk(mainChunks.messageHeaders);
+      String headers = getStringFromChunk(mainChunks.getMessageHeaders());
       if(headers == null) {
          return null;
       }
@@ -525,7 +533,7 @@ public class MAPIMessage extends POIDocument {
     * @throws ChunkNotFoundException
     */
    public String getConversationTopic() throws ChunkNotFoundException {
-      return getStringFromChunk(mainChunks.conversationTopic);
+      return getStringFromChunk(mainChunks.getConversationTopic());
    }
 
    /**
@@ -535,18 +543,51 @@ public class MAPIMessage extends POIDocument {
     * For emails the class will be IPM.Note
     *
     * @throws ChunkNotFoundException
+    * @deprecated 3.16 beta 3. Use {@link #getMessageClassEnum()} instead.
     */
+   @Deprecated
+   @Removal(version="3.18")
    public String getMessageClass() throws ChunkNotFoundException {
-      return getStringFromChunk(mainChunks.messageClass);
+      return getStringFromChunk(mainChunks.getMessageClass());
    }
 
+   /**
+    * Gets the message class of the parsed Outlook Message.
+    * (Yes, you can use this to determine if a message is a calendar
+    *  item, note, or actual outlook Message)
+    * For emails the class will be IPM.Note
+    *
+    * @throws ChunkNotFoundException
+    */
+   public MESSAGE_CLASS getMessageClassEnum() throws ChunkNotFoundException {
+      String mc = getStringFromChunk(mainChunks.getMessageClass());
+      if (mc == null || mc.trim().length() == 0) {
+         return MESSAGE_CLASS.UNSPECIFIED;
+      } else if (mc.equalsIgnoreCase("IPM.Note")) {
+         return MESSAGE_CLASS.NOTE;
+      } else if (mc.equalsIgnoreCase("IPM.Contact")) {
+         return MESSAGE_CLASS.CONTACT;
+      } else if (mc.equalsIgnoreCase("IPM.Appointment")) {
+         return MESSAGE_CLASS.APPOINTMENT;
+      } else if (mc.equalsIgnoreCase("IPM.StickyNote")) {
+         return MESSAGE_CLASS.STICKY_NOTE;
+      } else if (mc.equalsIgnoreCase("IPM.Task")) {
+         return MESSAGE_CLASS.TASK;
+      } else if (mc.equalsIgnoreCase("IPM.Post")) {
+         return MESSAGE_CLASS.POST;
+      } else {
+         logger.log(POILogger.WARN, "I don't recognize message class '"+mc+"'. " +
+                 "Please open an issue on POI's bugzilla");
+         return MESSAGE_CLASS.UNKNOWN;
+      }
+   }
    /**
     * Gets the date that the message was accepted by the
     *  server on.
     */
    public Calendar getMessageDate() throws ChunkNotFoundException {
-      if (mainChunks.submissionChunk != null) {
-         return mainChunks.submissionChunk.getAcceptedAtTime();
+      if (mainChunks.getSubmissionChunk() != null) {
+         return mainChunks.getSubmissionChunk().getAcceptedAtTime();
       }
       else {
          // Try a few likely suspects...
@@ -595,14 +636,6 @@ public class MAPIMessage extends POIDocument {
     */
    public AttachmentChunks[] getAttachmentFiles() {
       return attachmentChunks;
-   }
-
-
-   /**
-    * Note - not yet supported, sorry.
-    */
-   public void write(OutputStream out) throws IOException {
-      throw new UnsupportedOperationException("Writing isn't yet supported for HSMF, sorry");
    }
 
 

@@ -17,7 +17,7 @@
 
 package org.apache.poi.hmef.attribute;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 
 import org.apache.poi.hmef.Attachment;
 import org.apache.poi.hmef.HMEFMessage;
@@ -32,7 +32,7 @@ import org.apache.poi.util.StringUtil;
  *  to a {@link HMEFMessage} or one of its {@link Attachment}s.
  */
 public final class MAPIStringAttribute extends MAPIAttribute {
-   private static POILogger logger = POILogFactory.getLogger(MAPIStringAttribute.class);
+   private final static POILogger logger = POILogFactory.getLogger(MAPIStringAttribute.class);
    private static final String CODEPAGE = "CP1252";
    private final String data;
    
@@ -41,11 +41,7 @@ public final class MAPIStringAttribute extends MAPIAttribute {
       
       String tmpData = null;
       if(type == Types.ASCII_STRING.getId()) {
-         try {
-            tmpData = new String(data, CODEPAGE);
-         } catch(UnsupportedEncodingException e) {
-            throw new RuntimeException("JVM Broken - core encoding " + CODEPAGE + " missing");
-         }
+         tmpData = new String(data, Charset.forName(CODEPAGE));
       } else if(type == Types.UNICODE_STRING.getId()) {
          tmpData = StringUtil.getFromUnicodeLE(data);
       } else {
@@ -64,7 +60,7 @@ public final class MAPIStringAttribute extends MAPIAttribute {
    }
    
    public String toString() {
-      return getProperty().toString() + " " + data;
+      return getProperty() + " " + data;
    }
    
    /**
@@ -81,7 +77,7 @@ public final class MAPIStringAttribute extends MAPIAttribute {
          return ((MAPIRtfAttribute)attr).getDataString();
       }
       
-      logger.log(POILogger.WARN, "Warning, non string property found: " + attr.toString());
+      logger.log(POILogger.WARN, "Warning, non string property found: " + attr);
       return null;
   }
 }

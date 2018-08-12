@@ -17,8 +17,15 @@
 
 package org.apache.poi.hslf.dev;
 
-import org.apache.poi.hslf.*;
-import org.apache.poi.hslf.record.*;
+import java.io.IOException;
+
+import org.apache.poi.hslf.record.Document;
+import org.apache.poi.hslf.record.Record;
+import org.apache.poi.hslf.record.SlideListWithText;
+import org.apache.poi.hslf.record.SlidePersistAtom;
+import org.apache.poi.hslf.record.TextBytesAtom;
+import org.apache.poi.hslf.record.TextCharsAtom;
+import org.apache.poi.hslf.usermodel.HSLFSlideShowImpl;
 
 /**
  * Uses record level code to locate SlideListWithText entries.
@@ -26,13 +33,13 @@ import org.apache.poi.hslf.record.*;
  *  what it finds.
  */
 public final class SLWTTextListing {
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws IOException {
 		if(args.length < 1) {
 			System.err.println("Need to give a filename");
 			System.exit(1);
 		}
 
-		HSLFSlideShow ss = new HSLFSlideShow(args[0]);
+		HSLFSlideShowImpl ss = new HSLFSlideShowImpl(args[0]);
 
 		// Find the documents, and then their SLWT
 		Record[] records = ss.getRecords();
@@ -81,5 +88,7 @@ public final class SLWTTextListing {
 				}
 			}
 		}
+		
+		ss.close();
 	}
 }

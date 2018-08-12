@@ -18,7 +18,8 @@
 package org.apache.poi.hwpf.model.types;
 
 
-import org.apache.poi.hdf.model.hdftypes.HDFType;
+import java.util.Arrays;
+
 import org.apache.poi.util.BitField;
 import org.apache.poi.util.Internal;
 import org.apache.poi.util.LittleEndian;
@@ -31,61 +32,61 @@ import org.apache.poi.util.LittleEndian;
  * @author S. Ryan Ackley
  */
 @Internal
-public abstract class DOPAbstractType implements HDFType {
+public abstract class DOPAbstractType {
 
     protected byte field_1_formatFlags;
-    /**/private static BitField fFacingPages = new BitField(0x01);
-    /**/private static BitField fWidowControl = new BitField(0x02);
-    /**/private static BitField fPMHMainDoc = new BitField(0x04);
-    /**/private static BitField grfSupression = new BitField(0x18);
-    /**/private static BitField fpc = new BitField(0x60);
-    /**/private static BitField unused1 = new BitField(0x80);
+    private static final BitField fFacingPages = new BitField(0x01);
+    private static final BitField fWidowControl = new BitField(0x02);
+    private static final BitField fPMHMainDoc = new BitField(0x04);
+    private static final BitField grfSupression = new BitField(0x18);
+    private static final BitField fpc = new BitField(0x60);
+    private static final BitField unused1 = new BitField(0x80);
     protected byte field_2_unused2;
     protected short field_3_footnoteInfo;
-    /**/private static BitField rncFtn = new BitField(0x0003);
-    /**/private static BitField nFtn = new BitField(0xfffc);
+    private static final BitField rncFtn = new BitField(0x0003);
+    private static final BitField nFtn = new BitField(0xfffc);
     protected byte field_4_fOutlineDirtySave;
     protected byte field_5_docinfo;
-    /**/private static BitField fOnlyMacPics = new BitField(0x01);
-    /**/private static BitField fOnlyWinPics = new BitField(0x02);
-    /**/private static BitField fLabelDoc = new BitField(0x04);
-    /**/private static BitField fHyphCapitals = new BitField(0x08);
-    /**/private static BitField fAutoHyphen = new BitField(0x10);
-    /**/private static BitField fFormNoFields = new BitField(0x20);
-    /**/private static BitField fLinkStyles = new BitField(0x40);
-    /**/private static BitField fRevMarking = new BitField(0x80);
+    private static final BitField fOnlyMacPics = new BitField(0x01);
+    private static final BitField fOnlyWinPics = new BitField(0x02);
+    private static final BitField fLabelDoc = new BitField(0x04);
+    private static final BitField fHyphCapitals = new BitField(0x08);
+    private static final BitField fAutoHyphen = new BitField(0x10);
+    private static final BitField fFormNoFields = new BitField(0x20);
+    private static final BitField fLinkStyles = new BitField(0x40);
+    private static final BitField fRevMarking = new BitField(0x80);
     protected byte field_6_docinfo1;
-    /**/private static BitField fBackup = new BitField(0x01);
-    /**/private static BitField fExactCWords = new BitField(0x02);
-    /**/private static BitField fPagHidden = new BitField(0x04);
-    /**/private static BitField fPagResults = new BitField(0x08);
-    /**/private static BitField fLockAtn = new BitField(0x10);
-    /**/private static BitField fMirrorMargins = new BitField(0x20);
-    /**/private static BitField unused3 = new BitField(0x40);
-    /**/private static BitField fDfltTrueType = new BitField(0x80);
+    private static final BitField fBackup = new BitField(0x01);
+    private static final BitField fExactCWords = new BitField(0x02);
+    private static final BitField fPagHidden = new BitField(0x04);
+    private static final BitField fPagResults = new BitField(0x08);
+    private static final BitField fLockAtn = new BitField(0x10);
+    private static final BitField fMirrorMargins = new BitField(0x20);
+    private static final BitField unused3 = new BitField(0x40);
+    private static final BitField fDfltTrueType = new BitField(0x80);
     protected byte field_7_docinfo2;
-    /**/private static BitField fPagSupressTopSpacing = new BitField(0x01);
-    /**/private static BitField fProtEnabled = new BitField(0x02);
-    /**/private static BitField fDispFormFldSel = new BitField(0x04);
-    /**/private static BitField fRMView = new BitField(0x08);
-    /**/private static BitField fRMPrint = new BitField(0x10);
-    /**/private static BitField unused4 = new BitField(0x20);
-    /**/private static BitField fLockRev = new BitField(0x40);
-    /**/private static BitField fEmbedFonts = new BitField(0x80);
+    private static final BitField fPagSupressTopSpacing = new BitField(0x01);
+    private static final BitField fProtEnabled = new BitField(0x02);
+    private static final BitField fDispFormFldSel = new BitField(0x04);
+    private static final BitField fRMView = new BitField(0x08);
+    private static final BitField fRMPrint = new BitField(0x10);
+    private static final BitField unused4 = new BitField(0x20);
+    private static final BitField fLockRev = new BitField(0x40);
+    private static final BitField fEmbedFonts = new BitField(0x80);
     protected short field_8_docinfo3;
-    /**/private static BitField oldfNoTabForInd = new BitField(0x0001);
-    /**/private static BitField oldfNoSpaceRaiseLower = new BitField(0x0002);
-    /**/private static BitField oldfSuppressSpbfAfterPageBreak = new BitField(0x0004);
-    /**/private static BitField oldfWrapTrailSpaces = new BitField(0x0008);
-    /**/private static BitField oldfMapPrintTextColor = new BitField(0x0010);
-    /**/private static BitField oldfNoColumnBalance = new BitField(0x0020);
-    /**/private static BitField oldfConvMailMergeEsc = new BitField(0x0040);
-    /**/private static BitField oldfSupressTopSpacing = new BitField(0x0080);
-    /**/private static BitField oldfOrigWordTableRules = new BitField(0x0100);
-    /**/private static BitField oldfTransparentMetafiles = new BitField(0x0200);
-    /**/private static BitField oldfShowBreaksInFrames = new BitField(0x0400);
-    /**/private static BitField oldfSwapBordersFacingPgs = new BitField(0x0800);
-    /**/private static BitField unused5 = new BitField(0xf000);
+    private static final BitField oldfNoTabForInd = new BitField(0x0001);
+    private static final BitField oldfNoSpaceRaiseLower = new BitField(0x0002);
+    private static final BitField oldfSuppressSpbfAfterPageBreak = new BitField(0x0004);
+    private static final BitField oldfWrapTrailSpaces = new BitField(0x0008);
+    private static final BitField oldfMapPrintTextColor = new BitField(0x0010);
+    private static final BitField oldfNoColumnBalance = new BitField(0x0020);
+    private static final BitField oldfConvMailMergeEsc = new BitField(0x0040);
+    private static final BitField oldfSupressTopSpacing = new BitField(0x0080);
+    private static final BitField oldfOrigWordTableRules = new BitField(0x0100);
+    private static final BitField oldfTransparentMetafiles = new BitField(0x0200);
+    private static final BitField oldfShowBreaksInFrames = new BitField(0x0400);
+    private static final BitField oldfSwapBordersFacingPgs = new BitField(0x0800);
+    private static final BitField unused5 = new BitField(0xf000);
     protected int field_9_dxaTab;
     protected int field_10_wSpare;
     protected int field_11_dxaHotz;
@@ -101,16 +102,16 @@ public abstract class DOPAbstractType implements HDFType {
     protected int field_21_cPg;
     protected int field_22_cParas;
     protected short field_23_Edn;
-    /**/private static BitField rncEdn = new BitField(0x0003);
-    /**/private static BitField nEdn = new BitField(0xfffc);
+    private static final BitField rncEdn = new BitField(0x0003);
+    private static final BitField nEdn = new BitField(0xfffc);
     protected short field_24_Edn1;
-    /**/private static BitField epc = new BitField(0x0003);
-    /**/private static BitField nfcFtnRef1 = new BitField(0x003c);
-    /**/private static BitField nfcEdnRef1 = new BitField(0x03c0);
-    /**/private static BitField fPrintFormData = new BitField(0x0400);
-    /**/private static BitField fSaveFormData = new BitField(0x0800);
-    /**/private static BitField fShadeFormData = new BitField(0x1000);
-    /**/private static BitField fWCFtnEdn = new BitField(0x8000);
+    private static final BitField epc = new BitField(0x0003);
+    private static final BitField nfcFtnRef1 = new BitField(0x003c);
+    private static final BitField nfcEdnRef1 = new BitField(0x03c0);
+    private static final BitField fPrintFormData = new BitField(0x0400);
+    private static final BitField fSaveFormData = new BitField(0x0800);
+    private static final BitField fShadeFormData = new BitField(0x1000);
+    private static final BitField fWCFtnEdn = new BitField(0x8000);
     protected int field_25_cLines;
     protected int field_26_cWordsFtnEnd;
     protected int field_27_cChFtnEdn;
@@ -119,55 +120,55 @@ public abstract class DOPAbstractType implements HDFType {
     protected int field_30_cLinesFtnEdn;
     protected int field_31_lKeyProtDoc;
     protected short field_32_view;
-    /**/private static BitField wvkSaved = new BitField(0x0007);
-    /**/private static BitField wScaleSaved = new BitField(0x0ff8);
-    /**/private static BitField zkSaved = new BitField(0x3000);
-    /**/private static BitField fRotateFontW6 = new BitField(0x4000);
-    /**/private static BitField iGutterPos = new BitField(0x8000);
+    private static final BitField wvkSaved = new BitField(0x0007);
+    private static final BitField wScaleSaved = new BitField(0x0ff8);
+    private static final BitField zkSaved = new BitField(0x3000);
+    private static final BitField fRotateFontW6 = new BitField(0x4000);
+    private static final BitField iGutterPos = new BitField(0x8000);
     protected int field_33_docinfo4;
-    /**/private static BitField fNoTabForInd = new BitField(0x00000001);
-    /**/private static BitField fNoSpaceRaiseLower = new BitField(0x00000002);
-    /**/private static BitField fSupressSpdfAfterPageBreak = new BitField(0x00000004);
-    /**/private static BitField fWrapTrailSpaces = new BitField(0x00000008);
-    /**/private static BitField fMapPrintTextColor = new BitField(0x00000010);
-    /**/private static BitField fNoColumnBalance = new BitField(0x00000020);
-    /**/private static BitField fConvMailMergeEsc = new BitField(0x00000040);
-    /**/private static BitField fSupressTopSpacing = new BitField(0x00000080);
-    /**/private static BitField fOrigWordTableRules = new BitField(0x00000100);
-    /**/private static BitField fTransparentMetafiles = new BitField(0x00000200);
-    /**/private static BitField fShowBreaksInFrames = new BitField(0x00000400);
-    /**/private static BitField fSwapBordersFacingPgs = new BitField(0x00000800);
-    /**/private static BitField fSuppressTopSPacingMac5 = new BitField(0x00010000);
-    /**/private static BitField fTruncDxaExpand = new BitField(0x00020000);
-    /**/private static BitField fPrintBodyBeforeHdr = new BitField(0x00040000);
-    /**/private static BitField fNoLeading = new BitField(0x00080000);
-    /**/private static BitField fMWSmallCaps = new BitField(0x00200000);
+    private static final BitField fNoTabForInd = new BitField(0x00000001);
+    private static final BitField fNoSpaceRaiseLower = new BitField(0x00000002);
+    private static final BitField fSupressSpdfAfterPageBreak = new BitField(0x00000004);
+    private static final BitField fWrapTrailSpaces = new BitField(0x00000008);
+    private static final BitField fMapPrintTextColor = new BitField(0x00000010);
+    private static final BitField fNoColumnBalance = new BitField(0x00000020);
+    private static final BitField fConvMailMergeEsc = new BitField(0x00000040);
+    private static final BitField fSupressTopSpacing = new BitField(0x00000080);
+    private static final BitField fOrigWordTableRules = new BitField(0x00000100);
+    private static final BitField fTransparentMetafiles = new BitField(0x00000200);
+    private static final BitField fShowBreaksInFrames = new BitField(0x00000400);
+    private static final BitField fSwapBordersFacingPgs = new BitField(0x00000800);
+    private static final BitField fSuppressTopSPacingMac5 = new BitField(0x00010000);
+    private static final BitField fTruncDxaExpand = new BitField(0x00020000);
+    private static final BitField fPrintBodyBeforeHdr = new BitField(0x00040000);
+    private static final BitField fNoLeading = new BitField(0x00080000);
+    private static final BitField fMWSmallCaps = new BitField(0x00200000);
     protected short field_34_adt;
     protected byte[] field_35_doptypography;
     protected byte[] field_36_dogrid;
     protected short field_37_docinfo5;
-    /**/private static BitField lvl = new BitField(0x001e);
-    /**/private static BitField fGramAllDone = new BitField(0x0020);
-    /**/private static BitField fGramAllClean = new BitField(0x0040);
-    /**/private static BitField fSubsetFonts = new BitField(0x0080);
-    /**/private static BitField fHideLastVersion = new BitField(0x0100);
-    /**/private static BitField fHtmlDoc = new BitField(0x0200);
-    /**/private static BitField fSnapBorder = new BitField(0x0800);
-    /**/private static BitField fIncludeHeader = new BitField(0x1000);
-    /**/private static BitField fIncludeFooter = new BitField(0x2000);
-    /**/private static BitField fForcePageSizePag = new BitField(0x4000);
-    /**/private static BitField fMinFontSizePag = new BitField(0x8000);
+    private static final BitField lvl = new BitField(0x001e);
+    private static final BitField fGramAllDone = new BitField(0x0020);
+    private static final BitField fGramAllClean = new BitField(0x0040);
+    private static final BitField fSubsetFonts = new BitField(0x0080);
+    private static final BitField fHideLastVersion = new BitField(0x0100);
+    private static final BitField fHtmlDoc = new BitField(0x0200);
+    private static final BitField fSnapBorder = new BitField(0x0800);
+    private static final BitField fIncludeHeader = new BitField(0x1000);
+    private static final BitField fIncludeFooter = new BitField(0x2000);
+    private static final BitField fForcePageSizePag = new BitField(0x4000);
+    private static final BitField fMinFontSizePag = new BitField(0x8000);
     protected short field_38_docinfo6;
-    /**/private static BitField fHaveVersions = new BitField(0x0001);
-    /**/private static BitField fAutoVersions = new BitField(0x0002);
+    private static final BitField fHaveVersions = new BitField(0x0001);
+    private static final BitField fAutoVersions = new BitField(0x0002);
     protected byte[] field_39_asumyi;
     protected int field_40_cChWS;
     protected int field_41_cChWSFtnEdn;
     protected int field_42_grfDocEvents;
     protected int field_43_virusinfo;
-    /**/private static BitField fVirusPrompted = new BitField(0x0001);
-    /**/private static BitField fVirusLoadSafe = new BitField(0x0002);
-    /**/private static BitField KeyVirusSession30 = new BitField(0xfffffffc);
+    private static final BitField fVirusPrompted = new BitField(0x0001);
+    private static final BitField fVirusLoadSafe = new BitField(0x0002);
+    private static final BitField KeyVirusSession30 = new BitField(0xfffffffc);
     protected byte[] field_44_Spare;
     protected int field_45_reserved1;
     protected int field_46_reserved2;
@@ -248,12 +249,12 @@ public abstract class DOPAbstractType implements HDFType {
     {
         data[ 0x0 + offset] = field_1_formatFlags;
         data[ 0x1 + offset] = field_2_unused2;
-        LittleEndian.putShort(data, 0x2 + offset, (short)field_3_footnoteInfo);
+        LittleEndian.putShort(data, 0x2 + offset, field_3_footnoteInfo);
         data[ 0x4 + offset] = field_4_fOutlineDirtySave;
         data[ 0x5 + offset] = field_5_docinfo;
         data[ 0x6 + offset] = field_6_docinfo1;
         data[ 0x7 + offset] = field_7_docinfo2;
-        LittleEndian.putShort(data, 0x8 + offset, (short)field_8_docinfo3);
+        LittleEndian.putShort(data, 0x8 + offset, field_8_docinfo3);
         LittleEndian.putShort(data, 0xa + offset, (short)field_9_dxaTab);
         LittleEndian.putShort(data, 0xc + offset, (short)field_10_wSpare);
         LittleEndian.putShort(data, 0xe + offset, (short)field_11_dxaHotz);
@@ -268,22 +269,22 @@ public abstract class DOPAbstractType implements HDFType {
         LittleEndian.putInt(data, 0x2a + offset, field_20_cCh);
         LittleEndian.putShort(data, 0x2e + offset, (short)field_21_cPg);
         LittleEndian.putInt(data, 0x30 + offset, field_22_cParas);
-        LittleEndian.putShort(data, 0x34 + offset, (short)field_23_Edn);
-        LittleEndian.putShort(data, 0x36 + offset, (short)field_24_Edn1);
+        LittleEndian.putShort(data, 0x34 + offset, field_23_Edn);
+        LittleEndian.putShort(data, 0x36 + offset, field_24_Edn1);
         LittleEndian.putInt(data, 0x38 + offset, field_25_cLines);
         LittleEndian.putInt(data, 0x3c + offset, field_26_cWordsFtnEnd);
         LittleEndian.putInt(data, 0x40 + offset, field_27_cChFtnEdn);
-        LittleEndian.putShort(data, 0x44 + offset, (short)field_28_cPgFtnEdn);
+        LittleEndian.putShort(data, 0x44 + offset, field_28_cPgFtnEdn);
         LittleEndian.putInt(data, 0x46 + offset, field_29_cParasFtnEdn);
         LittleEndian.putInt(data, 0x4a + offset, field_30_cLinesFtnEdn);
         LittleEndian.putInt(data, 0x4e + offset, field_31_lKeyProtDoc);
-        LittleEndian.putShort(data, 0x52 + offset, (short)field_32_view);
+        LittleEndian.putShort(data, 0x52 + offset, field_32_view);
         LittleEndian.putInt(data, 0x54 + offset, field_33_docinfo4);
-        LittleEndian.putShort(data, 0x58 + offset, (short)field_34_adt);
+        LittleEndian.putShort(data, 0x58 + offset, field_34_adt);
         System.arraycopy(field_35_doptypography, 0, data, 0x5a + offset, field_35_doptypography.length);
         System.arraycopy(field_36_dogrid, 0, data, 0x190 + offset, field_36_dogrid.length);
-        LittleEndian.putShort(data, 0x19a + offset, (short)field_37_docinfo5);
-        LittleEndian.putShort(data, 0x19c + offset, (short)field_38_docinfo6);
+        LittleEndian.putShort(data, 0x19a + offset, field_37_docinfo5);
+        LittleEndian.putShort(data, 0x19c + offset, field_38_docinfo6);
         System.arraycopy(field_39_asumyi, 0, data, 0x19e + offset, field_39_asumyi.length);
         LittleEndian.putInt(data, 0x1aa + offset, field_40_cChWS);
         LittleEndian.putInt(data, 0x1ae + offset, field_41_cChWSFtnEdn);
@@ -295,10 +296,10 @@ public abstract class DOPAbstractType implements HDFType {
         LittleEndian.putInt(data, 0x1e0 + offset, field_47_cDBC);
         LittleEndian.putInt(data, 0x1e4 + offset, field_48_cDBCFtnEdn);
         LittleEndian.putInt(data, 0x1e8 + offset, field_49_reserved);
-        LittleEndian.putShort(data, 0x1ec + offset, (short)field_50_nfcFtnRef);
-        LittleEndian.putShort(data, 0x1ee + offset, (short)field_51_nfcEdnRef);
-        LittleEndian.putShort(data, 0x1f0 + offset, (short)field_52_hpsZoonFontPag);
-        LittleEndian.putShort(data, 0x1f2 + offset, (short)field_53_dywDispPag);
+        LittleEndian.putShort(data, 0x1ec + offset, field_50_nfcFtnRef);
+        LittleEndian.putShort(data, 0x1ee + offset, field_51_nfcEdnRef);
+        LittleEndian.putShort(data, 0x1f0 + offset, field_52_hpsZoonFontPag);
+        LittleEndian.putShort(data, 0x1f2 + offset, field_53_dywDispPag);
     }
 
     /**
@@ -458,9 +459,9 @@ public abstract class DOPAbstractType implements HDFType {
         builder.append("    .adt                  = ");
         builder.append(" (").append(getAdt()).append(" )\n");
         builder.append("    .doptypography        = ");
-        builder.append(" (").append(getDoptypography()).append(" )\n");
+        builder.append(" (").append(Arrays.toString(getDoptypography())).append(" )\n");
         builder.append("    .dogrid               = ");
-        builder.append(" (").append(getDogrid()).append(" )\n");
+        builder.append(" (").append(Arrays.toString(getDogrid())).append(" )\n");
         builder.append("    .docinfo5             = ");
         builder.append(" (").append(getDocinfo5()).append(" )\n");
         builder.append("         .lvl                      = ").append(getLvl()).append('\n');
@@ -479,7 +480,7 @@ public abstract class DOPAbstractType implements HDFType {
         builder.append("         .fHaveVersions            = ").append(isFHaveVersions()).append('\n');
         builder.append("         .fAutoVersions            = ").append(isFAutoVersions()).append('\n');
         builder.append("    .asumyi               = ");
-        builder.append(" (").append(getAsumyi()).append(" )\n");
+        builder.append(" (").append(Arrays.toString(getAsumyi())).append(" )\n");
         builder.append("    .cChWS                = ");
         builder.append(" (").append(getCChWS()).append(" )\n");
         builder.append("    .cChWSFtnEdn          = ");
@@ -492,7 +493,7 @@ public abstract class DOPAbstractType implements HDFType {
         builder.append("         .fVirusLoadSafe           = ").append(isFVirusLoadSafe()).append('\n');
         builder.append("         .KeyVirusSession30        = ").append(getKeyVirusSession30()).append('\n');
         builder.append("    .Spare                = ");
-        builder.append(" (").append(getSpare()).append(" )\n");
+        builder.append(" (").append(Arrays.toString(getSpare())).append(" )\n");
         builder.append("    .reserved1            = ");
         builder.append(" (").append(getReserved1()).append(" )\n");
         builder.append("    .reserved2            = ");
@@ -2657,7 +2658,7 @@ public abstract class DOPAbstractType implements HDFType {
     @Internal
     public void setFNoTabForInd( boolean value )
     {
-        field_33_docinfo4 = (int)fNoTabForInd.setBoolean(field_33_docinfo4, value);
+        field_33_docinfo4 = fNoTabForInd.setBoolean(field_33_docinfo4, value);
     }
 
     /**
@@ -2677,7 +2678,7 @@ public abstract class DOPAbstractType implements HDFType {
     @Internal
     public void setFNoSpaceRaiseLower( boolean value )
     {
-        field_33_docinfo4 = (int)fNoSpaceRaiseLower.setBoolean(field_33_docinfo4, value);
+        field_33_docinfo4 = fNoSpaceRaiseLower.setBoolean(field_33_docinfo4, value);
     }
 
     /**
@@ -2697,7 +2698,7 @@ public abstract class DOPAbstractType implements HDFType {
     @Internal
     public void setFSupressSpdfAfterPageBreak( boolean value )
     {
-        field_33_docinfo4 = (int)fSupressSpdfAfterPageBreak.setBoolean(field_33_docinfo4, value);
+        field_33_docinfo4 = fSupressSpdfAfterPageBreak.setBoolean(field_33_docinfo4, value);
     }
 
     /**
@@ -2717,7 +2718,7 @@ public abstract class DOPAbstractType implements HDFType {
     @Internal
     public void setFWrapTrailSpaces( boolean value )
     {
-        field_33_docinfo4 = (int)fWrapTrailSpaces.setBoolean(field_33_docinfo4, value);
+        field_33_docinfo4 = fWrapTrailSpaces.setBoolean(field_33_docinfo4, value);
     }
 
     /**
@@ -2737,7 +2738,7 @@ public abstract class DOPAbstractType implements HDFType {
     @Internal
     public void setFMapPrintTextColor( boolean value )
     {
-        field_33_docinfo4 = (int)fMapPrintTextColor.setBoolean(field_33_docinfo4, value);
+        field_33_docinfo4 = fMapPrintTextColor.setBoolean(field_33_docinfo4, value);
     }
 
     /**
@@ -2757,7 +2758,7 @@ public abstract class DOPAbstractType implements HDFType {
     @Internal
     public void setFNoColumnBalance( boolean value )
     {
-        field_33_docinfo4 = (int)fNoColumnBalance.setBoolean(field_33_docinfo4, value);
+        field_33_docinfo4 = fNoColumnBalance.setBoolean(field_33_docinfo4, value);
     }
 
     /**
@@ -2777,7 +2778,7 @@ public abstract class DOPAbstractType implements HDFType {
     @Internal
     public void setFConvMailMergeEsc( boolean value )
     {
-        field_33_docinfo4 = (int)fConvMailMergeEsc.setBoolean(field_33_docinfo4, value);
+        field_33_docinfo4 = fConvMailMergeEsc.setBoolean(field_33_docinfo4, value);
     }
 
     /**
@@ -2797,7 +2798,7 @@ public abstract class DOPAbstractType implements HDFType {
     @Internal
     public void setFSupressTopSpacing( boolean value )
     {
-        field_33_docinfo4 = (int)fSupressTopSpacing.setBoolean(field_33_docinfo4, value);
+        field_33_docinfo4 = fSupressTopSpacing.setBoolean(field_33_docinfo4, value);
     }
 
     /**
@@ -2817,7 +2818,7 @@ public abstract class DOPAbstractType implements HDFType {
     @Internal
     public void setFOrigWordTableRules( boolean value )
     {
-        field_33_docinfo4 = (int)fOrigWordTableRules.setBoolean(field_33_docinfo4, value);
+        field_33_docinfo4 = fOrigWordTableRules.setBoolean(field_33_docinfo4, value);
     }
 
     /**
@@ -2837,7 +2838,7 @@ public abstract class DOPAbstractType implements HDFType {
     @Internal
     public void setFTransparentMetafiles( boolean value )
     {
-        field_33_docinfo4 = (int)fTransparentMetafiles.setBoolean(field_33_docinfo4, value);
+        field_33_docinfo4 = fTransparentMetafiles.setBoolean(field_33_docinfo4, value);
     }
 
     /**
@@ -2857,7 +2858,7 @@ public abstract class DOPAbstractType implements HDFType {
     @Internal
     public void setFShowBreaksInFrames( boolean value )
     {
-        field_33_docinfo4 = (int)fShowBreaksInFrames.setBoolean(field_33_docinfo4, value);
+        field_33_docinfo4 = fShowBreaksInFrames.setBoolean(field_33_docinfo4, value);
     }
 
     /**
@@ -2877,7 +2878,7 @@ public abstract class DOPAbstractType implements HDFType {
     @Internal
     public void setFSwapBordersFacingPgs( boolean value )
     {
-        field_33_docinfo4 = (int)fSwapBordersFacingPgs.setBoolean(field_33_docinfo4, value);
+        field_33_docinfo4 = fSwapBordersFacingPgs.setBoolean(field_33_docinfo4, value);
     }
 
     /**
@@ -2897,7 +2898,7 @@ public abstract class DOPAbstractType implements HDFType {
     @Internal
     public void setFSuppressTopSPacingMac5( boolean value )
     {
-        field_33_docinfo4 = (int)fSuppressTopSPacingMac5.setBoolean(field_33_docinfo4, value);
+        field_33_docinfo4 = fSuppressTopSPacingMac5.setBoolean(field_33_docinfo4, value);
     }
 
     /**
@@ -2917,7 +2918,7 @@ public abstract class DOPAbstractType implements HDFType {
     @Internal
     public void setFTruncDxaExpand( boolean value )
     {
-        field_33_docinfo4 = (int)fTruncDxaExpand.setBoolean(field_33_docinfo4, value);
+        field_33_docinfo4 = fTruncDxaExpand.setBoolean(field_33_docinfo4, value);
     }
 
     /**
@@ -2937,7 +2938,7 @@ public abstract class DOPAbstractType implements HDFType {
     @Internal
     public void setFPrintBodyBeforeHdr( boolean value )
     {
-        field_33_docinfo4 = (int)fPrintBodyBeforeHdr.setBoolean(field_33_docinfo4, value);
+        field_33_docinfo4 = fPrintBodyBeforeHdr.setBoolean(field_33_docinfo4, value);
     }
 
     /**
@@ -2957,7 +2958,7 @@ public abstract class DOPAbstractType implements HDFType {
     @Internal
     public void setFNoLeading( boolean value )
     {
-        field_33_docinfo4 = (int)fNoLeading.setBoolean(field_33_docinfo4, value);
+        field_33_docinfo4 = fNoLeading.setBoolean(field_33_docinfo4, value);
     }
 
     /**
@@ -2977,7 +2978,7 @@ public abstract class DOPAbstractType implements HDFType {
     @Internal
     public void setFMWSmallCaps( boolean value )
     {
-        field_33_docinfo4 = (int)fMWSmallCaps.setBoolean(field_33_docinfo4, value);
+        field_33_docinfo4 = fMWSmallCaps.setBoolean(field_33_docinfo4, value);
     }
 
     /**
@@ -3257,7 +3258,7 @@ public abstract class DOPAbstractType implements HDFType {
     @Internal
     public void setFVirusPrompted( boolean value )
     {
-        field_43_virusinfo = (int)fVirusPrompted.setBoolean(field_43_virusinfo, value);
+        field_43_virusinfo = fVirusPrompted.setBoolean(field_43_virusinfo, value);
     }
 
     /**
@@ -3277,7 +3278,7 @@ public abstract class DOPAbstractType implements HDFType {
     @Internal
     public void setFVirusLoadSafe( boolean value )
     {
-        field_43_virusinfo = (int)fVirusLoadSafe.setBoolean(field_43_virusinfo, value);
+        field_43_virusinfo = fVirusLoadSafe.setBoolean(field_43_virusinfo, value);
     }
 
     /**
@@ -3297,7 +3298,7 @@ public abstract class DOPAbstractType implements HDFType {
     @Internal
     public void setKeyVirusSession30( int value )
     {
-        field_43_virusinfo = (int)KeyVirusSession30.setValue(field_43_virusinfo, value);
+        field_43_virusinfo = KeyVirusSession30.setValue(field_43_virusinfo, value);
     }
 
     /**
@@ -3307,7 +3308,7 @@ public abstract class DOPAbstractType implements HDFType {
     @Internal
     public int getKeyVirusSession30()
     {
-        return ( int )KeyVirusSession30.getValue(field_43_virusinfo);
+        return KeyVirusSession30.getValue(field_43_virusinfo);
     }
 
 }  // END OF CLASS

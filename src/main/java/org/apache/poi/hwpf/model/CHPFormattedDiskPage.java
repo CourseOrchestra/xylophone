@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.poi.hwpf.sprm.SprmBuffer;
 import org.apache.poi.util.Internal;
 import org.apache.poi.util.LittleEndian;
+import org.apache.poi.util.RecordFormatException;
 
 /**
  * Represents a CHP fkp. The style properties for paragraph and character runs
@@ -62,7 +63,7 @@ public final class CHPFormattedDiskPage extends FormattedDiskPage
      *             {@link #CHPFormattedDiskPage(byte[], int, CharIndexTranslator)}
      *             instead
      */
-    @SuppressWarnings( "unused" )
+    @Deprecated
     public CHPFormattedDiskPage( byte[] documentStream, int offset, int fcMin,
             TextPieceTable tpt )
     {
@@ -123,9 +124,10 @@ public final class CHPFormattedDiskPage extends FormattedDiskPage
      * @param index The index of the chpx to get.
      * @return a chpx grpprl.
      */
+    @Override
     protected byte[] getGrpprl(int index)
     {
-        int chpxOffset = 2 * LittleEndian.getUnsignedByte(_fkp, _offset + (((_crun + 1) * 4) + index));
+        int chpxOffset = 2 * LittleEndian.getUByte(_fkp, _offset + (((_crun + 1) * 4) + index));
 
         //optimization if offset == 0 use "Normal" style
         if(chpxOffset == 0)
@@ -133,7 +135,7 @@ public final class CHPFormattedDiskPage extends FormattedDiskPage
             return new byte[0];
         }
 
-        int size = LittleEndian.getUnsignedByte(_fkp, _offset + chpxOffset);
+        int size = LittleEndian.getUByte(_fkp, _offset + chpxOffset);
 
         byte[] chpx = new byte[size];
 
@@ -145,7 +147,6 @@ public final class CHPFormattedDiskPage extends FormattedDiskPage
      * @deprecated Use {@link #toByteArray(CharIndexTranslator)} instead
      */
     @Deprecated
-    @SuppressWarnings( "unused" )
     protected byte[] toByteArray(CharIndexTranslator translator, int fcMin)
     {
         return toByteArray( translator );
@@ -171,8 +172,7 @@ public final class CHPFormattedDiskPage extends FormattedDiskPage
             // the grpprl size byte and the grpprl.
             totalSize += ( FC_SIZE + 2 + grpprlLength );
             // if size is uneven we will have to add one so the first grpprl
-            // falls
-            // on a word boundary
+            // falls on a word boundary
             if ( totalSize > 511 + ( index % 2 ) )
             {
                 totalSize -= ( FC_SIZE + 2 + grpprlLength );
@@ -186,6 +186,10 @@ public final class CHPFormattedDiskPage extends FormattedDiskPage
             }
         }
 
+        if (index == 0) {
+            throw new RecordFormatException("empty grpprl entry.");
+        }
+        
         // see if we couldn't fit some
         if ( index != size )
         {
@@ -199,15 +203,13 @@ public final class CHPFormattedDiskPage extends FormattedDiskPage
         offsetOffset = ( FC_SIZE * index ) + FC_SIZE;
         // grpprlOffset = offsetOffset + index + (grpprlOffset % 2);
 
-        CHPX chpx = null;
-        for ( int x = 0; x < index; x++ )
-        {
-            chpx = _chpxList.get( x );
+        int chpxEnd = 0;
+        for ( CHPX chpx : _chpxList.subList(0, index)) {
+            int chpxStart = translator.getByteIndex( chpx.getStart() );
+            chpxEnd = translator.getByteIndex( chpx.getEnd() );
+            LittleEndian.putInt( buf, fcOffset, chpxStart );
+
             byte[] grpprl = chpx.getGrpprl();
-
-            LittleEndian.putInt( buf, fcOffset,
-                    translator.getByteIndex( chpx.getStart() ) );
-
             grpprlOffset -= ( 1 + grpprl.length );
             grpprlOffset -= ( grpprlOffset % 2 );
             buf[offsetOffset] = (byte) ( grpprlOffset / 2 );
@@ -218,8 +220,7 @@ public final class CHPFormattedDiskPage extends FormattedDiskPage
             fcOffset += FC_SIZE;
         }
         // put the last chpx's end in
-        LittleEndian.putInt( buf, fcOffset,
-                translator.getByteIndex( chpx.getEnd() ) );
+        LittleEndian.putInt( buf, fcOffset, chpxEnd );
         return buf;
     }
 

@@ -21,6 +21,8 @@ node {
         }
     } finally {
         junit 'target/surefire-reports/**/*.xml'
+        checkstyle pattern: 'target/checkstyle-result.xml'
+        findbugs pattern: 'target/spotbugsXml.xml'
     }
 
     if (env.BRANCH_NAME == 'dev') {

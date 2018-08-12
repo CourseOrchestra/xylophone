@@ -18,11 +18,11 @@
  */
 package org.apache.poi.hwpf.model;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 
-import org.apache.poi.hwpf.model.io.HWPFOutputStream;
 import org.apache.poi.util.LittleEndian;
 import org.apache.poi.util.POILogFactory;
 import org.apache.poi.util.POILogger;
@@ -37,7 +37,7 @@ import org.apache.poi.util.POILogger;
  */
 public class PlfLfo
 {
-    private static POILogger log = POILogFactory.getLogger( PlfLfo.class );
+    private final static POILogger log = POILogFactory.getLogger( PlfLfo.class );
 
     /**
      * An unsigned integer that specifies the count of elements in both the
@@ -115,34 +115,28 @@ public class PlfLfo
 
     void add( LFO lfo, LFOData lfoData )
     {
-        final int newLfoMac = _lfoMac + 1;
+        // _lfoMac is the size of the array
+        _rgLfo = Arrays.copyOf(_rgLfo, _lfoMac + 1);
+        _rgLfo[_lfoMac] = lfo;
 
-        _rgLfo = Arrays.copyOf(_rgLfo, newLfoMac);
-        _rgLfo[_lfoMac + 1] = lfo;
+        _rgLfoData = Arrays.copyOf(_rgLfoData, _lfoMac + 1);
+        _rgLfoData[_lfoMac] = lfoData;
 
-        _rgLfoData = Arrays.copyOf(_rgLfoData, newLfoMac);
-        _rgLfoData[_lfoMac + 1] = lfoData;
-
-        this._lfoMac = newLfoMac;
+        _lfoMac = _lfoMac + 1;
     }
 
     @Override
-    public boolean equals( Object obj )
-    {
-        if ( this == obj )
+    public boolean equals( Object obj ) {
+        if (this == obj)
             return true;
-        if ( obj == null )
+        if (obj == null)
             return false;
-        if ( getClass() != obj.getClass() )
+        if (getClass() != obj.getClass())
             return false;
         PlfLfo other = (PlfLfo) obj;
-        if ( _lfoMac != other._lfoMac )
-            return false;
-        if ( !Arrays.equals( _rgLfo, other._rgLfo ) )
-            return false;
-        if ( !Arrays.equals( _rgLfoData, other._rgLfoData ) )
-            return false;
-        return true;
+        return _lfoMac == other._lfoMac &&
+                Arrays.equals(_rgLfo, other._rgLfo) &&
+                Arrays.equals(_rgLfoData, other._rgLfoData);
     }
 
     /**
@@ -167,6 +161,11 @@ public class PlfLfo
                 + " not found" );
     }
 
+    /**
+     * @param ilfo 1-based index
+     * @return The {@link LFO} stored at the given index
+     * @throws NoSuchElementException
+     */
     public LFO getLfo( int ilfo ) throws NoSuchElementException
     {
         if ( ilfo <= 0 || ilfo > _lfoMac )
@@ -177,6 +176,11 @@ public class PlfLfo
         return _rgLfo[ilfo - 1];
     }
 
+    /**
+     * @param ilfo 1-based index
+     * @return The {@link LFOData} stored at the given index
+     * @throws NoSuchElementException
+     */
     public LFOData getLfoData( int ilfo ) throws NoSuchElementException
     {
         if ( ilfo <= 0 || ilfo > _lfoMac )
@@ -198,10 +202,10 @@ public class PlfLfo
         return result;
     }
 
-    void writeTo( FileInformationBlock fib, HWPFOutputStream outputStream )
+    void writeTo( FileInformationBlock fib, ByteArrayOutputStream outputStream )
             throws IOException
     {
-        final int offset = outputStream.getOffset();
+        final int offset = outputStream.size();
         fib.setFcPlfLfo( offset );
 
         LittleEndian.putUInt( _lfoMac, outputStream );
@@ -217,6 +221,6 @@ public class PlfLfo
         {
             _rgLfoData[i].writeTo( outputStream );
         }
-        fib.setLcbPlfLfo( outputStream.getOffset() - offset );
+        fib.setLcbPlfLfo( outputStream.size() - offset );
     }
 }

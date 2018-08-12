@@ -1,8 +1,8 @@
 /*
-   (с) 2016 ООО "КУРС-ИТ"  
+   (с) 2016 ООО "КУРС-ИТ"
 
    Этот файл — часть КУРС:Xylophone.
-   
+
    КУРС:Xylophone — свободная программа: вы можете перераспространять ее и/или изменять
    ее на условиях Стандартной общественной лицензии ограниченного применения GNU (LGPL)
    в том виде, в каком она была опубликована Фондом свободного программного обеспечения; либо
@@ -13,11 +13,11 @@
    или ПРИГОДНОСТИ ДЛЯ ОПРЕДЕЛЕННЫХ ЦЕЛЕЙ. Подробнее см. в Стандартной
    общественной лицензии GNU.
 
-   Вы должны были получить копию Стандартной общественной лицензии  ограниченного 
-   применения GNU (LGPL) вместе с этой программой. Если это не так, 
+   Вы должны были получить копию Стандартной общественной лицензии  ограниченного
+   применения GNU (LGPL) вместе с этой программой. Если это не так,
    см. http://www.gnu.org/licenses/.
 
-   
+
    Copyright 2016, COURSE-IT Ltd.
 
    This program is free software: you can redistribute it and/or modify
@@ -51,111 +51,111 @@ import org.w3c.dom.Node;
  */
 final class DOMDataReader extends XMLDataReader {
 
-	private final Document xmlData;
+    private final Document xmlData;
 
-	DOMDataReader(InputStream xmlData, DescriptorElement xmlDescriptor,
-			ReportWriter writer) throws XML2SpreadSheetError {
-		super(writer, xmlDescriptor);
-		try {
-			DocumentBuilder db = DocumentBuilderFactory.newInstance()
-					.newDocumentBuilder();
-			this.xmlData = db.parse(xmlData);
-		} catch (Exception e) {
-			throw new XML2SpreadSheetError("Error while parsing input data: "
-					+ e.getMessage());
-		}
+    DOMDataReader(InputStream xmlData, DescriptorElement xmlDescriptor,
+            ReportWriter writer) throws XML2SpreadSheetError {
+        super(writer, xmlDescriptor);
+        try {
+            DocumentBuilder db = DocumentBuilderFactory.newInstance()
+                    .newDocumentBuilder();
+            this.xmlData = db.parse(xmlData);
+        } catch (Exception e) {
+            throw new XML2SpreadSheetError("Error while parsing input data: "
+                    + e.getMessage());
+        }
 
-	}
+    }
 
-	// В режиме итерации нашёлся подходящий элемент
-	private void processElement(String elementPath, DescriptorElement de,
-			Element xe, int position) throws XML2SpreadSheetError {
-		XMLContext context = null;
-		for (DescriptorSubelement se : de.getSubelements()) {
-			if (se instanceof DescriptorIteration) {
-				processIteration(elementPath, xe, (DescriptorIteration) se,
-						position);
-			} else if (se instanceof DescriptorOutput) {
-				// Контекст имеет смысл создавать лишь если есть хоть один
-				// output
-				if (context == null)
-					context = new XMLContext.DOMContext(xe, elementPath,
-							position);
-				processOutput(context, (DescriptorOutput) se);
-			}
-		}
+    // В режиме итерации нашёлся подходящий элемент
+    private void processElement(String elementPath, DescriptorElement de,
+            Element xe, int position) throws XML2SpreadSheetError {
+        XMLContext context = null;
+        for (DescriptorSubelement se : de.getSubelements()) {
+            if (se instanceof DescriptorIteration) {
+                processIteration(elementPath, xe, (DescriptorIteration) se,
+                        position);
+            } else if (se instanceof DescriptorOutput) {
+                // Контекст имеет смысл создавать лишь если есть хоть один
+                // output
+                if (context == null)
+                    context = new XMLContext.DOMContext(xe, elementPath,
+                            position);
+                processOutput(context, (DescriptorOutput) se);
+            }
+        }
 
-	}
+    }
 
-	// По субэлементам текущего элемента надо провести итерацию
-	private void processIteration(String elementPath, Element parent,
-			DescriptorIteration i, int position) throws XML2SpreadSheetError {
+    // По субэлементам текущего элемента надо провести итерацию
+    private void processIteration(String elementPath, Element parent,
+            DescriptorIteration i, int position) throws XML2SpreadSheetError {
 
-		final HashMap<String, Integer> elementIndices = new HashMap<>();
+        final HashMap<String, Integer> elementIndices = new HashMap<>();
 
-		getWriter().startSequence(i.isHorizontal());
+        getWriter().startSequence(i.isHorizontal());
 
-		for (DescriptorElement de : i.getElements())
-			if ("(before)".equals(de.getElementName()))
-				processElement(elementPath, de, parent, position);
+        for (DescriptorElement de : i.getElements())
+            if ("(before)".equals(de.getElementName()))
+                processElement(elementPath, de, parent, position);
 
-		Node n = parent.getFirstChild();
-		int elementIndex = -1;
+        Node n = parent.getFirstChild();
+        int elementIndex = -1;
 
-		int pos = 0;
-		iteration: while (n != null) {
-			// Нас интересуют только элементы
-			if (n.getNodeType() == Node.ELEMENT_NODE) {
-				// Поддерживаем таблицу с нумерацией нод для вычисления пути
-				Integer ind = elementIndices.get(n.getNodeName());
-				if (ind == null)
-					ind = 0;
-				elementIndices.put(n.getNodeName(), ind + 1);
+        int pos = 0;
+        iteration: while (n != null) {
+            // Нас интересуют только элементы
+            if (n.getNodeType() == Node.ELEMENT_NODE) {
+                // Поддерживаем таблицу с нумерацией нод для вычисления пути
+                Integer ind = elementIndices.get(n.getNodeName());
+                if (ind == null)
+                    ind = 0;
+                elementIndices.put(n.getNodeName(), ind + 1);
 
-				elementIndex++;
-				boolean found = false;
-				if (compareIndices(i.getIndex(), elementIndex)) {
-					HashMap<String, String> atts = new HashMap<>();
+                elementIndex++;
+                boolean found = false;
+                if (compareIndices(i.getIndex(), elementIndex)) {
+                    HashMap<String, String> atts = new HashMap<>();
 
-					for (int j = 0; j < n.getAttributes().getLength(); j++) {
-						Node att = n.getAttributes().item(j);
-						atts.put(att.getNodeName(), att.getNodeValue());
-					}
+                    for (int j = 0; j < n.getAttributes().getLength(); j++) {
+                        Node att = n.getAttributes().item(j);
+                        atts.put(att.getNodeName(), att.getNodeValue());
+                    }
 
-					for (DescriptorElement e : i.getElements())
-						if (compareNames(e.getElementName(), n.getNodeName(),
-								atts)) {
-							found = true;
-							processElement(String.format("%s/%s[%s]",
-									elementPath, n.getNodeName(),
-									elementIndices.get(n.getNodeName())
-											.toString()), e, (Element) n,
-									pos + 1);
-						}
-					// Если явно задан индекс, то на этом заканчиваем итерацию
-					if (i.getIndex() >= 0)
-						break iteration;
-				}
-				if (found)
-					pos++;
-			}
-			n = n.getNextSibling();
-		}
+                    for (DescriptorElement e : i.getElements())
+                        if (compareNames(e.getElementName(), n.getNodeName(),
+                                atts)) {
+                            found = true;
+                            processElement(String.format("%s/%s[%s]",
+                                    elementPath, n.getNodeName(),
+                                    elementIndices.get(n.getNodeName())
+                                            .toString()), e, (Element) n,
+                                    pos + 1);
+                        }
+                    // Если явно задан индекс, то на этом заканчиваем итерацию
+                    if (i.getIndex() >= 0)
+                        break iteration;
+                }
+                if (found)
+                    pos++;
+            }
+            n = n.getNextSibling();
+        }
 
-		for (DescriptorElement de : i.getElements())
-			if ("(after)".equals(de.getElementName()))
-				processElement(elementPath, de, parent, position);
+        for (DescriptorElement de : i.getElements())
+            if ("(after)".equals(de.getElementName()))
+                processElement(elementPath, de, parent, position);
 
-		getWriter().endSequence(i.getMerge(), i.getRegionName());
-	}
+        getWriter().endSequence(i.getMerge(), i.getRegionName());
+    }
 
-	@Override
-	void process() throws XML2SpreadSheetError {
-		// Обработка в DOM-режиме --- рекурсивная, управляемая дескриптором.
-		if (getDescriptor().getElementName().equals(
-				xmlData.getDocumentElement().getNodeName()))
-			processElement("/" + getDescriptor().getElementName() + "[1]",
-					getDescriptor(), xmlData.getDocumentElement(), 1);
-		getWriter().flush();
-	}
+    @Override
+    void process() throws XML2SpreadSheetError {
+        // Обработка в DOM-режиме --- рекурсивная, управляемая дескриптором.
+        if (getDescriptor().getElementName().equals(
+                xmlData.getDocumentElement().getNodeName()))
+            processElement("/" + getDescriptor().getElementName() + "[1]",
+                    getDescriptor(), xmlData.getDocumentElement(), 1);
+        getWriter().flush();
+    }
 }

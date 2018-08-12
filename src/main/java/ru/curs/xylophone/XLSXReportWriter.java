@@ -1,8 +1,8 @@
 /*
-   (с) 2016 ООО "КУРС-ИТ"  
+   (с) 2016 ООО "КУРС-ИТ"
 
    Этот файл — часть КУРС:Xylophone.
-   
+
    КУРС:Xylophone — свободная программа: вы можете перераспространять ее и/или изменять
    ее на условиях Стандартной общественной лицензии ограниченного применения GNU (LGPL)
    в том виде, в каком она была опубликована Фондом свободного программного обеспечения; либо
@@ -13,11 +13,11 @@
    или ПРИГОДНОСТИ ДЛЯ ОПРЕДЕЛЕННЫХ ЦЕЛЕЙ. Подробнее см. в Стандартной
    общественной лицензии GNU.
 
-   Вы должны были получить копию Стандартной общественной лицензии  ограниченного 
-   применения GNU (LGPL) вместе с этой программой. Если это не так, 
+   Вы должны были получить копию Стандартной общественной лицензии  ограниченного
+   применения GNU (LGPL) вместе с этой программой. Если это не так,
    см. http://www.gnu.org/licenses/.
 
-   
+
    Copyright 2016, COURSE-IT Ltd.
 
    This program is free software: you can redistribute it and/or modify
@@ -49,26 +49,26 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  */
 final class XLSXReportWriter extends POIReportWriter {
 
-	private XSSFWorkbook wb;
+    private XSSFWorkbook wb;
 
-	XLSXReportWriter(InputStream template, InputStream templateCopy)
-			throws XML2SpreadSheetError {
-		super(template, templateCopy);
-	}
+    XLSXReportWriter(InputStream template, InputStream templateCopy)
+            throws XML2SpreadSheetError {
+        super(template, templateCopy);
+    }
 
-	@Override
-	Workbook createResultWb(InputStream templateCopy)
-			throws InvalidFormatException, IOException {
-		if (templateCopy == null) {
-			wb = new XSSFWorkbook();
-		} else {
-			wb = (XSSFWorkbook) WorkbookFactory.create(templateCopy);
-		}
-		return wb;
-	}
+    @Override
+    Workbook createResultWb(InputStream templateCopy)
+            throws InvalidFormatException, IOException {
+        if (templateCopy == null) {
+            wb = new XSSFWorkbook();
+        } else {
+            wb = (XSSFWorkbook) WorkbookFactory.create(templateCopy);
+        }
+        return wb;
+    }
 
-	@Override
-	void evaluate() {
-		XSSFFormulaEvaluator.evaluateAllFormulaCells(wb);
-	}
+    @Override
+    void evaluate() {
+        XSSFFormulaEvaluator.evaluateAllFormulaCells(wb);
+    }
 }

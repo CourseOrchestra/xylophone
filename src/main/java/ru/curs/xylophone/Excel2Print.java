@@ -1,8 +1,8 @@
 /*
-   (с) 2016 ООО "КУРС-ИТ"  
+   (с) 2016 ООО "КУРС-ИТ"
 
    Этот файл — часть КУРС:Xylophone.
-   
+
    КУРС:Xylophone — свободная программа: вы можете перераспространять ее и/или изменять
    ее на условиях Стандартной общественной лицензии ограниченного применения GNU (LGPL)
    в том виде, в каком она была опубликована Фондом свободного программного обеспечения; либо
@@ -13,11 +13,11 @@
    или ПРИГОДНОСТИ ДЛЯ ОПРЕДЕЛЕННЫХ ЦЕЛЕЙ. Подробнее см. в Стандартной
    общественной лицензии GNU.
 
-   Вы должны были получить копию Стандартной общественной лицензии  ограниченного 
-   применения GNU (LGPL) вместе с этой программой. Если это не так, 
+   Вы должны были получить копию Стандартной общественной лицензии  ограниченного
+   применения GNU (LGPL) вместе с этой программой. Если это не так,
    см. http://www.gnu.org/licenses/.
 
-   
+
    Copyright 2016, COURSE-IT Ltd.
 
    This program is free software: you can redistribute it and/or modify
@@ -74,187 +74,187 @@ import org.xml.sax.SAXException;
  */
 public class Excel2Print {
 
-	private final HSSFWorkbook wb;
-	private File fopConfig;
-	private FopFactory fopFactory;
-	private String printerName;
+    private final HSSFWorkbook wb;
+    private File fopConfig;
+    private FopFactory fopFactory;
+    private String printerName;
 
-	public Excel2Print(HSSFWorkbook wb) {
-		if (wb == null)
-			throw new IllegalArgumentException("Workbook cannot be null!");
-		this.wb = wb;
-	}
+    public Excel2Print(HSSFWorkbook wb) {
+        if (wb == null)
+            throw new IllegalArgumentException("Workbook cannot be null!");
+        this.wb = wb;
+    }
 
-	public Excel2Print(InputStream is) throws InvalidFormatException,
-			IOException {
-		if (is == null)
-			throw new IllegalArgumentException(
-					"Workbook input stream cannot be null!");
-		wb = (HSSFWorkbook) WorkbookFactory.create(is);
-	}
+    public Excel2Print(InputStream is) throws InvalidFormatException,
+            IOException {
+        if (is == null)
+            throw new IllegalArgumentException(
+                    "Workbook input stream cannot be null!");
+        wb = (HSSFWorkbook) WorkbookFactory.create(is);
+    }
 
-	private FopFactory getFopFactory() throws IOException, SAXException {
-		if (fopFactory == null) {
-			fopFactory = FopFactory.newInstance(fopConfig);
-			//fopFactory.setUserConfig(fopConfig);
-		}
-		return fopFactory;
-	}
+    private FopFactory getFopFactory() throws IOException, SAXException {
+        if (fopFactory == null) {
+            fopFactory = FopFactory.newInstance(fopConfig);
+            //fopFactory.setUserConfig(fopConfig);
+        }
+        return fopFactory;
+    }
 
-	/**
-	 * Задаёт имя конфигурационного файла FOP.
-	 * 
-	 * @param config
-	 *            Имя конфигурационного файла.
-	 * @throws IOException
-	 *             Если файла не существует или если он не может быть прочитан.
-	 */
-	public void setFopConfig(String config) throws IOException {
-		if (config != null) {
-			File f = new File(config);
-			setFopConfig(f);
-		} else {
-			fopConfig = null;
-		}
-	}
+    /**
+     * Задаёт имя конфигурационного файла FOP.
+     *
+     * @param config
+     *            Имя конфигурационного файла.
+     * @throws IOException
+     *             Если файла не существует или если он не может быть прочитан.
+     */
+    public void setFopConfig(String config) throws IOException {
+        if (config != null) {
+            File f = new File(config);
+            setFopConfig(f);
+        } else {
+            fopConfig = null;
+        }
+    }
 
-	/**
-	 * Задаёт конфигурационный файл FOP.
-	 * 
-	 * @param config
-	 *            Конфигурационный файл FOP.
-	 * @throws IOException
-	 *             Если файла не существует или если он не может быть прочитан.
-	 */
-	public void setFopConfig(File config) throws IOException {
-		if (config != null) {
-			if (!(config.exists() && config.canRead()))
-				throw new IOException(String.format(
-						"File '%s' does not exists or cannot be read.", config));
-		}
-		fopConfig = config;
-	}
+    /**
+     * Задаёт конфигурационный файл FOP.
+     *
+     * @param config
+     *            Конфигурационный файл FOP.
+     * @throws IOException
+     *             Если файла не существует или если он не может быть прочитан.
+     */
+    public void setFopConfig(File config) throws IOException {
+        if (config != null) {
+            if (!(config.exists() && config.canRead()))
+                throw new IOException(String.format(
+                        "File '%s' does not exists or cannot be read.", config));
+        }
+        fopConfig = config;
+    }
 
-	/**
-	 * Конвертирует книгу в FO-документ.
-	 * 
-	 * @param doc
-	 *            FO-документ.
-	 */
-	public void toFO(Document doc) {
-		ExcelToFoConverter conv = new ExcelToFoConverter(doc);
-		conv.setOutputColumnHeaders(false);
-		conv.setOutputRowNumbers(false);
-		conv.setOutputSheetNames(false);
-		conv.processWorkbook(wb);
-	}
+    /**
+     * Конвертирует книгу в FO-документ.
+     *
+     * @param doc
+     *            FO-документ.
+     */
+    public void toFO(Document doc) {
+        ExcelToFoConverter conv = new ExcelToFoConverter(doc);
+        conv.setOutputColumnHeaders(false);
+        conv.setOutputRowNumbers(false);
+        conv.setOutputSheetNames(false);
+        conv.processWorkbook(wb);
+    }
 
-	/**
-	 * Конвертирует книгу в FO-документ и сохраняет её в поток.
-	 * 
-	 * @param os
-	 *            Поток для записи FO-документа.
-	 * @throws Exception
-	 *             ошибка формата книги, ошибка ввода-вывода, ошибка
-	 *             конфигурации системы.
-	 */
-	public void toFO(OutputStream os) throws Exception {
-		Document doc = getDoc();
-		TransformerFactory transformerFactory = TransformerFactory
-				.newInstance();
-		Transformer transformer = transformerFactory.newTransformer();
-		DOMSource source = new DOMSource(doc);
-		StreamResult streamResult = new StreamResult(os);
-		transformer.transform(source, streamResult);
-	}
+    /**
+     * Конвертирует книгу в FO-документ и сохраняет её в поток.
+     *
+     * @param os
+     *            Поток для записи FO-документа.
+     * @throws Exception
+     *             ошибка формата книги, ошибка ввода-вывода, ошибка
+     *             конфигурации системы.
+     */
+    public void toFO(OutputStream os) throws Exception {
+        Document doc = getDoc();
+        TransformerFactory transformerFactory = TransformerFactory
+                .newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        DOMSource source = new DOMSource(doc);
+        StreamResult streamResult = new StreamResult(os);
+        transformer.transform(source, streamResult);
+    }
 
-	private Document getDoc() throws ParserConfigurationException {
-		DocumentBuilder db = DocumentBuilderFactory.newInstance()
-				.newDocumentBuilder();
-		Document doc = db.newDocument();
-		toFO(doc);
-		return doc;
-	}
+    private Document getDoc() throws ParserConfigurationException {
+        DocumentBuilder db = DocumentBuilderFactory.newInstance()
+                .newDocumentBuilder();
+        Document doc = db.newDocument();
+        toFO(doc);
+        return doc;
+    }
 
-	/**
-	 * Конвертирует книгу в PDF.
-	 * 
-	 * @param out
-	 *            Поток для записи PDF-файла.
-	 * @throws Exception
-	 *             ошибка формата книги, ошибка ввода-вывода, ошибка
-	 *             конфигурации системы.
-	 */
-	public void toPDF(OutputStream out) throws Exception {
-		Document doc = getDoc();
-		Fop fop = getFopFactory().newFop(MimeConstants.MIME_PDF, out);
-		fopTransform(doc, fop);
-	}
+    /**
+     * Конвертирует книгу в PDF.
+     *
+     * @param out
+     *            Поток для записи PDF-файла.
+     * @throws Exception
+     *             ошибка формата книги, ошибка ввода-вывода, ошибка
+     *             конфигурации системы.
+     */
+    public void toPDF(OutputStream out) throws Exception {
+        Document doc = getDoc();
+        Fop fop = getFopFactory().newFop(MimeConstants.MIME_PDF, out);
+        fopTransform(doc, fop);
+    }
 
-	/**
-	 * Отправляет книгу на печать на принтер.
-	 * 
-	 * @throws Exception
-	 *             ошибка формата книги, ошибка ввода-вывода, ошибка
-	 *             конфигурации системы.
-	 */
-	@SuppressWarnings("unchecked")
-	public void toPrinter() throws Exception {
-		Document doc = getDoc();
+    /**
+     * Отправляет книгу на печать на принтер.
+     *
+     * @throws Exception
+     *             ошибка формата книги, ошибка ввода-вывода, ошибка
+     *             конфигурации системы.
+     */
+    @SuppressWarnings("unchecked")
+    public void toPrinter() throws Exception {
+        Document doc = getDoc();
 
-		if (printerName == null) {
-			try (OutputStream out = new ByteArrayOutputStream()){
-				Fop fop = getFopFactory().newFop(MimeConstants.MIME_FOP_PRINT,
-						out);
+        if (printerName == null) {
+            try (OutputStream out = new ByteArrayOutputStream()){
+                Fop fop = getFopFactory().newFop(MimeConstants.MIME_FOP_PRINT,
+                        out);
 
-				fopTransform(doc, fop);
-			}
-		} else {
-			PrintService[] services = PrinterJob.lookupPrintServices();
-			PrintService srv = null;
-			StringBuilder printerNames = new StringBuilder();
-			for (PrintService service : services) {
-				if (printerName.equals(service.getName())) {
-					srv = service;
-				} else {
-					if (printerNames.length() > 0)
-						printerNames.append("; ");
-					printerNames.append(service.getName());
-				}
-			}
-			if (srv == null) {
-				throw new Exception(
-						String.format(
-								"No printer service named '%s' found. Availiable services are: %s.",
-								printerName, printerNames.toString()));
-			}
-			PrinterJob printerJob = PrinterJob.getPrinterJob();
-			printerJob.setPrintService(srv);
-			FOUserAgent userAgent = getFopFactory().newFOUserAgent();
-			userAgent.getRendererOptions().put("printerjob", printerJob);
-			Fop fop = fopFactory
-					.newFop(MimeConstants.MIME_FOP_PRINT, userAgent);
-			fopTransform(doc, fop);
-		}
-	}
+                fopTransform(doc, fop);
+            }
+        } else {
+            PrintService[] services = PrinterJob.lookupPrintServices();
+            PrintService srv = null;
+            StringBuilder printerNames = new StringBuilder();
+            for (PrintService service : services) {
+                if (printerName.equals(service.getName())) {
+                    srv = service;
+                } else {
+                    if (printerNames.length() > 0)
+                        printerNames.append("; ");
+                    printerNames.append(service.getName());
+                }
+            }
+            if (srv == null) {
+                throw new Exception(
+                        String.format(
+                                "No printer service named '%s' found. Availiable services are: %s.",
+                                printerName, printerNames.toString()));
+            }
+            PrinterJob printerJob = PrinterJob.getPrinterJob();
+            printerJob.setPrintService(srv);
+            FOUserAgent userAgent = getFopFactory().newFOUserAgent();
+            userAgent.getRendererOptions().put("printerjob", printerJob);
+            Fop fop = fopFactory
+                    .newFop(MimeConstants.MIME_FOP_PRINT, userAgent);
+            fopTransform(doc, fop);
+        }
+    }
 
-	private void fopTransform(Document doc, Fop fop) throws FOPException,
-			TransformerException {
-		TransformerFactory factory = TransformerFactory.newInstance();
-		Transformer transformer = factory.newTransformer();
-		Source src = new DOMSource(doc);
-		Result res = new SAXResult(fop.getDefaultHandler());
-		transformer.transform(src, res);
-	}
+    private void fopTransform(Document doc, Fop fop) throws FOPException,
+            TransformerException {
+        TransformerFactory factory = TransformerFactory.newInstance();
+        Transformer transformer = factory.newTransformer();
+        Source src = new DOMSource(doc);
+        Result res = new SAXResult(fop.getDefaultHandler());
+        transformer.transform(src, res);
+    }
 
-	/**
-	 * Устанавливает имя принтера.
-	 * 
-	 * @param printerName
-	 *            Имя принтера.
-	 */
-	public void setPrinterName(String printerName) {
-		this.printerName = printerName;
-	}
+    /**
+     * Устанавливает имя принтера.
+     *
+     * @param printerName
+     *            Имя принтера.
+     */
+    public void setPrinterName(String printerName) {
+        this.printerName = printerName;
+    }
 
 }

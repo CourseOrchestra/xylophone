@@ -19,6 +19,8 @@
 
 package org.apache.poi.hwpf.converter;
 
+import java.util.Locale;
+
 import org.apache.poi.util.Beta;
 
 /**
@@ -27,13 +29,7 @@ import org.apache.poi.util.Beta;
  * @author Sergey Vladimirov (vlsergey {at} gmail {dot} com)
  */
 @Beta
-public final class NumberFormatter
-{
-
-    private static final String[] ENGLISH_LETTERS = new String[] { "a", "b",
-            "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o",
-            "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z" };
-
+public final class NumberFormatter {
     private static final String[] ROMAN_LETTERS = { "m", "cm", "d", "cd", "c",
             "xc", "l", "xl", "x", "ix", "v", "iv", "i" };
 
@@ -52,11 +48,11 @@ public final class NumberFormatter
         switch ( style )
         {
         case T_UPPER_ROMAN:
-            return toRoman( num ).toUpperCase();
+            return toRoman( num ).toUpperCase(Locale.ROOT);
         case T_LOWER_ROMAN:
             return toRoman( num );
         case T_UPPER_LETTER:
-            return toLetters( num ).toUpperCase();
+            return toLetters( num ).toUpperCase(Locale.ROOT);
         case T_LOWER_LETTER:
             return toLetters( num );
         case T_ARABIC:
@@ -65,55 +61,26 @@ public final class NumberFormatter
             return String.valueOf( num );
         }
     }
-
-    private static String toLetters( int number )
-    {
-        final int base = 26;
-
-        if ( number <= 0 )
+    
+    private static String toLetters(int number) {
+        if ( number <= 0 ) {
             throw new IllegalArgumentException( "Unsupported number: " + number );
-
-        if ( number < base + 1 )
-            return ENGLISH_LETTERS[number - 1];
-
-        long toProcess = number;
-
-        StringBuilder stringBuilder = new StringBuilder();
-        int maxPower = 0;
-        {
-            int boundary = 0;
-            while ( toProcess > boundary )
-            {
-                maxPower++;
-                boundary = boundary * base + base;
-
-                if ( boundary > Integer.MAX_VALUE )
-                    throw new IllegalArgumentException( "Unsupported number: "
-                            + toProcess );
-            }
         }
-        maxPower--;
 
-        for ( int p = maxPower; p > 0; p-- )
-        {
-            long boundary = 0;
-            long shift = 1;
-            for ( int i = 0; i < p; i++ )
-            {
-                shift *= base;
-                boundary = boundary * base + base;
-            }
+        int num = number;
+        final int radix = 26;
 
-            int count = 0;
-            while ( toProcess > boundary )
-            {
-                count++;
-                toProcess -= shift;
-            }
-            stringBuilder.append( ENGLISH_LETTERS[count - 1] );
+        char buf[] = new char[33];
+        int charPos = buf.length;
+
+        while (num > 0) {
+            num--; // 1 => a, not 0 => a
+            int remainder = num % radix;
+            buf[--charPos] = (char)('a'+remainder);
+            num = (num - remainder) / radix;
         }
-        stringBuilder.append( ENGLISH_LETTERS[(int) toProcess - 1] );
-        return stringBuilder.toString();
+
+        return new String(buf, charPos, (buf.length - charPos));
     }
 
     private static String toRoman( int number )

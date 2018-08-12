@@ -109,7 +109,7 @@ public abstract class AbstractWordConverter
         public String toString()
         {
             return "Structure [" + start + "; " + end + "): "
-                    + structure.toString();
+                    + structure;
         }
     }
 
@@ -495,8 +495,7 @@ public abstract class AbstractWordConverter
             }
 
             String text = characterRun.text();
-            if ( text.getBytes().length == 0 )
-                continue;
+            if ( text.isEmpty() ) continue;
 
             if ( characterRun.isSpecialCharacter() )
             {
@@ -530,7 +529,7 @@ public abstract class AbstractWordConverter
                 }
             }
 
-            if ( text.getBytes()[0] == FIELD_BEGIN_MARK )
+            if ( text.charAt(0) == FIELD_BEGIN_MARK )
             {
                 if ( wordDocument instanceof HWPFDocument )
                 {
@@ -566,12 +565,12 @@ public abstract class AbstractWordConverter
 
                 continue;
             }
-            if ( text.getBytes()[0] == FIELD_SEPARATOR_MARK )
+            if ( text.charAt(0) == FIELD_SEPARATOR_MARK )
             {
                 // shall not appear without FIELD_BEGIN_MARK
                 continue;
             }
-            if ( text.getBytes()[0] == FIELD_END_MARK )
+            if ( text.charAt(0) == FIELD_END_MARK )
             {
                 // shall not appear without FIELD_BEGIN_MARK
                 continue;
@@ -850,7 +849,7 @@ public abstract class AbstractWordConverter
             String[] values = cr.getDropDownListValues();
             Integer defIndex = cr.getDropDownListDefaultItemIndex();
 
-            if ( values != null )
+            if ( values != null && values.length > 0 )
             {
                 processDropDownList( currentBlock, cr, values,
                         defIndex == null ? -1 : defIndex.intValue() );
@@ -916,21 +915,23 @@ public abstract class AbstractWordConverter
             Element currentBlock, Range textRange, int currentTableLevel,
             String hyperlink );
 
-    protected void processImage( Element currentBlock, boolean inlined,
-            Picture picture )
-    {
+    protected void processImage( Element currentBlock, boolean inlined, Picture picture ) {
         PicturesManager fileManager = getPicturesManager();
-        if ( fileManager != null )
-        {
-            final int aspectRatioX = picture.getHorizontalScalingFactor();
-            final int aspectRatioY = picture.getVerticalScalingFactor();
+        if ( fileManager != null ) {
+            final float aspectRatioX = picture.getHorizontalScalingFactor();
+            final float aspectRatioY = picture.getVerticalScalingFactor();
 
-            final float imageWidth = aspectRatioX > 0 ? picture.getDxaGoal()
-                    * aspectRatioX / 1000 / AbstractWordUtils.TWIPS_PER_INCH
-                    : picture.getDxaGoal() / AbstractWordUtils.TWIPS_PER_INCH;
-            final float imageHeight = aspectRatioY > 0 ? picture.getDyaGoal()
-                    * aspectRatioY / 1000 / AbstractWordUtils.TWIPS_PER_INCH
-                    : picture.getDyaGoal() / AbstractWordUtils.TWIPS_PER_INCH;
+            float imageWidth = picture.getDxaGoal();
+            if (aspectRatioX > 0) {
+                imageWidth *= aspectRatioX / 1000f;
+            }
+            imageWidth /= AbstractWordUtils.TWIPS_PER_INCH;
+            
+            float imageHeight = picture.getDyaGoal();
+            if (aspectRatioY > 0) {
+                imageHeight *= aspectRatioY / 1000f;
+            }
+            imageHeight /= AbstractWordUtils.TWIPS_PER_INCH;
 
             String url = fileManager.savePicture( picture.getContent(),
                     picture.suggestPictureType(),
@@ -1002,7 +1003,6 @@ public abstract class AbstractWordConverter
 
                 processEndnoteAutonumbered( doc, noteIndex, block,
                         noteTextRange );
-                return;
             }
         }
     }
@@ -1034,7 +1034,6 @@ public abstract class AbstractWordConverter
         }
     }
 
-    @SuppressWarnings( "unused" )
     protected boolean processOle2( HWPFDocument wordDocument, Element block,
             Entry entry ) throws Exception
     {
@@ -1169,10 +1168,9 @@ public abstract class AbstractWordConverter
             CharacterRun characterRun = range.getCharacterRun( c );
 
             String text = characterRun.text();
-            if ( text.getBytes().length == 0 )
-                continue;
+            if ( text.isEmpty() ) continue;
 
-            final byte firstByte = text.getBytes()[0];
+            final char firstByte = text.charAt(0);
             if ( firstByte == FIELD_BEGIN_MARK )
             {
                 int[] nested = tryDeadField_lookupFieldSeparatorEnd(
@@ -1196,7 +1194,7 @@ public abstract class AbstractWordConverter
                 continue;
             }
 
-            if ( text.getBytes()[0] == FIELD_END_MARK )
+            if ( firstByte == FIELD_END_MARK )
             {
                 if ( endMark != -1 )
                 {

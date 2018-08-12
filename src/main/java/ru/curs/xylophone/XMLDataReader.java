@@ -1,8 +1,8 @@
 /*
-   (с) 2016 ООО "КУРС-ИТ"  
+   (с) 2016 ООО "КУРС-ИТ"
 
    Этот файл — часть КУРС:Xylophone.
-   
+
    КУРС:Xylophone — свободная программа: вы можете перераспространять ее и/или изменять
    ее на условиях Стандартной общественной лицензии ограниченного применения GNU (LGPL)
    в том виде, в каком она была опубликована Фондом свободного программного обеспечения; либо
@@ -13,11 +13,11 @@
    или ПРИГОДНОСТИ ДЛЯ ОПРЕДЕЛЕННЫХ ЦЕЛЕЙ. Подробнее см. в Стандартной
    общественной лицензии GNU.
 
-   Вы должны были получить копию Стандартной общественной лицензии  ограниченного 
-   применения GNU (LGPL) вместе с этой программой. Если это не так, 
+   Вы должны были получить копию Стандартной общественной лицензии  ограниченного
+   применения GNU (LGPL) вместе с этой программой. Если это не так,
    см. http://www.gnu.org/licenses/.
 
-   
+
    Copyright 2016, COURSE-IT Ltd.
 
    This program is free software: you can redistribute it and/or modify
@@ -57,415 +57,415 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 abstract class XMLDataReader {
 
-	private static final Pattern RANGE = Pattern
-			.compile("(-?[0-9]+):(-?[0-9]+)");
-	private static final Pattern XQUERY = Pattern
-			.compile("([^\\[]+)\\[@([^=]+)=('([^']+)'|\"([^\"]+)\")]");
+    private static final Pattern RANGE = Pattern
+            .compile("(-?[0-9]+):(-?[0-9]+)");
+    private static final Pattern XQUERY = Pattern
+            .compile("([^\\[]+)\\[@([^=]+)=('([^']+)'|\"([^\"]+)\")]");
 
-	private final ReportWriter writer;
-	private final DescriptorElement descriptor;
+    private final ReportWriter writer;
+    private final DescriptorElement descriptor;
 
-	XMLDataReader(ReportWriter writer, DescriptorElement descriptor) {
-		this.writer = writer;
-		this.descriptor = descriptor;
-	}
+    XMLDataReader(ReportWriter writer, DescriptorElement descriptor) {
+        this.writer = writer;
+        this.descriptor = descriptor;
+    }
 
-	private enum ParserState {
-		ELEMENT, ITERATION, OUTPUT
-	}
+    private enum ParserState {
+        ELEMENT, ITERATION, OUTPUT
+    }
 
-	private static final class DescriptorParser extends DefaultHandler {
+    private static final class DescriptorParser extends DefaultHandler {
 
-		private final Deque<DescriptorElement> elementsStack = new LinkedList<>();
-		private DescriptorElement root;
-		private ParserState parserState = ParserState.ITERATION;
+        private final Deque<DescriptorElement> elementsStack = new LinkedList<>();
+        private DescriptorElement root;
+        private ParserState parserState = ParserState.ITERATION;
 
-		@Override
-		public void startElement(String uri, String localName, String name,
-				final Attributes atts) throws SAXException {
+        @Override
+        public void startElement(String uri, String localName, String name,
+                final Attributes atts) throws SAXException {
 
-			abstract class AttrReader<T> {
-				T getValue(String qName) throws XML2SpreadSheetError {
-					String buf = atts.getValue(qName);
-					if (buf == null || "".equals(buf))
-						return getIfEmpty();
-					else
-						return getIfNotEmpty(buf);
-				}
+            abstract class AttrReader<T> {
+                T getValue(String qName) throws XML2SpreadSheetError {
+                    String buf = atts.getValue(qName);
+                    if (buf == null || "".equals(buf))
+                        return getIfEmpty();
+                    else
+                        return getIfNotEmpty(buf);
+                }
 
-				abstract T getIfNotEmpty(String value)
-						throws XML2SpreadSheetError;
+                abstract T getIfNotEmpty(String value)
+                        throws XML2SpreadSheetError;
 
-				abstract T getIfEmpty();
-			}
+                abstract T getIfEmpty();
+            }
 
-			final class StringAttrReader extends AttrReader<String> {
-				@Override
-				String getIfNotEmpty(String value) throws XML2SpreadSheetError {
-					return value;
-				}
+            final class StringAttrReader extends AttrReader<String> {
+                @Override
+                String getIfNotEmpty(String value) throws XML2SpreadSheetError {
+                    return value;
+                }
 
-				@Override
-				String getIfEmpty() {
-					return null;
-				}
-			}
+                @Override
+                String getIfEmpty() {
+                    return null;
+                }
+            }
 
-			try {
-				switch (parserState) {
-				case ELEMENT:
-					if ("iteration".equals(localName)) {
-						int index = (new AttrReader<Integer>() {
-							@Override
-							Integer getIfNotEmpty(String value) {
-								return Integer.parseInt(value);
-							}
+            try {
+                switch (parserState) {
+                case ELEMENT:
+                    if ("iteration".equals(localName)) {
+                        int index = (new AttrReader<Integer>() {
+                            @Override
+                            Integer getIfNotEmpty(String value) {
+                                return Integer.parseInt(value);
+                            }
 
-							@Override
-							Integer getIfEmpty() {
-								return -1;
-							}
-						}).getValue("index");
+                            @Override
+                            Integer getIfEmpty() {
+                                return -1;
+                            }
+                        }).getValue("index");
 
-						int merge = (new AttrReader<Integer>() {
-							@Override
-							Integer getIfNotEmpty(String value) {
-								return Integer.parseInt(value);
-							}
+                        int merge = (new AttrReader<Integer>() {
+                            @Override
+                            Integer getIfNotEmpty(String value) {
+                                return Integer.parseInt(value);
+                            }
 
-							@Override
-							Integer getIfEmpty() {
-								return 0;
-							}
-						}).getValue("merge");
+                            @Override
+                            Integer getIfEmpty() {
+                                return 0;
+                            }
+                        }).getValue("merge");
 
-						boolean horizontal = (new AttrReader<Boolean>() {
-							@Override
-							Boolean getIfNotEmpty(String value) {
-								return "horizontal".equalsIgnoreCase(value);
-							}
+                        boolean horizontal = (new AttrReader<Boolean>() {
+                            @Override
+                            Boolean getIfNotEmpty(String value) {
+                                return "horizontal".equalsIgnoreCase(value);
+                            }
 
-							@Override
-							Boolean getIfEmpty() {
-								return false;
-							}
-						}).getValue("mode");
-						String regionName = new StringAttrReader()
-								.getValue("regionName");
-						DescriptorIteration currIteration = new DescriptorIteration(
-								index, horizontal, merge, regionName);
-						elementsStack.peek().getSubelements()
-								.add(currIteration);
-						parserState = ParserState.ITERATION;
-					} else if ("output".equals(localName)) {
-						RangeAddress range = (new AttrReader<RangeAddress>() {
-							@Override
-							RangeAddress getIfNotEmpty(String value)
-									throws XML2SpreadSheetError {
-								return new RangeAddress(value);
-							}
+                            @Override
+                            Boolean getIfEmpty() {
+                                return false;
+                            }
+                        }).getValue("mode");
+                        String regionName = new StringAttrReader()
+                                .getValue("regionName");
+                        DescriptorIteration currIteration = new DescriptorIteration(
+                                index, horizontal, merge, regionName);
+                        elementsStack.peek().getSubelements()
+                                .add(currIteration);
+                        parserState = ParserState.ITERATION;
+                    } else if ("output".equals(localName)) {
+                        RangeAddress range = (new AttrReader<RangeAddress>() {
+                            @Override
+                            RangeAddress getIfNotEmpty(String value)
+                                    throws XML2SpreadSheetError {
+                                return new RangeAddress(value);
+                            }
 
-							@Override
-							RangeAddress getIfEmpty() {
-								return null;
-							}
-						}).getValue("range");
-						StringAttrReader sar = new StringAttrReader();
-						
-						boolean pagebreak = (new AttrReader<Boolean>() {
-							@Override
-							Boolean getIfNotEmpty(String value) {
-								return "true".equalsIgnoreCase(value);
-							}
+                            @Override
+                            RangeAddress getIfEmpty() {
+                                return null;
+                            }
+                        }).getValue("range");
+                        StringAttrReader sar = new StringAttrReader();
 
-							@Override
-							Boolean getIfEmpty() {
-								return false;
-							}
-						}).getValue("pagebreak");
+                        boolean pagebreak = (new AttrReader<Boolean>() {
+                            @Override
+                            Boolean getIfNotEmpty(String value) {
+                                return "true".equalsIgnoreCase(value);
+                            }
 
-						DescriptorOutput output = new DescriptorOutput(
-								sar.getValue("worksheet"), range,
-								sar.getValue("sourcesheet"),
-								sar.getValue("repeatingcols"),
-								sar.getValue("repeatingrows"), pagebreak);
-						elementsStack.peek().getSubelements().add(output);
+                            @Override
+                            Boolean getIfEmpty() {
+                                return false;
+                            }
+                        }).getValue("pagebreak");
 
-						parserState = ParserState.OUTPUT;
-					}
-					break;
-				case ITERATION:
-					if ("element".equals(localName)) {
-						String elementName = (new StringAttrReader())
-								.getValue("name");
-						DescriptorElement currElement = new DescriptorElement(
-								elementName);
+                        DescriptorOutput output = new DescriptorOutput(
+                                sar.getValue("worksheet"), range,
+                                sar.getValue("sourcesheet"),
+                                sar.getValue("repeatingcols"),
+                                sar.getValue("repeatingrows"), pagebreak);
+                        elementsStack.peek().getSubelements().add(output);
 
-						if (root == null)
-							root = currElement;
-						else {
-							// Добываем контекст текущей итерации...
-							List<DescriptorSubelement> subelements = elementsStack
-									.peek().getSubelements();
-							DescriptorIteration iter = (DescriptorIteration) subelements
-									.get(subelements.size() - 1);
-							iter.getElements().add(currElement);
-						}
-						elementsStack.push(currElement);
-						parserState = ParserState.ELEMENT;
-					}
-					break;
-				}
-			} catch (XML2SpreadSheetError e) {
-				throw new SAXException(e.getMessage());
-			}
-		}
+                        parserState = ParserState.OUTPUT;
+                    }
+                    break;
+                case ITERATION:
+                    if ("element".equals(localName)) {
+                        String elementName = (new StringAttrReader())
+                                .getValue("name");
+                        DescriptorElement currElement = new DescriptorElement(
+                                elementName);
 
-		@Override
-		public void endElement(String uri, String localName, String name) {
-			switch (parserState) {
-			case ELEMENT:
-				elementsStack.pop();
-				parserState = ParserState.ITERATION;
-				break;
-			case ITERATION:
-				parserState = ParserState.ELEMENT;
-				break;
-			case OUTPUT:
-				parserState = ParserState.ELEMENT;
-				break;
-			}
-		}
+                        if (root == null)
+                            root = currElement;
+                        else {
+                            // Добываем контекст текущей итерации...
+                            List<DescriptorSubelement> subelements = elementsStack
+                                    .peek().getSubelements();
+                            DescriptorIteration iter = (DescriptorIteration) subelements
+                                    .get(subelements.size() - 1);
+                            iter.getElements().add(currElement);
+                        }
+                        elementsStack.push(currElement);
+                        parserState = ParserState.ELEMENT;
+                    }
+                    break;
+                }
+            } catch (XML2SpreadSheetError e) {
+                throw new SAXException(e.getMessage());
+            }
+        }
 
-	}
+        @Override
+        public void endElement(String uri, String localName, String name) {
+            switch (parserState) {
+            case ELEMENT:
+                elementsStack.pop();
+                parserState = ParserState.ITERATION;
+                break;
+            case ITERATION:
+                parserState = ParserState.ELEMENT;
+                break;
+            case OUTPUT:
+                parserState = ParserState.ELEMENT;
+                break;
+            }
+        }
 
-	/**
-	 * Создаёт объект-читальщик исходных данных на основании предоставленных
-	 * сведений.
-	 * 
-	 * @param xmlData
-	 *            Поток с исходными данными.
-	 * @param xmlDescriptor
-	 *            Дескриптор отчёта.
-	 * @param useSAX
-	 *            Режим обработки (DOM или SAX).
-	 * @param writer
-	 *            Объект, осуществляющий вывод.
-	 * @throws XML2SpreadSheetError
-	 *             В случае ошибки обработки дескриптора отчёта.
-	 */
-	static XMLDataReader createReader(InputStream xmlData,
-			InputStream xmlDescriptor, boolean useSAX, ReportWriter writer)
-			throws XML2SpreadSheetError {
-		if (xmlData == null)
-			throw new XML2SpreadSheetError("XML Data is null.");
-		if (xmlDescriptor == null)
-			throw new XML2SpreadSheetError("XML descriptor is null.");
+    }
 
-		// Сначала парсится дескриптор и строится его объектное представление.
-		DescriptorParser parser = new DescriptorParser();
-		try {
-			TransformerFactory
-					.newInstance()
-					.newTransformer()
-					.transform(new StreamSource(xmlDescriptor),
-							new SAXResult(parser));
-		} catch (Exception e) {
-			throw new XML2SpreadSheetError(
-					"Error while processing XML descriptor: " + e.getMessage());
-		}
-		// Затем инстанцируется конкретная реализация (DOM или SAX) ридера
-		if (useSAX)
-			return new SAXDataReader(xmlData, parser.root, writer);
-		else
-			return new DOMDataReader(xmlData, parser.root, writer);
-	}
+    /**
+     * Создаёт объект-читальщик исходных данных на основании предоставленных
+     * сведений.
+     *
+     * @param xmlData
+     *            Поток с исходными данными.
+     * @param xmlDescriptor
+     *            Дескриптор отчёта.
+     * @param useSAX
+     *            Режим обработки (DOM или SAX).
+     * @param writer
+     *            Объект, осуществляющий вывод.
+     * @throws XML2SpreadSheetError
+     *             В случае ошибки обработки дескриптора отчёта.
+     */
+    static XMLDataReader createReader(InputStream xmlData,
+            InputStream xmlDescriptor, boolean useSAX, ReportWriter writer)
+            throws XML2SpreadSheetError {
+        if (xmlData == null)
+            throw new XML2SpreadSheetError("XML Data is null.");
+        if (xmlDescriptor == null)
+            throw new XML2SpreadSheetError("XML descriptor is null.");
 
-	/**
-	 * Осуществляет генерацию отчёта.
-	 * 
-	 * @throws XML2SpreadSheetError
-	 *             В случае возникновения ошибок ввода-вывода или при
-	 *             интерпретации данных, шаблона или дескриптора.
-	 */
-	abstract void process() throws XML2SpreadSheetError;
+        // Сначала парсится дескриптор и строится его объектное представление.
+        DescriptorParser parser = new DescriptorParser();
+        try {
+            TransformerFactory
+                    .newInstance()
+                    .newTransformer()
+                    .transform(new StreamSource(xmlDescriptor),
+                            new SAXResult(parser));
+        } catch (Exception e) {
+            throw new XML2SpreadSheetError(
+                    "Error while processing XML descriptor: " + e.getMessage());
+        }
+        // Затем инстанцируется конкретная реализация (DOM или SAX) ридера
+        if (useSAX)
+            return new SAXDataReader(xmlData, parser.root, writer);
+        else
+            return new DOMDataReader(xmlData, parser.root, writer);
+    }
 
-	/**
-	 * Общий для DOM и SAX реализации метод обработки вывода.
-	 * 
-	 * @param c
-	 *            Контекст.
-	 * @param o
-	 *            Дескриптор секции.
-	 * @throws XML2SpreadSheetError
-	 *             В случае возникновения ошибок ввода-вывода или при
-	 *             интерпретации шаблона.
-	 */
-	final void processOutput(XMLContext c, DescriptorOutput o)
-			throws XML2SpreadSheetError {
-		if (o.getWorksheet() != null) {
-			String wsName = c.calc(o.getWorksheet());
-			getWriter().sheet(wsName, o.getSourceSheet(),
-					o.getStartRepeatingColumn(), o.getEndRepeatingColumn(),
-					o.getStartRepeatingRow(), o.getEndRepeatingRow());
-		}
-		if (o.getRange() != null)
-			getWriter().section(c, o.getSourceSheet(), o.getRange(), o.getPageBreak());
-	}
+    /**
+     * Осуществляет генерацию отчёта.
+     *
+     * @throws XML2SpreadSheetError
+     *             В случае возникновения ошибок ввода-вывода или при
+     *             интерпретации данных, шаблона или дескриптора.
+     */
+    abstract void process() throws XML2SpreadSheetError;
 
-	static final boolean compareIndices(int expected, int actual) {
-		return (expected < 0) || (actual == expected);
-	}
+    /**
+     * Общий для DOM и SAX реализации метод обработки вывода.
+     *
+     * @param c
+     *            Контекст.
+     * @param o
+     *            Дескриптор секции.
+     * @throws XML2SpreadSheetError
+     *             В случае возникновения ошибок ввода-вывода или при
+     *             интерпретации шаблона.
+     */
+    final void processOutput(XMLContext c, DescriptorOutput o)
+            throws XML2SpreadSheetError {
+        if (o.getWorksheet() != null) {
+            String wsName = c.calc(o.getWorksheet());
+            getWriter().sheet(wsName, o.getSourceSheet(),
+                    o.getStartRepeatingColumn(), o.getEndRepeatingColumn(),
+                    o.getStartRepeatingRow(), o.getEndRepeatingRow());
+        }
+        if (o.getRange() != null)
+            getWriter().section(c, o.getSourceSheet(), o.getRange(), o.getPageBreak());
+    }
 
-	static final boolean compareNames(String expected, String actual,
-			Map<String, String> attributes) {
-		if (expected == null)
-			return actual == null;
+    static final boolean compareIndices(int expected, int actual) {
+        return (expected < 0) || (actual == expected);
+    }
 
-		if (expected.startsWith("*") || expected.equals(actual))
-			return true;
+    static final boolean compareNames(String expected, String actual,
+            Map<String, String> attributes) {
+        if (expected == null)
+            return actual == null;
 
-		Matcher m = XQUERY.matcher(expected);
-		if (m.matches()) {
-			String tagName = m.group(1);
-			if (!tagName.equals(actual))
-				return false;
-			String attribute = m.group(2);
-			String value = m.group(4) == null ? m.group(5) : m.group(4);
-			return value.equals(attributes.get(attribute));
-		} else
-			return false;
-	}
+        if (expected.startsWith("*") || expected.equals(actual))
+            return true;
 
-	final ReportWriter getWriter() {
-		return writer;
-	}
+        Matcher m = XQUERY.matcher(expected);
+        if (m.matches()) {
+            String tagName = m.group(1);
+            if (!tagName.equals(actual))
+                return false;
+            String attribute = m.group(2);
+            String value = m.group(4) == null ? m.group(5) : m.group(4);
+            return value.equals(attributes.get(attribute));
+        } else
+            return false;
+    }
 
-	final DescriptorElement getDescriptor() {
-		return descriptor;
-	}
+    final ReportWriter getWriter() {
+        return writer;
+    }
 
-	static final class DescriptorElement {
-		private final String elementName;
-		private final List<DescriptorSubelement> subelements = new LinkedList<DescriptorSubelement>();
+    final DescriptorElement getDescriptor() {
+        return descriptor;
+    }
 
-		public DescriptorElement(String elementName) {
-			this.elementName = elementName;
-		}
+    static final class DescriptorElement {
+        private final String elementName;
+        private final List<DescriptorSubelement> subelements = new LinkedList<DescriptorSubelement>();
 
-		String getElementName() {
-			return elementName;
-		}
+        public DescriptorElement(String elementName) {
+            this.elementName = elementName;
+        }
 
-		List<DescriptorSubelement> getSubelements() {
-			return subelements;
-		}
-	}
+        String getElementName() {
+            return elementName;
+        }
 
-	abstract static class DescriptorSubelement {
-	}
+        List<DescriptorSubelement> getSubelements() {
+            return subelements;
+        }
+    }
 
-	static final class DescriptorIteration extends DescriptorSubelement {
-		private final int index;
-		private final int merge;
-		private final boolean horizontal;
-		private final String regionName;
-		private final List<DescriptorElement> elements = new LinkedList<>();
+    abstract static class DescriptorSubelement {
+    }
 
-		public DescriptorIteration(int index, boolean horizontal, int merge,
-				String regionName) {
-			this.index = index;
-			this.horizontal = horizontal;
-			this.merge = merge;
-			this.regionName = regionName;
-		}
+    static final class DescriptorIteration extends DescriptorSubelement {
+        private final int index;
+        private final int merge;
+        private final boolean horizontal;
+        private final String regionName;
+        private final List<DescriptorElement> elements = new LinkedList<>();
 
-		int getIndex() {
-			return index;
-		}
+        public DescriptorIteration(int index, boolean horizontal, int merge,
+                String regionName) {
+            this.index = index;
+            this.horizontal = horizontal;
+            this.merge = merge;
+            this.regionName = regionName;
+        }
 
-		boolean isHorizontal() {
-			return horizontal;
-		}
+        int getIndex() {
+            return index;
+        }
 
-		List<DescriptorElement> getElements() {
-			return elements;
-		}
+        boolean isHorizontal() {
+            return horizontal;
+        }
 
-		public int getMerge() {
-			return merge;
-		}
+        List<DescriptorElement> getElements() {
+            return elements;
+        }
 
-		public String getRegionName() {
-			return regionName;
-		}
-	}
+        public int getMerge() {
+            return merge;
+        }
 
-	static final class DescriptorOutput extends DescriptorSubelement {
-		private final String worksheet;
-		private final RangeAddress range;
-		private final String sourceSheet;
-		private final int startRepeatingColumn;
-		private final int endRepeatingColumn;
-		private final int startRepeatingRow;
-		private final int endRepeatingRow;
-		private final boolean pageBreak;
+        public String getRegionName() {
+            return regionName;
+        }
+    }
 
-		public DescriptorOutput(String worksheet, RangeAddress range,
-				String sourceSheet, String repeatingCols, String repeatingRows,
-				boolean pageBreak) throws XML2SpreadSheetError {
-			this.worksheet = worksheet;
-			this.range = range;
-			this.sourceSheet = sourceSheet;
-			this.pageBreak = pageBreak;
-			Matcher m1 = RANGE.matcher(repeatingCols == null ? "-1:-1"
-					: repeatingCols);
-			Matcher m2 = RANGE.matcher(repeatingRows == null ? "-1:-1"
-					: repeatingRows);
-			if (m1.matches() && m2.matches()) {
-				this.startRepeatingColumn = Integer.parseInt(m1.group(1));
-				this.endRepeatingColumn = Integer.parseInt(m1.group(2));
-				this.startRepeatingRow = Integer.parseInt(m2.group(1));
-				this.endRepeatingRow = Integer.parseInt(m2.group(2));
-			} else {
-				throw new XML2SpreadSheetError(String.format(
-						"Invalid col/row range %s %s", repeatingCols,
-						repeatingRows));
-			}
+    static final class DescriptorOutput extends DescriptorSubelement {
+        private final String worksheet;
+        private final RangeAddress range;
+        private final String sourceSheet;
+        private final int startRepeatingColumn;
+        private final int endRepeatingColumn;
+        private final int startRepeatingRow;
+        private final int endRepeatingRow;
+        private final boolean pageBreak;
 
-		}
+        public DescriptorOutput(String worksheet, RangeAddress range,
+                String sourceSheet, String repeatingCols, String repeatingRows,
+                boolean pageBreak) throws XML2SpreadSheetError {
+            this.worksheet = worksheet;
+            this.range = range;
+            this.sourceSheet = sourceSheet;
+            this.pageBreak = pageBreak;
+            Matcher m1 = RANGE.matcher(repeatingCols == null ? "-1:-1"
+                    : repeatingCols);
+            Matcher m2 = RANGE.matcher(repeatingRows == null ? "-1:-1"
+                    : repeatingRows);
+            if (m1.matches() && m2.matches()) {
+                this.startRepeatingColumn = Integer.parseInt(m1.group(1));
+                this.endRepeatingColumn = Integer.parseInt(m1.group(2));
+                this.startRepeatingRow = Integer.parseInt(m2.group(1));
+                this.endRepeatingRow = Integer.parseInt(m2.group(2));
+            } else {
+                throw new XML2SpreadSheetError(String.format(
+                        "Invalid col/row range %s %s", repeatingCols,
+                        repeatingRows));
+            }
 
-		String getWorksheet() {
-			return worksheet;
-		}
+        }
 
-		String getSourceSheet() {
-			return sourceSheet;
-		}
+        String getWorksheet() {
+            return worksheet;
+        }
 
-		RangeAddress getRange() {
-			return range;
-		}
+        String getSourceSheet() {
+            return sourceSheet;
+        }
 
-		public int getStartRepeatingColumn() {
-			return startRepeatingColumn;
-		}
+        RangeAddress getRange() {
+            return range;
+        }
 
-		public int getEndRepeatingColumn() {
-			return endRepeatingColumn;
-		}
+        public int getStartRepeatingColumn() {
+            return startRepeatingColumn;
+        }
 
-		public int getStartRepeatingRow() {
-			return startRepeatingRow;
-		}
+        public int getEndRepeatingColumn() {
+            return endRepeatingColumn;
+        }
 
-		public int getEndRepeatingRow() {
-			return endRepeatingRow;
-		}
+        public int getStartRepeatingRow() {
+            return startRepeatingRow;
+        }
 
-		public boolean getPageBreak() {
-			return pageBreak;
-		}
-	}
+        public int getEndRepeatingRow() {
+            return endRepeatingRow;
+        }
+
+        public boolean getPageBreak() {
+            return pageBreak;
+        }
+    }
 
 }

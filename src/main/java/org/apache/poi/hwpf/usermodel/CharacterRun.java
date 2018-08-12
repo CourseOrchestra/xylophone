@@ -18,6 +18,7 @@
 package org.apache.poi.hwpf.usermodel;
 
 import org.apache.poi.hwpf.HWPFDocument;
+import org.apache.poi.hwpf.HWPFOldDocument;
 import org.apache.poi.hwpf.model.CHPX;
 import org.apache.poi.hwpf.model.FFData;
 import org.apache.poi.hwpf.model.Ffn;
@@ -27,12 +28,9 @@ import org.apache.poi.hwpf.sprm.SprmBuffer;
 
 /**
  * This class represents a run of text that share common properties.
- *
- * @author Ryan Ackley
  */
-public final class CharacterRun
-  extends Range
-  implements Cloneable
+public final class CharacterRun extends Range
+  implements Cloneable, org.apache.poi.wp.usermodel.CharacterRun
 {
   public final static short SPRM_FRMARKDEL = (short)0x0800;
   public final static short SPRM_FRMARK = 0x0801;
@@ -109,6 +107,7 @@ public final class CharacterRun
    *
    * @return TYPE_CHARACTER
    */
+  @SuppressWarnings("deprecation")
   public int type()
   {
     return TYPE_CHARACTER;
@@ -245,6 +244,10 @@ public final class CharacterRun
     return _props.isFStrike();
   }
 
+  public void setStrikeThrough(boolean strike)
+  {
+      strikeThrough(strike);
+  }
   public void strikeThrough(boolean strike)
   {
     _props.setFStrike(strike);
@@ -436,6 +439,10 @@ public final class CharacterRun
 
   public String getFontName()
   {
+    if (_doc instanceof HWPFOldDocument) {
+      return ((HWPFOldDocument) _doc).getOldFontTable().getMainFont(_props.getFtcAscii());
+    }
+
     if (_doc.getFontTable() == null)
       // old word format
       return null;
@@ -540,19 +547,6 @@ public final class CharacterRun
     _props.setIco24(colour24);
   }
 
-    /**
-     * clone the CharacterProperties object associated with this characterRun so
-     * that you can apply it to another CharacterRun
-     * 
-     * @deprecated This method shall not be public and should not be called from
-     *             high-level code
-     */
-    @Deprecated
-    public CharacterProperties cloneProperties()
-    {
-        return _props.clone();
-    }
-
   /**
    * Used to create a deep copy of this object.
    *
@@ -569,7 +563,7 @@ public final class CharacterRun
     cp._props.setDttmDispFldRMark((DateAndTime)_props.getDttmDispFldRMark().
                                   clone());
     cp._props.setXstDispFldRMark(_props.getXstDispFldRMark().clone());
-    cp._props.setShd((ShadingDescriptor)_props.getShd().clone());
+    cp._props.setShd(_props.getShd().clone());
 
     return cp;
   }

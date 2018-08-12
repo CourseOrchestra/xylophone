@@ -17,66 +17,71 @@
 
 package org.apache.poi.hslf.dev;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.charset.Charset;
 
 import org.apache.poi.hslf.record.RecordTypes;
-import org.apache.poi.poifs.filesystem.DocumentEntry;
-import org.apache.poi.poifs.filesystem.DocumentInputStream;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.hslf.usermodel.HSLFSlideShow;
+import org.apache.poi.poifs.filesystem.DirectoryNode;
+import org.apache.poi.poifs.filesystem.NPOIFSFileSystem;
+import org.apache.poi.util.IOUtils;
 import org.apache.poi.util.LittleEndian;
 
 /**
  * Utility class which dumps raw contents of a ppt file into XML format
- *
- * @author Yegor Kozlov
  */
 
 public final class PPTXMLDump {
-    public static final int HEADER_SIZE = 8; //size of the record header
-    public static final int PICT_HEADER_SIZE = 25; //size of the picture header
-    public final static String PPDOC_ENTRY = "PowerPoint Document";
-    public final static String PICTURES_ENTRY = "Pictures";
-    public final static String CR = System.getProperty("line.separator");
+    private static final int HEADER_SIZE = 8; //size of the record header
+    private static final int PICT_HEADER_SIZE = 25; //size of the picture header
+    private static final String PICTURES_ENTRY = "Pictures";
+    private static final String CR = System.getProperty("line.separator");
 
-    protected Writer out;
-    protected byte[] docstream;
-    protected byte[] pictstream;
-    protected boolean hexHeader = true;
+    private Writer out;
+    private byte[] docstream;
+    private byte[] pictstream;
+    private boolean hexHeader = true;
 
     public PPTXMLDump(File ppt) throws IOException {
-        FileInputStream fis = new FileInputStream(ppt);
-        POIFSFileSystem fs = new POIFSFileSystem(fis);
-        fis.close();
-
-        //read the document entry from OLE file system
-        DocumentEntry entry = (DocumentEntry)fs.getRoot().getEntry(PPDOC_ENTRY);
-        docstream = new byte[entry.getSize()];
-        DocumentInputStream is = fs.createDocumentInputStream(PPDOC_ENTRY);
-        is.read(docstream);
-
+        NPOIFSFileSystem fs = new NPOIFSFileSystem(ppt, true);
         try {
-            entry = (DocumentEntry)fs.getRoot().getEntry(PICTURES_ENTRY);
-            pictstream = new byte[entry.getSize()];
-            is = fs.createDocumentInputStream(PICTURES_ENTRY);
-            is.read(pictstream);
-        } catch(FileNotFoundException e){
-            //silently catch errors if the presentation does not contain pictures
+            docstream = readEntry(fs, HSLFSlideShow.POWERPOINT_DOCUMENT);
+            pictstream = readEntry(fs, PICTURES_ENTRY);
+        } finally {
+            fs.close();
         }
     }
 
+    private static byte[] readEntry(NPOIFSFileSystem fs, String entry)
+    throws IOException {
+        DirectoryNode dn = fs.getRoot();
+        if (!dn.hasEntry(entry)) {
+            return null;
+        }
+        InputStream is = dn.createDocumentInputStream(entry);
+        try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            IOUtils.copy(is, bos);
+            return bos.toByteArray();
+        } finally {
+            is.close();
+        }
+    }
+    
     /**
      * Dump the structure of the supplied PPT file into XML
-     * @param out <code>Writer</code> to write out
+     * @param outWriter <code>Writer</code> to write out
      * @throws java.io.IOException
      */
-    public void dump(Writer out) throws IOException {
-        this.out = out;
+    public void dump(Writer outWriter) throws IOException {
+        this.out = outWriter;
 
         int padding = 0;
         write(out, "<Presentation>" + CR, padding);
@@ -107,7 +112,9 @@ public final class PPTXMLDump {
     public void dump(byte[] data, int offset, int length, int padding) throws IOException {
         int pos = offset;
         while (pos <= (offset + length - HEADER_SIZE)){
-            if (pos < 0) break;
+            if (pos < 0) {
+                break;
+            }
 
             //read record header
             int info = LittleEndian.getUShort(data, pos);
@@ -118,7 +125,7 @@ public final class PPTXMLDump {
             pos += LittleEndian.INT_SIZE;
 
             //get name of the record by type
-            String recname = RecordTypes.recordName(type);
+            String recname = RecordTypes.forTypeID(type).name();
             write(out, "<"+recname + " info=\""+info+"\" type=\""+type+"\" size=\""+size+"\" offset=\""+(pos-8)+"\"", padding);
             if (hexHeader){
                 out.write(" header=\"");
@@ -200,13 +207,14 @@ public final class PPTXMLDump {
                 System.out.println("Dumping " + args[i]);
 
                 if (outFile){
-                    FileWriter out = new FileWriter(ppt.getName() + ".xml");
+                    FileOutputStream fos = new FileOutputStream(ppt.getName() + ".xml");
+                    OutputStreamWriter out = new OutputStreamWriter(fos, Charset.forName("UTF8"));
                     dump.dump(out);
                     out.close();
                 } else {
                     StringWriter out = new StringWriter();
                     dump.dump(out);
-                    System.out.println(out.toString());
+                    System.out.println(out);
                 }
             }
 

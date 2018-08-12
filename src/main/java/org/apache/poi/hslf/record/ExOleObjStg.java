@@ -22,7 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Hashtable;
+import java.util.Map;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
@@ -31,23 +31,21 @@ import org.apache.poi.util.LittleEndian;
 
 /**
  * Storage for embedded OLE objects.
- *
- * @author Daniel Noll
  */
-public class ExOleObjStg extends RecordAtom implements PositionDependentRecord, PersistRecord {
+public class ExOleObjStg extends PositionDependentRecordAtom implements PersistRecord {
 
     private int _persistId; // Found from PersistPtrHolder
 
     /**
      * Record header.
      */
-    private byte[] _header;
+    private final byte[] _header;
 
     /**
      * Record data.
      */
     private byte[] _data;
-
+    
     /**
      * Constructs a new empty storage container.
      */
@@ -144,6 +142,15 @@ public class ExOleObjStg extends RecordAtom implements PositionDependentRecord, 
     }
 
     /**
+     * Gets the record instance from the header
+     *
+     * @return record instance
+     */
+    public int getRecordInstance() {
+        return (LittleEndian.getUShort(_header, 0) >>> 4);
+    }
+    
+    /**
      * Write the contents of the record back, so it can be written
      * to disk.
      *
@@ -170,22 +177,8 @@ public class ExOleObjStg extends RecordAtom implements PositionDependentRecord, 
         _persistId = id;
     }
 
-    /** Our location on the disk, as of the last write out */
-    protected int myLastOnDiskOffset;
-
-    /** Fetch our location on the disk, as of the last write out */
-    public int getLastOnDiskOffset() { return myLastOnDiskOffset; }
-
-    /**
-     * Update the Record's idea of where on disk it lives, after a write out.
-     * Use with care...
-     */
-    public void setLastOnDiskOffset(int offset) {
-        myLastOnDiskOffset = offset;
+    @Override
+    public void updateOtherRecordReferences(Map<Integer,Integer> oldToNewReferencesLookup) {
+        // nothing to update
     }
-
-    public void updateOtherRecordReferences(Hashtable<Integer,Integer> oldToNewReferencesLookup) {
-        return;
-    }
-
 }
