@@ -42,6 +42,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <poi.version>3.17</poi.version>
         <maven.compiler.plugin.version>3.3</maven.compiler.plugin.version>
+        <maven.appassembler.plugin.version>1.10</maven.appassembler.plugin.version>
         <maven.assembly.plugin.version>3.1.0</maven.assembly.plugin.version>
         <maven.jar.plugin.version>3.1.0</maven.jar.plugin.version>
         <spotbugs.maven.plugin.version>3.1.6</spotbugs.maven.plugin.version>
@@ -90,7 +91,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>appassembler-maven-plugin</artifactId>
-                <version>1.10</version>
+                <version>${maven.appassembler.plugin.version}</version>
                 <configuration>
                     <programs>
                         <program>
@@ -115,7 +116,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>${maven.assembly.plugin.version}</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
