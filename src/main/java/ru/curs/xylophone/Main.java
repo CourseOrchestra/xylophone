@@ -137,6 +137,8 @@ public class Main {
         System.out.println(DESCR + " descriptor file");
         System.out.println("[" + SAX
                 + "] use SAX engine (instead of DOM) to parse data file");
+        System.out.println("[" + COPYTEMPLATE
+                + "] copy the template file to output before processing");
         System.out.println(OUT + " output file");
 
         System.exit(1);
