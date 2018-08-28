@@ -131,7 +131,7 @@ public class Main {
 
     private static void showHelp() {
         System.out
-                .println("XML2Spreadsheet should be called with the following parameters (any order):");
+                .println("Xylophone should be called with the following parameters (any order):");
         System.out.println(DATA + " XML data file");
         System.out.println(TEMPLATE + " XLS/XLSX template file");
         System.out.println(DESCR + " descriptor file");
