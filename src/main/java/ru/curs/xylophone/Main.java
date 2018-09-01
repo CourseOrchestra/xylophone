@@ -131,12 +131,14 @@ public class Main {
 
     private static void showHelp() {
         System.out
-                .println("XML2Spreadsheet should be called with the following parameters (any order):");
+                .println("Xylophone should be called with the following parameters (any order):");
         System.out.println(DATA + " XML data file");
         System.out.println(TEMPLATE + " XLS/XLSX template file");
         System.out.println(DESCR + " descriptor file");
         System.out.println("[" + SAX
                 + "] use SAX engine (instead of DOM) to parse data file");
+        System.out.println("[" + COPYTEMPLATE
+                + "] copy the template file to output before processing");
         System.out.println(OUT + " output file");
 
         System.exit(1);

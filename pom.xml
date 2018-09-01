@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ru.curs</groupId>
     <artifactId>xylophone</artifactId>
     <version>6.1.3-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
     <name>xylophone java library</name>
     <description>xylophone - LGPL Java library</description>
-    <packaging>jar</packaging>
     <url>https://corchestra.ru/wiki/index.php?title=Xylophone</url>
 
     <organization>
@@ -40,12 +42,39 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <poi.version>3.17</poi.version>
         <maven.compiler.plugin.version>3.3</maven.compiler.plugin.version>
+        <maven.appassembler.plugin.version>1.10</maven.appassembler.plugin.version>
         <maven.assembly.plugin.version>3.1.0</maven.assembly.plugin.version>
         <maven.jar.plugin.version>3.1.0</maven.jar.plugin.version>
         <spotbugs.maven.plugin.version>3.1.6</spotbugs.maven.plugin.version>
         <checkstyle.version>8.10</checkstyle.version>
         <maven.checkstyle.plugin.version>3.0.0</maven.checkstyle.plugin.version>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>${poi.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>${poi.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>fop</artifactId>
+            <version>2.1</version>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
@@ -60,15 +89,34 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>appassembler-maven-plugin</artifactId>
+                <version>${maven.appassembler.plugin.version}</version>
+                <configuration>
+                    <programs>
+                        <program>
+                            <mainClass>ru.curs.xylophone.Main</mainClass>
+                            <id>xylophone</id>
+                        </program>
+                    </programs>
+                    <repositoryName>lib</repositoryName>
+                    <repositoryLayout>flat</repositoryLayout>
+                    <licenseHeaderFile>src/main/assembly/header.txt</licenseHeaderFile>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>assemble</goal>
+                        </goals>
+                        <phase>package</phase>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>${maven.assembly.plugin.version}</version>
-                <configuration>
-                    <appendAssemblyId>true</appendAssemblyId>
-                    <descriptors>
-                        <descriptor>src/assembly/bin.xml</descriptor>
-                    </descriptors>
-                </configuration>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -77,7 +125,13 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <descriptors>
+                        <descriptor>src/main/assembly/bin.xml</descriptor>
+                    </descriptors>
+                </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -136,34 +190,9 @@
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
     </build>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId>
-            <version>${poi.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml</artifactId>
-            <version>${poi.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.xmlgraphics</groupId>
-            <artifactId>fop</artifactId>
-            <version>2.1</version>
-        </dependency>
-    </dependencies>
 
 
     <profiles>
