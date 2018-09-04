@@ -116,6 +116,7 @@ abstract class POIReportWriter extends ReportWriter {
             fResult.setStrikeout(fSource.getStrikeout());
             fResult.setTypeOffset(fSource.getTypeOffset());
             fResult.setUnderline(fSource.getUnderline());
+            fResult.setBold(fSource.getBold());
             fontMap.put(fSource.getIndex(), fResult);
         }
 
