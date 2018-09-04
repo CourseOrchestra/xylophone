@@ -7,3 +7,5 @@
 Excel reports generating library
 
 * Documentation (in Russian): https://corchestra.ru/wiki/index.php?title=Xylophone
+
+* Short overview (in Russian): https://habr.com/post/422059/
