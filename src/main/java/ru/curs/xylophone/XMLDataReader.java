@@ -101,7 +101,7 @@ abstract class XMLDataReader {
 
             final class StringAttrReader extends AttrReader<String> {
                 @Override
-                String getIfNotEmpty(String value) throws XML2SpreadSheetError {
+                String getIfNotEmpty(String value) {
                     return value;
                 }
 
@@ -347,7 +347,7 @@ abstract class XMLDataReader {
 
     static final class DescriptorElement {
         private final String elementName;
-        private final List<DescriptorSubelement> subelements = new LinkedList<DescriptorSubelement>();
+        private final List<DescriptorSubelement> subelements = new LinkedList<>();
 
         public DescriptorElement(String elementName) {
             this.elementName = elementName;

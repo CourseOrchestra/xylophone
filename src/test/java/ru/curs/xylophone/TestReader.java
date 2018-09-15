@@ -66,7 +66,7 @@ public class TestReader {
 	}
 
 	@Test
-	public void testParseDescriptor() throws XML2SpreadSheetError, IOException {
+	public void testParseDescriptor() throws XML2SpreadSheetError {
 		descrStream = TestReader.class
 				.getResourceAsStream("testdescriptor.xml");
 		dataStream = TestReader.class.getResourceAsStream("testdata.xml");
@@ -258,7 +258,7 @@ class DummyWriter extends ReportWriter {
 	}
 
 	@Override
-	public void flush() throws XML2SpreadSheetError {
+	public void flush() {
 		// Также проверяем, что последним всегда вызывается метод flush.
 		log.append("F");
 	}

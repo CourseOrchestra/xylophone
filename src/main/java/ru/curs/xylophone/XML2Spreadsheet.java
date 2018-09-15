@@ -104,7 +104,7 @@ public final class XML2Spreadsheet {
             ReportWriter writer = ReportWriter.createWriter(templ, outputType,
                     copyTemplate, new OutputStream() {
                         @Override
-                        public void write(int b) throws IOException {
+                        public void write(int b) {
                             // Do nothing.
                         }
                     });

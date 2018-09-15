@@ -10,7 +10,7 @@ import org.junit.Test;
 
 public class TestOverall {
 	@Test
-	public void test1() throws XML2SpreadSheetError, IOException {
+	public void test1() throws XML2SpreadSheetError {
 		InputStream descrStream = TestReader.class
 				.getResourceAsStream("testdescriptor3.xml");
 		InputStream dataStream = TestReader.class
@@ -34,7 +34,7 @@ public class TestOverall {
 	}
 
 	@Test
-	public void test2() throws XML2SpreadSheetError, IOException {
+	public void test2() throws XML2SpreadSheetError {
 		InputStream descrStream = TestReader.class
 				.getResourceAsStream("testsaxdescriptor3.xml");
 		InputStream dataStream = TestReader.class
