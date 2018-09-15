@@ -48,7 +48,7 @@ final class RangeAddress {
     private final CellAddress topLeft;
     private final CellAddress bottomRight;
 
-    public RangeAddress(String address) throws XML2SpreadSheetError {
+    RangeAddress(String address) throws XML2SpreadSheetError {
         Matcher m = RANGE_ADDRESS.matcher(address);
         if (!m.matches())
             throw new XML2SpreadSheetError("Incorrect range: " + address);

@@ -82,7 +82,7 @@ abstract class POIReportWriter extends ReportWriter {
     private boolean needEval = false;
     private final Map<CellStyle, CellStyle> stylesMap = new HashMap<>();
 
-    public POIReportWriter(InputStream template, InputStream templateCopy)
+    POIReportWriter(InputStream template, InputStream templateCopy)
             throws XML2SpreadSheetError {
         try {
             this.template = WorkbookFactory.create(template);
