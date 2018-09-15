@@ -27,8 +27,8 @@ node {
                     }
                     ]
                 }"""
-        //server.download spec: downloadSpec
-        //oldWarnings = readYaml file: 'previous.yml'
+        server.download spec: downloadSpec
+        oldWarnings = readYaml file: 'previous.yml'
     }
 
     try{
@@ -44,7 +44,7 @@ node {
     stage ('Ratcheting') {
             def warningsMap = countWarnings()
             writeYaml file: 'target/warnings.yml', data: warningsMap
-            //compareWarningMaps oldWarnings, warningsMap
+            compareWarningMaps oldWarnings, warningsMap
     }
 
     if (env.BRANCH_NAME == 'dev') {

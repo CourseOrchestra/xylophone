@@ -203,7 +203,7 @@ public class Excel2Print {
         Document doc = getDoc();
 
         if (printerName == null) {
-            try (OutputStream out = new ByteArrayOutputStream()){
+            try (OutputStream out = new ByteArrayOutputStream()) {
                 Fop fop = getFopFactory().newFop(MimeConstants.MIME_FOP_PRINT,
                         out);
 

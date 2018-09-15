@@ -71,7 +71,7 @@ final class SAXDataReader extends XMLDataReader {
      * Адаптирует дескриптор элемента к SAX-парсингу.
      *
      */
-    private final class SAXElementDescriptor {
+    private static final class SAXElementDescriptor {
         private int elementIndex = -1;
         private int position = 0;
         private final int desiredIndex;

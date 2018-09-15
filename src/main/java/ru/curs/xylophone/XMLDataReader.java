@@ -349,7 +349,7 @@ abstract class XMLDataReader {
         private final String elementName;
         private final List<DescriptorSubelement> subelements = new LinkedList<>();
 
-        public DescriptorElement(String elementName) {
+        DescriptorElement(String elementName) {
             this.elementName = elementName;
         }
 
@@ -372,7 +372,7 @@ abstract class XMLDataReader {
         private final String regionName;
         private final List<DescriptorElement> elements = new LinkedList<>();
 
-        public DescriptorIteration(int index, boolean horizontal, int merge,
+        DescriptorIteration(int index, boolean horizontal, int merge,
                 String regionName) {
             this.index = index;
             this.horizontal = horizontal;
@@ -411,7 +411,7 @@ abstract class XMLDataReader {
         private final int endRepeatingRow;
         private final boolean pageBreak;
 
-        public DescriptorOutput(String worksheet, RangeAddress range,
+        DescriptorOutput(String worksheet, RangeAddress range,
                 String sourceSheet, String repeatingCols, String repeatingRows,
                 boolean pageBreak) throws XML2SpreadSheetError {
             this.worksheet = worksheet;
