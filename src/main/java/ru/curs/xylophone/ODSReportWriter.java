@@ -63,7 +63,7 @@ final class ODSReportWriter extends ReportWriter {
     }
 
     @Override
-    public void flush() throws XML2SpreadSheetError {
+    public void flush() {
         // TODO Auto-generated method stub
 
     }

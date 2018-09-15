@@ -54,7 +54,7 @@ public class Main {
 
     private enum State {
         READTOKEN, READDATA, READTEMPLATE, READDESCR, READOUT,
-    };
+    }
 
     /**
      * Главный метод класса.
