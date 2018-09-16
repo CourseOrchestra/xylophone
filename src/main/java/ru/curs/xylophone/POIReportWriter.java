@@ -299,14 +299,14 @@ abstract class POIReportWriter extends ReportWriter {
                 // Копируем значение...
                 String val;
                 String buf;
-                switch (sourceCell.getCellType()) {
-                case Cell.CELL_TYPE_BOOLEAN:
+                switch (sourceCell.getCellTypeEnum()) {
+                case BOOLEAN:
                     resultCell.setCellValue(sourceCell.getBooleanCellValue());
                     break;
-                case Cell.CELL_TYPE_NUMERIC:
+                case NUMERIC:
                     resultCell.setCellValue(sourceCell.getNumericCellValue());
                     break;
-                case Cell.CELL_TYPE_STRING:
+                case STRING:
                     // ДЛЯ СТРОКОВЫХ ЯЧЕЕК ВЫЧИСЛЯЕМ ПОДСТАНОВКИ!!
                     val = sourceCell.getStringCellValue();
                     buf = context.calc(val);
@@ -315,7 +315,7 @@ abstract class POIReportWriter extends ReportWriter {
                     writeTextOrNumber(resultCell, buf,
                             context.containsPlaceholder(val));
                     break;
-                case Cell.CELL_TYPE_FORMULA:
+                case FORMULA:
                     // Обрабатываем формулу
                     val = sourceCell.getCellFormula();
                     val = FormulaModifier
