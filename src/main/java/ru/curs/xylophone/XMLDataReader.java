@@ -193,7 +193,7 @@ abstract class XMLDataReader {
 
                         parserState = ParserState.OUTPUT;
                     } else {
-                        throw new RuntimeException(String.format("Tag <element> is not allowed inside <element>. " +
+                        throw new XML2SpreadSheetError(String.format("Tag <element> is not allowed inside <element>. " +
                                 "Error inside element with name %s.", elementsStack.peek().getElementName()));
                     }
                     break;
@@ -217,7 +217,7 @@ abstract class XMLDataReader {
                         elementsStack.push(currElement);
                         parserState = ParserState.ELEMENT;
                     } else {
-                        throw new RuntimeException(
+                        throw new XML2SpreadSheetError(
                                 String.format("Tag <%s> is not allowed inside <iteration>. " +
                                                 "Error inside element with name %s.",
                                         localName, elementsStack.peek().getElementName()));
