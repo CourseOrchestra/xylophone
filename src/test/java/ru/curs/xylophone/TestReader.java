@@ -10,8 +10,10 @@ import java.io.InputStream;
 import java.util.HashMap;
 
 import org.junit.After;
+import org.junit.Rule;
 import org.junit.Test;
 
+import org.junit.rules.ExpectedException;
 import ru.curs.xylophone.XMLDataReader.DescriptorElement;
 import ru.curs.xylophone.XMLDataReader.DescriptorIteration;
 import ru.curs.xylophone.XMLDataReader.DescriptorOutput;
@@ -19,6 +21,9 @@ import ru.curs.xylophone.XMLDataReader.DescriptorOutput;
 public class TestReader {
 	private InputStream descrStream;
 	private InputStream dataStream;
+
+	@Rule
+	public ExpectedException expectedException = ExpectedException.none();
 
 	@After
 	public void TearDown() {
@@ -195,6 +200,53 @@ public class TestReader {
 				descrStream, false, w);
 		reader.process();
 		assertEquals("Q{TCQ{CCQ{CC}C}TQ{CQh{CCC}}TQ{}}F", w.getLog().toString());
+	}
+
+	@Test
+	public void testParsingDescriptorWithElementInsideElementShouldFail() throws XML2SpreadSheetError {
+		descrStream = TestReader.class
+				.getResourceAsStream("testdescriptor_with_element_inside_element.xml");
+		dataStream = TestReader.class.getResourceAsStream("testdata.xml");
+
+		expectedException.expect(XML2SpreadSheetError.class);
+		expectedException.expectMessage("Tag <element> is not allowed inside <element>. Error inside element with name titlepage.");
+
+		DummyWriter w = new DummyWriter();
+		// При создании reader (при парсинге xml) падает исключение о некорректной последовательности тегов.
+		XMLDataReader reader = XMLDataReader.createReader(dataStream,
+				descrStream, false, w);
+	}
+
+	@Test
+	public void testParsingDescriptorWithIterationInsideIterationShouldFail() throws XML2SpreadSheetError {
+		descrStream = TestReader.class
+				.getResourceAsStream("testdescriptor_with_iteration_inside_iteration.xml");
+		dataStream = TestReader.class.getResourceAsStream("testdata.xml");
+
+		expectedException.expect(XML2SpreadSheetError.class);
+		expectedException.expectMessage("Tag <iteration> is not allowed inside <iteration>. " +
+				"Error inside element with name titlepage.");
+
+		DummyWriter w = new DummyWriter();
+		// При создании reader (при парсинге xml) падает исключение о некорректной последовательности тегов.
+		XMLDataReader reader = XMLDataReader.createReader(dataStream,
+				descrStream, false, w);
+	}
+
+	@Test
+	public void testParsingDescriptorWithOutputInsideIterationShouldFail() throws XML2SpreadSheetError {
+		descrStream = TestReader.class
+				.getResourceAsStream("testdescriptor_with_output_inside_iteration.xml");
+		dataStream = TestReader.class.getResourceAsStream("testdata.xml");
+
+		expectedException.expect(XML2SpreadSheetError.class);
+		expectedException.expectMessage("Tag <output> is not allowed inside <iteration>. " +
+				"Error inside element with name titlepage.");
+
+		DummyWriter w = new DummyWriter();
+		// При создании reader (при парсинге xml) падает исключение о некорректной последовательности тегов.
+		XMLDataReader reader = XMLDataReader.createReader(dataStream,
+				descrStream, false, w);
 	}
 }
 
