@@ -213,7 +213,7 @@ public class TestReader {
 
 		DummyWriter w = new DummyWriter();
 		// При создании reader (при парсинге xml) падает исключение о некорректной последовательности тегов.
-		XMLDataReader reader = XMLDataReader.createReader(dataStream,
+		XMLDataReader.createReader(dataStream,
 				descrStream, false, w);
 	}
 
@@ -229,7 +229,7 @@ public class TestReader {
 
 		DummyWriter w = new DummyWriter();
 		// При создании reader (при парсинге xml) падает исключение о некорректной последовательности тегов.
-		XMLDataReader reader = XMLDataReader.createReader(dataStream,
+		XMLDataReader.createReader(dataStream,
 				descrStream, false, w);
 	}
 
@@ -245,7 +245,7 @@ public class TestReader {
 
 		DummyWriter w = new DummyWriter();
 		// При создании reader (при парсинге xml) падает исключение о некорректной последовательности тегов.
-		XMLDataReader reader = XMLDataReader.createReader(dataStream,
+		XMLDataReader.createReader(dataStream,
 				descrStream, false, w);
 	}
 }
