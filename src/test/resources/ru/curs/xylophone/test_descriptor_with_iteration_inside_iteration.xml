@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <element name="report">
-    <!-- Вывод единственного титульного листа, с иерархией -->
+    <!-- The conclusion of a single title page, with a hierarchy -->
     <iteration index="0">
         <element name="titlepage">
-            <!-- Статическое название листа -->
-            <output worksheet="Титульный" sourcesheet="Лист1" range="A3:B4" />
+            <!-- Static sheet name -->
+            <output worksheet="Title" sourcesheet="List1" range="A3:B4" />
             <iteration>
                 <element name="line">
                     <output range="A5:Z5" />
@@ -23,25 +23,25 @@
             </iteration>
         </element>
     </iteration>
-    <!-- Вывод всех прочих листов, со сводными таблицами -->
+    <!-- Output of all other sheets, with pivot tables -->
     <iteration>
         <element name="sheet">
-            <!-- Динамическое название листа -->
-            <output worksheet="~{@name}" sourcesheet="Лист2"/>
-            <!-- Выводим пустую ячейку в ЛВУ сводной таблицы -->
+            <!-- Dynamic sheet name -->
+            <output worksheet="~{@name}" sourcesheet="List2"/>
+            <!-- Output the empty cell in the upper left corner of the summary table -->
             <output range="A1" />
-            <!-- И за ним слева направо заголовки столбцов -->
+            <!-- And behind it from left to right column headings -->
             <iteration mode="horizontal">
                 <element name="column">
                     <output range="B1" />
                 </element>
             </iteration>
-            <!-- Выводим строки: итерация с режимом вывода умолчанию, сверху вниз -->
+            <!-- Output the lines: iteration with the default output mode, from top to bottom -->
             <iteration>
                 <element name="row">
-                    <!-- Заголовок строки -->
+                    <!-- Line title -->
                     <output range="A2" />
-                    <!-- И за ним слева направо строку с данными -->
+                    <!-- And behind it from left to right a line with the data -->
                     <iteration mode="horizontal">
                         <element name="cell">
                             <output range="B2" />
