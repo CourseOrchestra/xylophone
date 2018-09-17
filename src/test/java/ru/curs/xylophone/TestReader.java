@@ -205,14 +205,14 @@ public class TestReader {
 	@Test
 	public void testParsingDescriptorWithElementInsideElementShouldFail() throws XML2SpreadSheetError {
 		descrStream = TestReader.class
-				.getResourceAsStream("testdescriptor_with_element_inside_element.xml");
+				.getResourceAsStream("test_descriptor_with_element_inside_element.xml");
 		dataStream = TestReader.class.getResourceAsStream("testdata.xml");
 
 		expectedException.expect(XML2SpreadSheetError.class);
 		expectedException.expectMessage("Tag <element> is not allowed inside <element>. Error inside element with name titlepage.");
 
 		DummyWriter w = new DummyWriter();
-		// При создании reader (при парсинге xml) падает исключение о некорректной последовательности тегов.
+		// When reader is created, exception is thrown because of not correct sequence of tags
 		XMLDataReader.createReader(dataStream,
 				descrStream, false, w);
 	}
@@ -220,7 +220,7 @@ public class TestReader {
 	@Test
 	public void testParsingDescriptorWithIterationInsideIterationShouldFail() throws XML2SpreadSheetError {
 		descrStream = TestReader.class
-				.getResourceAsStream("testdescriptor_with_iteration_inside_iteration.xml");
+				.getResourceAsStream("test_descriptor_with_iteration_inside_iteration.xml");
 		dataStream = TestReader.class.getResourceAsStream("testdata.xml");
 
 		expectedException.expect(XML2SpreadSheetError.class);
@@ -228,7 +228,7 @@ public class TestReader {
 				"Error inside element with name titlepage.");
 
 		DummyWriter w = new DummyWriter();
-		// При создании reader (при парсинге xml) падает исключение о некорректной последовательности тегов.
+		// When reader is created, exception is thrown because of not correct sequence of tags
 		XMLDataReader.createReader(dataStream,
 				descrStream, false, w);
 	}
@@ -236,7 +236,7 @@ public class TestReader {
 	@Test
 	public void testParsingDescriptorWithOutputInsideIterationShouldFail() throws XML2SpreadSheetError {
 		descrStream = TestReader.class
-				.getResourceAsStream("testdescriptor_with_output_inside_iteration.xml");
+				.getResourceAsStream("test_descriptor_with_output_inside_iteration.xml");
 		dataStream = TestReader.class.getResourceAsStream("testdata.xml");
 
 		expectedException.expect(XML2SpreadSheetError.class);
@@ -244,7 +244,7 @@ public class TestReader {
 				"Error inside element with name titlepage.");
 
 		DummyWriter w = new DummyWriter();
-		// При создании reader (при парсинге xml) падает исключение о некорректной последовательности тегов.
+		// When reader is created, exception is thrown because of not correct sequence of tags
 		XMLDataReader.createReader(dataStream,
 				descrStream, false, w);
 	}
