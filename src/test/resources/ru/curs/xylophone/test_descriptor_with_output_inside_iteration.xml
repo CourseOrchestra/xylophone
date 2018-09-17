@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<element name="report">
+    <!-- The conclusion of a single title page, with a hierarchy -->
+    <iteration index="0">
+        <element name="titlepage">
+            <!-- Static sheet name -->
+            <output worksheet="Title" sourcesheet="List1" range="A3:B4" />
+            <iteration>
+                <element name="line">
+                    <output range="A5:Z5" />
+                </element>
+                <element name="group">
+                    <output range="A6:Z6" pagebreak="true" />
+                    <iteration>
+                        <element name="line">
+                            <output range="A7:Z7" />
+                        </element>
+                    </iteration>
+                </element>
+                <output range="AA1:BB2"/>
+            </iteration>
+        </element>
+    </iteration>
+    <!-- Output of all other sheets, with pivot tables -->
+    <iteration>
+        <element name="sheet">
+            <!-- Dynamic sheet name -->
+            <output worksheet="~{@name}" sourcesheet="List2"/>
+            <!-- Output the empty cell in the upper left corner of the summary table -->
+            <output range="A1" />
+            <!-- And behind it from left to right column headings -->
+            <iteration mode="horizontal">
+                <element name="column">
+                    <output range="B1" />
+                </element>
+            </iteration>
+            <!-- Output the lines: iteration with the default output mode, from top to bottom -->
+            <iteration>
+                <element name="row">
+                    <!-- Line title -->
+                    <output range="A2" />
+                    <!-- And behind it from left to right a line with the data -->
+                    <iteration mode="horizontal">
+                        <element name="cell">
+                            <output range="B2" />
+                        </element>
+                    </iteration>
+                </element>
+            </iteration>
+        </element>
+    </iteration>
+</element>
