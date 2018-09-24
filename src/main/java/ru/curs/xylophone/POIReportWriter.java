@@ -318,8 +318,6 @@ abstract class POIReportWriter extends ReportWriter {
                                 context.containsPlaceholder(val));
                     } else {
                         //TODO: apply dynamic style
-                        Map<String, String> properties = cellStyle.getProperties();
-                        String cellRecordWithoutProperties = cellStyle.getValue();
                     }
                     break;
                 case FORMULA:
