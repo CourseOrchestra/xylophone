@@ -309,11 +309,19 @@ abstract class POIReportWriter extends ReportWriter {
                 case STRING:
                     // ДЛЯ СТРОКОВЫХ ЯЧЕЕК ВЫЧИСЛЯЕМ ПОДСТАНОВКИ!!
                     val = sourceCell.getStringCellValue();
-                    buf = context.calc(val);
+                    DynamicCellWithStyle cellStyle = DynamicCellWithStyle.defineCellStyle(sourceCell, val);
                     // Если ячейка содержит строковое представление числа и при
                     // этом содержит плейсхолдер --- меняем его на число.
-                    writeTextOrNumber(resultCell, buf,
-                            context.containsPlaceholder(val));
+                    if (!cellStyle.isStylesPresent()) {
+                        buf = context.calc(val);
+                        writeTextOrNumber(resultCell, buf,
+                                context.containsPlaceholder(val));
+                    } else {
+                        //TODO: apply dynamic style
+                        buf = context.calc(cellStyle.getValue());
+                        writeTextOrNumber(cellStyle.getCell(), buf,
+                                context.containsPlaceholder(cellStyle.getValue()));
+                    }
                     break;
                 case FORMULA:
                     // Обрабатываем формулу
