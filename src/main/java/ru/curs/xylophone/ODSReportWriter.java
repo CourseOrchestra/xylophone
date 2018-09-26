@@ -35,6 +35,8 @@
 */
 package ru.curs.xylophone;
 
+import org.apache.poi.ss.usermodel.Sheet;
+
 import java.io.InputStream;
 
 /**
@@ -90,5 +92,10 @@ final class ODSReportWriter extends ReportWriter {
     void putColBreak(int colNumber) {
         // TODO Auto-generated method stub
 
+    }
+
+    @Override
+    public Sheet getSheet() {
+        throw new UnsupportedOperationException();
     }
 }

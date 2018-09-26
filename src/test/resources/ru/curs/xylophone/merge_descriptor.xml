@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<element name="report">
+    <output worksheet="report"/>
+    <iteration>
+        <element name="r">
+            <output range="A3:D3"/>
+        </element>
+    </iteration>
+</element>

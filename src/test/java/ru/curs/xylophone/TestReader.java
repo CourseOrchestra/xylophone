@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 
+import org.apache.poi.ss.usermodel.Sheet;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -335,6 +336,11 @@ class DummyWriter extends ReportWriter {
 	void putColBreak(int colNumber) {
 		log.append(String.format("[colbreak%d]", colNumber));
 
+	}
+
+	@Override
+	public Sheet getSheet() {
+		return null;
 	}
 
 }
