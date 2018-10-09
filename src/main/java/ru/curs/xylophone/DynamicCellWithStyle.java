@@ -18,7 +18,7 @@ public final class DynamicCellWithStyle {
 
     private static final Pattern PROPERTY_PATTERN = Pattern.compile(PROPERTY_REGEX);
     private static final Pattern PROPERTIES_PATTERN =
-            Pattern.compile("\\|\\|\\s*((" + PROPERTY_REGEX + "\\s*;?\\s*)+)$");
+            Pattern.compile("\\|\\s*((" + PROPERTY_REGEX + "\\s*;?\\s*)+)$");
 
     private Cell cell;
     private Map<String, String> properties;

@@ -71,4 +71,36 @@ public class MergeTest {
                     false, false, outputStream);
         }
     }
+
+    @Test
+    public void mergeComplexTestWithLeftUp() throws IOException, URISyntaxException, XML2SpreadSheetError {
+        File descriptor = Paths.get(TestOverall.class.getResource("merge_descriptor.xml").toURI()).toFile();
+        InputStream dataStream = TestReader.class
+                .getResourceAsStream("merge_data.xml");
+        File template = Paths.get(TestOverall.class.getResource(
+                "merge_leftup_complex_template.xls").toURI()).toFile();
+
+        File createdTempOutputFile = temporaryFolder.newFile("temp.xls");
+
+        try (OutputStream outputStream = new FileOutputStream(createdTempOutputFile)) {
+            XML2Spreadsheet.process(dataStream, descriptor, template,
+                    false, false, outputStream);
+        }
+    }
+
+    @Test
+    public void mergeComplexTestWithUpLeft() throws IOException, URISyntaxException, XML2SpreadSheetError {
+        File descriptor = Paths.get(TestOverall.class.getResource("merge_descriptor.xml").toURI()).toFile();
+        InputStream dataStream = TestReader.class
+                .getResourceAsStream("merge_data.xml");
+        File template = Paths.get(TestOverall.class.getResource(
+                "merge_upleft_complex_template.xls").toURI()).toFile();
+
+        File createdTempOutputFile = temporaryFolder.newFile("temp.xls");
+
+        try (OutputStream outputStream = new FileOutputStream(createdTempOutputFile)) {
+            XML2Spreadsheet.process(dataStream, descriptor, template,
+                    false, false, outputStream);
+        }
+    }
 }

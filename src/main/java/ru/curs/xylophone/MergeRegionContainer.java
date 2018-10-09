@@ -1,11 +1,12 @@
 package ru.curs.xylophone;
 
-import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.util.CellRangeAddress;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Container for merged regions.
@@ -48,13 +49,9 @@ public final class MergeRegionContainer {
         }
         CellRangeAddress res = new CellRangeAddress(address.getRow() - 2,
                 address.getRow() - 1, address.getCol() - 1, address.getCol() - 1);
-        Optional<MutableCellRangeAddress> intersectedRegion = findIntersectedRegion(res);
+        List<MutableCellRangeAddress> intersectedRegion = findIntersectedRegion(res);
 
-        if (intersectedRegion.isPresent()) {
-            mergeIntersectedRegions(intersectedRegion.get(), res);
-        } else {
-            mergedRegions.add(new MutableCellRangeAddress(res));
-        }
+        addMergedRegion(res, (List<MutableCellRangeAddress>) intersectedRegion);
     }
 
     /**
@@ -69,13 +66,9 @@ public final class MergeRegionContainer {
         }
         CellRangeAddress res = new CellRangeAddress(address.getRow() - 1,
                 address.getRow() - 1, address.getCol() - 2, address.getCol() - 1);
-        Optional<MutableCellRangeAddress> intersectedRegion = findIntersectedRegion(res);
+        List<MutableCellRangeAddress> intersectedRegion = findIntersectedRegion(res);
 
-        if (intersectedRegion.isPresent()) {
-            mergeIntersectedRegions(intersectedRegion.get(), res);
-        } else {
-            mergedRegions.add(new MutableCellRangeAddress(res));
-        }
+        addMergedRegion(res, intersectedRegion);
     }
 
     /**
@@ -84,11 +77,17 @@ public final class MergeRegionContainer {
      * @param res merge region
      */
     public void addMergedRegion(CellRangeAddress res) {
-        Optional<MutableCellRangeAddress> intersectedRegion = findIntersectedRegion(res);
-        if (intersectedRegion.isPresent()) {
-            mergeIntersectedRegions(intersectedRegion.get(), res);
-        } else {
+        List<MutableCellRangeAddress> intersectedRegion = findIntersectedRegion(res);
+        addMergedRegion(res, intersectedRegion);
+    }
+
+    private void addMergedRegion(CellRangeAddress res, List<MutableCellRangeAddress> intersectedRegion) {
+        if (intersectedRegion.size() == 1) {
+            mergeIntersectedRegions(intersectedRegion.get(0), res);
+        } else if (intersectedRegion.isEmpty()){
             mergedRegions.add(new MutableCellRangeAddress(res));
+        } else {
+            mergeIntersectedRegions(intersectedRegion, res);
         }
     }
 
@@ -116,8 +115,8 @@ public final class MergeRegionContainer {
                     String.format("Cannot merge first row with upper cell or first column with left cell: %s",
                             res.formatAsString()));
         }
-        Optional<MutableCellRangeAddress> intersected = findIntersectedRegion(res);
-        return intersected.map(MutableCellRangeAddress::toCellRangeAddress).orElse(res);
+        List<MutableCellRangeAddress> intersected = findIntersectedRegion(res);
+        return intersected.stream().map(MutableCellRangeAddress::toCellRangeAddress).findFirst().orElse(res);
     }
 
     /**
@@ -125,6 +124,37 @@ public final class MergeRegionContainer {
      */
     private void clear() {
         mergedRegions.clear();
+    }
+
+    private void mergeIntersectedRegions(List<MutableCellRangeAddress> mergedRegions, CellRangeAddress res) {
+        Comparator<MutableCellRangeAddress> minComp = (a, b) -> {
+            int yDiff = a.getFirstRow() - b.getFirstRow();
+            if (yDiff == 0) {
+                return a.getFirstColumn() - b.getFirstColumn();
+            }
+            return yDiff;
+        };
+        Comparator<MutableCellRangeAddress> maxComp = (a, b) -> {
+            int yDiff = a.getLastRow() - b.getLastRow();
+            if (yDiff == 0) {
+                return a.getLastColumn() - b.getLastColumn();
+            }
+            return yDiff;
+        };
+
+        MutableCellRangeAddress leftTop = mergedRegions.stream().min(minComp).get();
+        MutableCellRangeAddress rightBottom = mergedRegions.stream().max(maxComp).get();
+
+        if (res.getLastRow() == rightBottom.getLastRow() && res.getLastColumn() == rightBottom.getLastColumn()
+                && res.getLastRow() > leftTop.getFirstRow() && res.getLastColumn() > leftTop.getFirstColumn()) {
+
+            MutableCellRangeAddress unionedRegion = new MutableCellRangeAddress(
+                    new CellRangeAddress(leftTop.getFirstRow(), rightBottom.getLastRow(),
+                            leftTop.getFirstColumn(), rightBottom.getLastColumn()));
+
+            this.mergedRegions.removeAll(mergedRegions);
+            this.mergedRegions.add(unionedRegion);
+        }
     }
 
     /**
@@ -161,11 +191,11 @@ public final class MergeRegionContainer {
      * @param res range address
      * @return optional
      */
-    private Optional<MutableCellRangeAddress> findIntersectedRegion(CellRangeAddress res) {
+    private List<MutableCellRangeAddress> findIntersectedRegion(CellRangeAddress res) {
         return mergedRegions
                 .stream()
                 .filter(addr -> addr.intersects(res))
-                .findFirst();
+                .collect(Collectors.toList());
     }
 
     /**
@@ -221,6 +251,22 @@ public final class MergeRegionContainer {
          */
         int getFirstColumn() {
             return address.getFirstColumn();
+        }
+
+        /**
+         * Get last row.
+         * @return last row
+         */
+        int getLastRow() {
+            return address.getLastRow();
+        }
+
+        /**
+         * Get last column.
+         * @return last column
+         */
+        int getLastColumn() {
+            return address.getLastColumn();
         }
     }
 }

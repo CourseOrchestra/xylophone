@@ -338,67 +338,24 @@ abstract class POIReportWriter extends ReportWriter {
                         writeTextOrNumber(resultCell, buf,
                                 context.containsPlaceholder(val));
                     } else {
-                        //TODO: apply dynamic style
                         Map<String, String> properties = cellWithStyle.getProperties();
                         for (Map.Entry<String, String> entry : properties.entrySet()) {
                             switch (entry.getKey().toUpperCase()) {
                                 case CellPropertyType.MERGE_LEFT_VALUE:
-
-                                    if (!CellPropertyType.MERGE_LEFT.contains(entry.getValue().toLowerCase())) {
-                                        String propertyValues = Arrays.stream(CellPropertyType.MERGE_LEFT.getValues())
-                                                .collect(Collectors.joining(", "));
-                                        throw new RuntimeException(
-                                                String.format("There are no such value: %s. Please choice one of %s",
-                                                        entry.getValue(), propertyValues));
-                                    }
-
-                                    switch (entry.getValue().toLowerCase()) {
-                                        case CellPropertyType.MERGE_YES:
-                                            mergeRegionContainer.mergeLeft(
-                                                    new CellAddress(resultCell.getAddress().formatAsString()));
-                                            break;
-                                        case CellPropertyType.MERGE_IFEQUALS:
-                                            CellRangeAddress rangeAddress = new CellRangeAddress(
-                                                    resultCell.getRowIndex(), resultCell.getRowIndex(),
-                                                    resultCell.getColumnIndex() - 1, resultCell.getColumnIndex());
-
-                                            if (ifEquals(rangeAddress, cellWithStyle)) {
-                                                mergeRegionContainer.mergeLeft(
-                                                        new CellAddress(resultCell.getAddress().formatAsString()));
-                                            }
-                                            break;
-                                        case CellPropertyType.MERGE_NO:
-                                            break;
-                                    }
+                                    mergeLeft(entry.getValue(), resultCell, cellWithStyle);
                                     break;
                                 case CellPropertyType.MERGE_UP_VALUE:
-                                    if (!CellPropertyType.MERGE_UP.contains(entry.getValue().toLowerCase())) {
-                                    String propertyValues = Arrays.stream(CellPropertyType.MERGE_UP.getValues())
-                                            .collect(Collectors.joining(", "));
-                                    throw new RuntimeException(
-                                            String.format("There are no such value: %s. Please choice one of %s",
-                                                    entry.getValue(), propertyValues));
-                                }
+                                    mergeUp(entry.getValue(), resultCell, cellWithStyle);
+                                    break;
+                                case CellPropertyType.MERGE_UP_LEFT_VALUE:
+                                    mergeUp(entry.getValue(),resultCell, cellWithStyle);
+                                    mergeLeft(entry.getValue(), resultCell, cellWithStyle);
+                                    break;
+                                case CellPropertyType.MERGE_LEFT_UP_VALUE:
+                                    mergeLeft(entry.getValue(), resultCell, cellWithStyle);
+                                    mergeUp(entry.getValue(), resultCell, cellWithStyle);
+                                    break;
 
-                                switch (entry.getValue().toLowerCase()) {
-                                    case CellPropertyType.MERGE_YES:
-                                        mergeRegionContainer.mergeUp(
-                                                new CellAddress(resultCell.getAddress().formatAsString()));
-                                        break;
-                                    case CellPropertyType.MERGE_IFEQUALS:
-                                        CellRangeAddress rangeAddress = new CellRangeAddress(
-                                                resultCell.getRowIndex() - 1, resultCell.getRowIndex(),
-                                                resultCell.getColumnIndex(), resultCell.getColumnIndex());
-
-                                        if (ifEquals(rangeAddress, cellWithStyle)) {
-                                            mergeRegionContainer.mergeUp(
-                                                    new CellAddress(resultCell.getAddress().formatAsString()));
-                                        }
-                                        break;
-                                    case CellPropertyType.MERGE_NO:
-                                        break;
-                                }
-                                break;
                             }
                         }
                         writeTextOrNumber(resultCell, cellWithStyle.getValue(),
@@ -427,6 +384,64 @@ abstract class POIReportWriter extends ReportWriter {
 
         // Разбираемся с merged-ячейками
         arrangeMergedCells(growthPoint, range);
+    }
+
+    private void mergeUp(String attribute, Cell resultCell, DynamicCellWithStyle cellWithStyle) {
+        if (!CellPropertyType.MERGE_UP.contains(attribute.toLowerCase())) {
+            String propertyValues = Arrays.stream(CellPropertyType.MERGE_UP.getValues())
+                    .collect(Collectors.joining(", "));
+            throw new RuntimeException(
+                    String.format("There are no such value: %s. Please choice one of %s",
+                            attribute, propertyValues));
+        }
+
+        switch (attribute.toLowerCase()) {
+            case CellPropertyType.MERGE_YES:
+                mergeRegionContainer.mergeUp(
+                        new CellAddress(resultCell.getAddress().formatAsString()));
+                break;
+            case CellPropertyType.MERGE_IFEQUALS:
+                CellRangeAddress rangeAddress = new CellRangeAddress(
+                        resultCell.getRowIndex() - 1, resultCell.getRowIndex(),
+                        resultCell.getColumnIndex(), resultCell.getColumnIndex());
+
+                if (ifEquals(rangeAddress, cellWithStyle)) {
+                    mergeRegionContainer.mergeUp(
+                            new CellAddress(resultCell.getAddress().formatAsString()));
+                }
+                break;
+            case CellPropertyType.MERGE_NO:
+                break;
+        }
+    }
+
+    private void mergeLeft(String attribute, Cell resultCell, DynamicCellWithStyle cellWithStyle) {
+        if (!CellPropertyType.MERGE_LEFT.contains(attribute.toLowerCase())) {
+            String propertyValues = Arrays.stream(CellPropertyType.MERGE_LEFT.getValues())
+                    .collect(Collectors.joining(", "));
+            throw new RuntimeException(
+                    String.format("There are no such value: %s. Please choice one of %s",
+                            attribute, propertyValues));
+        }
+
+        switch (attribute.toLowerCase()) {
+            case CellPropertyType.MERGE_YES:
+                mergeRegionContainer.mergeLeft(
+                        new CellAddress(resultCell.getAddress().formatAsString()));
+                break;
+            case CellPropertyType.MERGE_IFEQUALS:
+                CellRangeAddress rangeAddress = new CellRangeAddress(
+                        resultCell.getRowIndex(), resultCell.getRowIndex(),
+                        resultCell.getColumnIndex() - 1, resultCell.getColumnIndex());
+
+                if (ifEquals(rangeAddress, cellWithStyle)) {
+                    mergeRegionContainer.mergeLeft(
+                            new CellAddress(resultCell.getAddress().formatAsString()));
+                }
+                break;
+            case CellPropertyType.MERGE_NO:
+                break;
+        }
     }
 
     private boolean ifEquals(CellRangeAddress rangeAddress, DynamicCellWithStyle cellWithStyle) {
@@ -562,7 +577,9 @@ abstract class POIReportWriter extends ReportWriter {
 
 enum CellPropertyType {
     MERGE_LEFT(new String[]{"yes", "ifequals", "no"}),
-    MERGE_UP(new String[]{"yes", "ifequals", "no"});
+    MERGE_UP(new String[]{"yes", "ifequals", "no"}),
+    MERGE_LEFT_UP(new String[]{"yes", "ifequals", "no"}),
+    MERGE_UP_LEFT(new String[]{"yes", "ifequals", "no"});
 
     private String[] values;
 
@@ -580,6 +597,8 @@ enum CellPropertyType {
 
     public static final String MERGE_LEFT_VALUE = "MERGELEFT";
     public static final String MERGE_UP_VALUE = "MERGEUP";
+    public static final String MERGE_LEFT_UP_VALUE = "MERGELEFTUP";
+    public static final String MERGE_UP_LEFT_VALUE = "MERGEUPLEFT";
     public static final String MERGE_YES = "yes";
     public static final String MERGE_IFEQUALS = "ifequals";
     public static final String MERGE_NO = "no";
