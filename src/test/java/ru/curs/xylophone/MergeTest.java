@@ -90,13 +90,14 @@ public class MergeTest {
 
     @Test
     public void mergeComplexTestWithUpLeft() throws IOException, URISyntaxException, XML2SpreadSheetError {
-        File descriptor = Paths.get(TestOverall.class.getResource("merge_descriptor.xml").toURI()).toFile();
+        File descriptor = Paths.get(TestOverall.class.getResource("merge_descriptor_up_left.xml").toURI()).toFile();
         InputStream dataStream = TestReader.class
-                .getResourceAsStream("merge_data.xml");
+                .getResourceAsStream("merge_data_up_left.xml");
         File template = Paths.get(TestOverall.class.getResource(
                 "merge_upleft_complex_template.xls").toURI()).toFile();
 
-        File createdTempOutputFile = temporaryFolder.newFile("temp.xls");
+//        File createdTempOutputFile = temporaryFolder.newFile("temp.xls");
+        File createdTempOutputFile = Paths.get("res.xls").toFile();
 
         try (OutputStream outputStream = new FileOutputStream(createdTempOutputFile)) {
             XML2Spreadsheet.process(dataStream, descriptor, template,
