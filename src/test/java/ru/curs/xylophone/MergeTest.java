@@ -96,8 +96,7 @@ public class MergeTest {
         File template = Paths.get(TestOverall.class.getResource(
                 "merge_upleft_complex_template.xls").toURI()).toFile();
 
-//        File createdTempOutputFile = temporaryFolder.newFile("temp.xls");
-        File createdTempOutputFile = Paths.get("res.xls").toFile();
+        File createdTempOutputFile = temporaryFolder.newFile("temp.xls");
 
         try (OutputStream outputStream = new FileOutputStream(createdTempOutputFile)) {
             XML2Spreadsheet.process(dataStream, descriptor, template,
