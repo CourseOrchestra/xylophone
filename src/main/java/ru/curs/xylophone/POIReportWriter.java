@@ -348,14 +348,15 @@ abstract class POIReportWriter extends ReportWriter {
                                     mergeUp(entry.getValue(), resultCell, cellWithStyle);
                                     break;
                                 case CellPropertyType.MERGE_UP_LEFT_VALUE:
-                                    mergeUp(entry.getValue(),resultCell, cellWithStyle);
+                                    mergeUp(entry.getValue(), resultCell, cellWithStyle);
                                     mergeLeft(entry.getValue(), resultCell, cellWithStyle);
                                     break;
                                 case CellPropertyType.MERGE_LEFT_UP_VALUE:
                                     mergeLeft(entry.getValue(), resultCell, cellWithStyle);
                                     mergeUp(entry.getValue(), resultCell, cellWithStyle);
                                     break;
-
+                                default:
+                                    break;
                             }
                         }
                         writeTextOrNumber(resultCell, cellWithStyle.getValue(),
@@ -411,6 +412,7 @@ abstract class POIReportWriter extends ReportWriter {
                 }
                 break;
             case CellPropertyType.MERGE_NO:
+            default:
                 break;
         }
     }
@@ -458,6 +460,8 @@ abstract class POIReportWriter extends ReportWriter {
                     return cell.getBooleanCellValue() && Boolean.parseBoolean(cellWithStyle.getValue());
                 case NUMERIC:
                     return new BigDecimal(cell.getNumericCellValue()).equals(new BigDecimal(cellWithStyle.getValue().trim()));
+                default:
+                    break;
             }
         } catch (IllegalArgumentException exc) {
             System.out.println(exc.getMessage());
@@ -581,6 +585,14 @@ enum CellPropertyType {
     MERGE_LEFT_UP(new String[]{"yes", "ifequals", "no"}),
     MERGE_UP_LEFT(new String[]{"yes", "ifequals", "no"});
 
+    public static final String MERGE_LEFT_VALUE = "MERGELEFT";
+    public static final String MERGE_UP_VALUE = "MERGEUP";
+    public static final String MERGE_LEFT_UP_VALUE = "MERGELEFTUP";
+    public static final String MERGE_UP_LEFT_VALUE = "MERGEUPLEFT";
+    public static final String MERGE_YES = "yes";
+    public static final String MERGE_IFEQUALS = "ifequals";
+    public static final String MERGE_NO = "no";
+
     private String[] values;
 
     CellPropertyType(String[] values) {
@@ -594,12 +606,4 @@ enum CellPropertyType {
     public boolean contains(String value) {
         return Arrays.stream(values).anyMatch(val -> val.equalsIgnoreCase(value));
     }
-
-    public static final String MERGE_LEFT_VALUE = "MERGELEFT";
-    public static final String MERGE_UP_VALUE = "MERGEUP";
-    public static final String MERGE_LEFT_UP_VALUE = "MERGELEFTUP";
-    public static final String MERGE_UP_LEFT_VALUE = "MERGEUPLEFT";
-    public static final String MERGE_YES = "yes";
-    public static final String MERGE_IFEQUALS = "ifequals";
-    public static final String MERGE_NO = "no";
 }

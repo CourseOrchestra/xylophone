@@ -84,7 +84,7 @@ public final class MergeRegionContainer {
     private void addMergedRegion(CellRangeAddress res, List<MutableCellRangeAddress> intersectedRegion) {
         if (intersectedRegion.size() == 1) {
             mergeIntersectedRegions(intersectedRegion.get(0), res);
-        } else if (intersectedRegion.isEmpty()){
+        } else if (intersectedRegion.isEmpty()) {
             mergedRegions.add(new MutableCellRangeAddress(res));
         } else {
             mergeIntersectedRegions(intersectedRegion, res);
@@ -126,7 +126,7 @@ public final class MergeRegionContainer {
         mergedRegions.clear();
     }
 
-    private void mergeIntersectedRegions(List<MutableCellRangeAddress> mergedRegions, CellRangeAddress res) {
+    private void mergeIntersectedRegions(List<MutableCellRangeAddress> regions, CellRangeAddress res) {
         Comparator<MutableCellRangeAddress> minComp = (a, b) -> {
             int yDiff = a.getFirstRow() - b.getFirstRow();
             if (yDiff == 0) {
@@ -142,8 +142,8 @@ public final class MergeRegionContainer {
             return yDiff;
         };
 
-        MutableCellRangeAddress leftTop = mergedRegions.stream().min(minComp).get();
-        MutableCellRangeAddress rightBottom = mergedRegions.stream().max(maxComp).get();
+        MutableCellRangeAddress leftTop = regions.stream().min(minComp).get();
+        MutableCellRangeAddress rightBottom = regions.stream().max(maxComp).get();
 
         if (res.getLastRow() == rightBottom.getLastRow() && res.getLastColumn() == rightBottom.getLastColumn()
                 && res.getLastRow() > leftTop.getFirstRow() && res.getLastColumn() > leftTop.getFirstColumn()) {
@@ -152,7 +152,7 @@ public final class MergeRegionContainer {
                     new CellRangeAddress(leftTop.getFirstRow(), rightBottom.getLastRow(),
                             leftTop.getFirstColumn(), rightBottom.getLastColumn()));
 
-            this.mergedRegions.removeAll(mergedRegions);
+            this.mergedRegions.removeAll(regions);
             this.mergedRegions.add(unionedRegion);
         }
     }
