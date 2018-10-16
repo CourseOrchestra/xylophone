@@ -391,7 +391,7 @@ abstract class POIReportWriter extends ReportWriter {
         if (!CellPropertyType.MERGE_UP.contains(attribute.toLowerCase())) {
             String propertyValues = Arrays.stream(CellPropertyType.MERGE_UP.getValues())
                     .collect(Collectors.joining(", "));
-            throw new RuntimeException(
+            throw new IllegalArgumentException(
                     String.format("There are no such value: %s. Please choice one of %s",
                             attribute, propertyValues));
         }

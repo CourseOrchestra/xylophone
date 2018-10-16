@@ -217,7 +217,7 @@ public final class MergeRegionContainer {
          * @param addressNewRegion new region.
          * @return true if intersected; otherwise - false;
          */
-        boolean intersects(CellRangeAddress addressNewRegion) {
+        private boolean intersects(CellRangeAddress addressNewRegion) {
             return this.address.intersects(addressNewRegion);
         }
 
@@ -225,7 +225,7 @@ public final class MergeRegionContainer {
          * Setter for address.
          * @param address address.
          */
-        void setAddress(CellRangeAddress address) {
+        private void setAddress(CellRangeAddress address) {
             this.address = address;
         }
 
@@ -233,7 +233,7 @@ public final class MergeRegionContainer {
          * Get cellRangeAddress.
          * @return cell range address
          */
-        CellRangeAddress toCellRangeAddress() {
+        private CellRangeAddress toCellRangeAddress() {
             return this.address;
         }
 
@@ -241,7 +241,7 @@ public final class MergeRegionContainer {
          * Get first row.
          * @return first row
          */
-        int getFirstRow() {
+        private int getFirstRow() {
             return address.getFirstRow();
         }
 
@@ -249,7 +249,7 @@ public final class MergeRegionContainer {
          * Get first column.
          * @return get first column
          */
-        int getFirstColumn() {
+        private int getFirstColumn() {
             return address.getFirstColumn();
         }
 
@@ -257,7 +257,7 @@ public final class MergeRegionContainer {
          * Get last row.
          * @return last row
          */
-        int getLastRow() {
+        private int getLastRow() {
             return address.getLastRow();
         }
 
@@ -265,7 +265,7 @@ public final class MergeRegionContainer {
          * Get last column.
          * @return last column
          */
-        int getLastColumn() {
+        private int getLastColumn() {
             return address.getLastColumn();
         }
     }
