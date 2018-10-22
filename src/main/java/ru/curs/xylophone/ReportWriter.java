@@ -35,6 +35,8 @@
 */
 package ru.curs.xylophone;
 
+import org.apache.poi.ss.usermodel.Sheet;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -326,4 +328,5 @@ abstract class ReportWriter {
      */
     public abstract void flush() throws XML2SpreadSheetError;
 
+    public abstract Sheet getSheet();
 }

@@ -319,13 +319,14 @@ abstract class XMLDataReader {
         }
         if (o.getRange() != null)
             getWriter().section(c, o.getSourceSheet(), o.getRange(), o.getPageBreak());
+
     }
 
-    static final boolean compareIndices(int expected, int actual) {
+    static boolean compareIndices(int expected, int actual) {
         return (expected < 0) || (actual == expected);
     }
 
-    static final boolean compareNames(String expected, String actual,
+    static boolean compareNames(String expected, String actual,
             Map<String, String> attributes) {
         if (expected == null)
             return actual == null;

@@ -153,9 +153,11 @@ final class DOMDataReader extends XMLDataReader {
     void process() throws XML2SpreadSheetError {
         // Обработка в DOM-режиме --- рекурсивная, управляемая дескриптором.
         if (getDescriptor().getElementName().equals(
-                xmlData.getDocumentElement().getNodeName()))
+                xmlData.getDocumentElement().getNodeName())) {
             processElement("/" + getDescriptor().getElementName() + "[1]",
                     getDescriptor(), xmlData.getDocumentElement(), 1);
+        }
+        MergeRegionContainer.getContainer().apply(getWriter().getSheet());
         getWriter().flush();
     }
 }

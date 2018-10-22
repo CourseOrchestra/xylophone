@@ -37,11 +37,11 @@ package ru.curs.xylophone;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -81,6 +81,7 @@ abstract class POIReportWriter extends ReportWriter {
     private Sheet activeResultSheet;
     private boolean needEval = false;
     private final Map<CellStyle, CellStyle> stylesMap = new HashMap<>();
+    private final MergeRegionContainer mergeRegionContainer = MergeRegionContainer.getContainer();
 
     POIReportWriter(InputStream template, InputStream templateCopy)
             throws XML2SpreadSheetError {
@@ -107,8 +108,9 @@ abstract class POIReportWriter extends ReportWriter {
             Font fResult = (i == 0) ? result.getFontAt((short) 0) : result
                     .createFont();
             // Для XLSX, похоже, не работает...
-            if (this instanceof XLSReportWriter)
+            if (this instanceof XLSReportWriter) {
                 fResult.setCharSet(fSource.getCharSet());
+            }
             fResult.setColor(fSource.getColor());
             fResult.setFontHeight(fSource.getFontHeight());
             fResult.setFontName(fSource.getFontName());
@@ -139,8 +141,9 @@ abstract class POIReportWriter extends ReportWriter {
             csResult.setFillForegroundColor(csSource.getFillForegroundColor());
             csResult.setFillPattern(csSource.getFillPatternEnum());
             Font f = fontMap.get(csSource.getFontIndex());
-            if (f != null)
+            if (f != null) {
                 csResult.setFont(f);
+            }
 
             csResult.setHidden(csSource.getHidden());
             csResult.setIndention(csSource.getIndention());
@@ -162,13 +165,16 @@ abstract class POIReportWriter extends ReportWriter {
 
     private void updateActiveTemplateSheet(String sourceSheet)
             throws XML2SpreadSheetError {
-        if (sourceSheet != null)
+        if (sourceSheet != null) {
             activeTemplateSheet = template.getSheet(sourceSheet);
-        if (activeTemplateSheet == null)
+        }
+        if (activeTemplateSheet == null) {
             activeTemplateSheet = template.getSheetAt(0);
-        if (activeTemplateSheet == null)
+        }
+        if (activeTemplateSheet == null) {
             throw new XML2SpreadSheetError(String.format(
                     "Sheet '%s' does not exist.", sourceSheet));
+        }
     }
 
     @Override
@@ -179,8 +185,9 @@ abstract class POIReportWriter extends ReportWriter {
 
         updateActiveTemplateSheet(sourceSheet);
         activeResultSheet = result.getSheet(sheetName);
-        if (activeResultSheet != null)
+        if (activeResultSheet != null) {
             return;
+        }
         activeResultSheet = result.createSheet(sheetName);
 
         // Ищем число столбцов в исходнике
@@ -188,11 +195,13 @@ abstract class POIReportWriter extends ReportWriter {
         for (int i = activeTemplateSheet.getFirstRowNum(); i <= activeTemplateSheet
                 .getLastRowNum(); i++) {
             Row r = activeTemplateSheet.getRow(i);
-            if (r == null)
+            if (r == null) {
                 continue;
+            }
             int c = r.getLastCellNum();
-            if (c > maxCol)
+            if (c > maxCol) {
                 maxCol = c;
+            }
         }
         // Копируем ширины колонок (знак <, а не <= здесь не случайно, т. к.
         // getLastCellNum возвращает ширину строки ПЛЮС ЕДИНИЦА)
@@ -203,8 +212,9 @@ abstract class POIReportWriter extends ReportWriter {
             activeResultSheet.setColumnHidden(i,
                     activeTemplateSheet.isColumnHidden(i));
             // Столбцы с разрывом страницы
-            if (activeTemplateSheet.isColumnBroken(i))
+            if (activeTemplateSheet.isColumnBroken(i)) {
                 activeResultSheet.setColumnBreak(i);
+            }
         }
         // Переносим дефолтную высоту
         activeResultSheet.setDefaultRowHeight(activeTemplateSheet
@@ -233,8 +243,9 @@ abstract class POIReportWriter extends ReportWriter {
         resultPS.setHResolution(sourcePS.getHResolution());
 
         activeResultSheet.setFitToPage(activeTemplateSheet.getFitToPage());
-        for (short i = 0; i < 4; i++)
+        for (short i = 0; i < 4; i++) {
             activeResultSheet.setMargin(i, activeTemplateSheet.getMargin(i));
+        }
         activeResultSheet.setDisplayZeros(activeTemplateSheet.isDisplayZeros());
 
         // Копируем колонтитулы
@@ -251,30 +262,37 @@ abstract class POIReportWriter extends ReportWriter {
         resultF.setRight(sourceF.getRight());
 
         // Копируем сквозные ячейки
-        if (startRepeatingRow >= 0)
+        if (startRepeatingRow >= 0) {
             activeResultSheet.setRepeatingRows(new CellRangeAddress(
                     startRepeatingRow, endRepeatingRow, -1, -1));
-        if (startRepeatingColumn >= 0)
+        }
+        if (startRepeatingColumn >= 0) {
             activeResultSheet.setRepeatingColumns(new CellRangeAddress(-1, -1,
                     startRepeatingColumn, endRepeatingColumn));
+        }
     }
 
     @Override
     void putSection(XMLContext context, CellAddress growthPoint,
             String sourceSheet, RangeAddress range) throws XML2SpreadSheetError {
         updateActiveTemplateSheet(sourceSheet);
-        if (activeResultSheet == null)
+        if (activeResultSheet == null) {
             sheet("Sheet1", sourceSheet, -1, -1, -1, -1);
+        }
 
-        for (int i = range.top(); i <= range.bottom(); i++) {
+        int rowStart = range.top();
+        int rowFinish = Math.max(range.bottom(), activeResultSheet.getLastRowNum());
+        for (int i = rowStart; i <= rowFinish; i++) {
             Row sourceRow = activeTemplateSheet.getRow(i - 1);
-            if (sourceRow == null)
+            if (sourceRow == null) {
                 continue;
+            }
             Row resultRow = activeResultSheet.getRow(growthPoint.getRow() + i
-                    - range.top() - 1);
-            if (resultRow == null)
+                    - rowStart - 1);
+            if (resultRow == null) {
                 resultRow = activeResultSheet.createRow(growthPoint.getRow()
-                        + i - range.top() - 1);
+                        + i - rowStart - 1);
+            }
 
             // Высоты строк (если отличаются от дефолтной высоты)
             if (sourceRow.getHeight() != activeTemplateSheet
@@ -283,18 +301,21 @@ abstract class POIReportWriter extends ReportWriter {
             // Скрытые строки
             resultRow.setZeroHeight(sourceRow.getZeroHeight());
 
-            for (int j = range.left(); j < Math.min(range.right(),
-                    sourceRow.getLastCellNum()) + 1; j++) {
+            int colStart = range.left();
+            int colFinish = Math.min(range.right(), sourceRow.getLastCellNum());
+            for (int j = colStart; j <= colFinish; j++) {
                 Cell sourceCell = sourceRow.getCell(j - 1);
-                if (sourceCell == null)
+                if (sourceCell == null) {
                     continue;
+                }
                 Cell resultCell = resultRow.createCell(growthPoint.getCol() + j
-                        - range.left() - 1);
+                        - colStart - 1);
 
                 // Копируем стиль...
                 CellStyle csResult = stylesMap.get(sourceCell.getCellStyle());
-                if (csResult != null)
+                if (csResult != null) {
                     resultCell.setCellStyle(csResult);
+                }
 
                 // Копируем значение...
                 String val;
@@ -309,18 +330,37 @@ abstract class POIReportWriter extends ReportWriter {
                 case STRING:
                     // ДЛЯ СТРОКОВЫХ ЯЧЕЕК ВЫЧИСЛЯЕМ ПОДСТАНОВКИ!!
                     val = sourceCell.getStringCellValue();
-                    DynamicCellWithStyle cellStyle = DynamicCellWithStyle.defineCellStyle(sourceCell, val);
+                    buf = context.calc(val);
+                    DynamicCellWithStyle cellWithStyle = DynamicCellWithStyle.defineCellStyle(sourceCell, buf);
                     // Если ячейка содержит строковое представление числа и при
                     // этом содержит плейсхолдер --- меняем его на число.
-                    if (!cellStyle.isStylesPresent()) {
-                        buf = context.calc(val);
+                    if (!cellWithStyle.isStylesPresent()) {
                         writeTextOrNumber(resultCell, buf,
                                 context.containsPlaceholder(val));
                     } else {
-                        //TODO: apply dynamic style
-                        buf = context.calc(cellStyle.getValue());
-                        writeTextOrNumber(cellStyle.getCell(), buf,
-                                context.containsPlaceholder(cellStyle.getValue()));
+                        Map<String, String> properties = cellWithStyle.getProperties();
+                        for (Map.Entry<String, String> entry : properties.entrySet()) {
+                            switch (entry.getKey().toUpperCase()) {
+                                case CellPropertyType.MERGE_LEFT_VALUE:
+                                    mergeLeft(entry.getValue(), resultCell, cellWithStyle);
+                                    break;
+                                case CellPropertyType.MERGE_UP_VALUE:
+                                    mergeUp(entry.getValue(), resultCell, cellWithStyle);
+                                    break;
+                                case CellPropertyType.MERGE_UP_LEFT_VALUE:
+                                    mergeUp(entry.getValue(), resultCell, cellWithStyle);
+                                    mergeLeft(entry.getValue(), resultCell, cellWithStyle);
+                                    break;
+                                case CellPropertyType.MERGE_LEFT_UP_VALUE:
+                                    mergeLeft(entry.getValue(), resultCell, cellWithStyle);
+                                    mergeUp(entry.getValue(), resultCell, cellWithStyle);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        writeTextOrNumber(resultCell, cellWithStyle.getValue(),
+                                context.containsPlaceholder(val));
                     }
                     break;
                 case FORMULA:
@@ -345,6 +385,88 @@ abstract class POIReportWriter extends ReportWriter {
 
         // Разбираемся с merged-ячейками
         arrangeMergedCells(growthPoint, range);
+    }
+
+    private void mergeUp(String attribute, Cell resultCell, DynamicCellWithStyle cellWithStyle) {
+        if (!CellPropertyType.MERGE_UP.contains(attribute.toLowerCase())) {
+            String propertyValues = Arrays.stream(CellPropertyType.MERGE_UP.getValues())
+                    .collect(Collectors.joining(", "));
+            throw new IllegalArgumentException(
+                    String.format("There are no such value: %s. Please choice one of %s",
+                            attribute, propertyValues));
+        }
+
+        switch (attribute.toLowerCase()) {
+            case CellPropertyType.MERGE_YES:
+                mergeRegionContainer.mergeUp(
+                        new CellAddress(resultCell.getAddress().formatAsString()));
+                break;
+            case CellPropertyType.MERGE_IFEQUALS:
+                CellRangeAddress rangeAddress = new CellRangeAddress(
+                        resultCell.getRowIndex() - 1, resultCell.getRowIndex(),
+                        resultCell.getColumnIndex(), resultCell.getColumnIndex());
+
+                if (ifEquals(rangeAddress, cellWithStyle)) {
+                    mergeRegionContainer.mergeUp(
+                            new CellAddress(resultCell.getAddress().formatAsString()));
+                }
+                break;
+            case CellPropertyType.MERGE_NO:
+            default:
+                break;
+        }
+    }
+
+    private void mergeLeft(String attribute, Cell resultCell, DynamicCellWithStyle cellWithStyle) {
+        if (!CellPropertyType.MERGE_LEFT.contains(attribute.toLowerCase())) {
+            String propertyValues = Arrays.stream(CellPropertyType.MERGE_LEFT.getValues())
+                    .collect(Collectors.joining(", "));
+            throw new RuntimeException(
+                    String.format("There are no such value: %s. Please choice one of %s",
+                            attribute, propertyValues));
+        }
+
+        switch (attribute.toLowerCase()) {
+            case CellPropertyType.MERGE_YES:
+                mergeRegionContainer.mergeLeft(
+                        new CellAddress(resultCell.getAddress().formatAsString()));
+                break;
+            case CellPropertyType.MERGE_IFEQUALS:
+                CellRangeAddress rangeAddress = new CellRangeAddress(
+                        resultCell.getRowIndex(), resultCell.getRowIndex(),
+                        resultCell.getColumnIndex() - 1, resultCell.getColumnIndex());
+
+                if (ifEquals(rangeAddress, cellWithStyle)) {
+                    mergeRegionContainer.mergeLeft(
+                            new CellAddress(resultCell.getAddress().formatAsString()));
+                }
+                break;
+            case CellPropertyType.MERGE_NO:
+                break;
+        }
+    }
+
+    private boolean ifEquals(CellRangeAddress rangeAddress, DynamicCellWithStyle cellWithStyle) {
+        try {
+            CellRangeAddress mergedRegion =
+                    mergeRegionContainer.findIntersectedRange(rangeAddress);
+
+            Cell cell =  activeResultSheet.getRow(mergedRegion.getFirstRow())
+                    .getCell(mergedRegion.getFirstColumn());
+            switch (cell.getCellTypeEnum()) {
+                case STRING:
+                    return cell.getStringCellValue().equalsIgnoreCase(cellWithStyle.getValue());
+                case BOOLEAN:
+                    return cell.getBooleanCellValue() && Boolean.parseBoolean(cellWithStyle.getValue());
+                case NUMERIC:
+                    return new BigDecimal(cell.getNumericCellValue()).equals(new BigDecimal(cellWithStyle.getValue().trim()));
+                default:
+                    break;
+            }
+        } catch (IllegalArgumentException exc) {
+            System.out.println(exc.getMessage());
+        }
+        return false;
     }
 
     private void writeTextOrNumber(Cell resultCell, String buf, boolean decide) {
@@ -380,8 +502,9 @@ abstract class POIReportWriter extends ReportWriter {
                     .getMergedRegion(i).formatAsString());
 
             if (!(ra.top() >= range.top() && ra.bottom() <= range.bottom()
-                    && ra.left() >= range.left() && ra.right() <= range.right()))
+                    && ra.left() >= range.left() && ra.right() <= range.right())) {
                 continue;
+            }
 
             int ydiff = -range.top() + growthPoint.getRow() - 1;
             int firstRow = ra.top() + ydiff;
@@ -393,7 +516,7 @@ abstract class POIReportWriter extends ReportWriter {
             CellRangeAddress res = new CellRangeAddress(firstRow, lastRow,
                     firstCol, lastCol);
 
-            activeResultSheet.addMergedRegion(res);
+            mergeRegionContainer.addMergedRegion(res);
         }
     }
 
@@ -403,14 +526,15 @@ abstract class POIReportWriter extends ReportWriter {
     void mergeUp(CellAddress a1, CellAddress a2) {
         CellRangeAddress res = new CellRangeAddress(a1.getRow() - 1,
                 a2.getRow() - 1, a1.getCol() - 1, a2.getCol() - 1);
-        activeResultSheet.addMergedRegion(res);
+        mergeRegionContainer.addMergedRegion(res);
     }
 
     @Override
     void addNamedRegion(String name, CellAddress a1, CellAddress a2) {
         Name region = activeResultSheet.getWorkbook().getName(name);
-        if (region == null)
+        if (region == null) {
             region = activeResultSheet.getWorkbook().createName();
+        }
         region.setNameName(name);
         // don't forget to replace single quote with double quotes!
         String formula = String.format("'%s'!%s:%s", activeResultSheet
@@ -421,8 +545,9 @@ abstract class POIReportWriter extends ReportWriter {
 
     @Override
     public void flush() throws XML2SpreadSheetError {
-        if (needEval)
+        if (needEval) {
             evaluate();
+        }
         try {
             result.write(getOutput());
         } catch (IOException e) {
@@ -432,17 +557,53 @@ abstract class POIReportWriter extends ReportWriter {
 
     @Override
     void putRowBreak(int rowNumber) {
-        if (activeResultSheet != null && rowNumber >= 0)
+        if (activeResultSheet != null && rowNumber >= 0) {
             activeResultSheet.setRowBreak(rowNumber);
+        }
     }
 
     @Override
     void putColBreak(int colNumber) {
-        if (activeResultSheet != null && colNumber >= 0)
+        if (activeResultSheet != null && colNumber >= 0) {
             activeResultSheet.setColumnBreak(colNumber);
+        }
     }
 
     Workbook getResult() {
         return result;
+    }
+
+    @Override
+    public Sheet getSheet() {
+        return activeResultSheet;
+    }
+}
+
+enum CellPropertyType {
+    MERGE_LEFT(new String[]{"yes", "ifequals", "no"}),
+    MERGE_UP(new String[]{"yes", "ifequals", "no"}),
+    MERGE_LEFT_UP(new String[]{"yes", "ifequals", "no"}),
+    MERGE_UP_LEFT(new String[]{"yes", "ifequals", "no"});
+
+    public static final String MERGE_LEFT_VALUE = "MERGELEFT";
+    public static final String MERGE_UP_VALUE = "MERGEUP";
+    public static final String MERGE_LEFT_UP_VALUE = "MERGELEFTUP";
+    public static final String MERGE_UP_LEFT_VALUE = "MERGEUPLEFT";
+    public static final String MERGE_YES = "yes";
+    public static final String MERGE_IFEQUALS = "ifequals";
+    public static final String MERGE_NO = "no";
+
+    private String[] values;
+
+    CellPropertyType(String[] values) {
+        this.values = values;
+    }
+
+    public String[] getValues() {
+        return this.values;
+    }
+
+    public boolean contains(String value) {
+        return Arrays.stream(values).anyMatch(val -> val.equalsIgnoreCase(value));
     }
 }
