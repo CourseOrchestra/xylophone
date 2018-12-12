@@ -125,7 +125,7 @@ object-based report representation. This method will be useful in cases
 where a report is to go through additional post-processing step prior to
 serialization.
 
-Groovy example:
+Groovy example (try out this https://github.com/inponomarev/xylophone-example[demo project]):
 
 
 [source,groovy]
