@@ -4,7 +4,7 @@
 [[general-information]]
 == General Information
 
-Xylophone provides reports with a complex structure
+https://github.com/CourseOrchestra/xylophone[Xylophone] provides reports with a complex structure
 in forms of spreadsheets (XLS or XLSX format), PDF files or direct output
 for printing based on the XML input data.
 
@@ -130,7 +130,7 @@ Groovy example:
 
 [source,groovy]
 ----
-@Grab('ru.curs:xylophone:6.1.3')
+@Grab('ru.curs:xylophone:6.1.9')
 import ru.curs.xylophone.XML2Spreadsheet
 baseDir = '.'
 new File(baseDir, 'testdata.xml').withInputStream {
@@ -594,7 +594,7 @@ The recommended pattern is:
 
 [source,groovy]
 ----
-@Grab('ru.curs:xylophone:6.1.3')
+@Grab('ru.curs:xylophone:6.1.9')
 import ru.curs.xylophone.XML2Spreadsheet
 import ru.curs.xylophone.Excel2Print
 
