@@ -1,5 +1,6 @@
 [[xylophone]]
 = Xylophone
+:toc: left
 
 [[general-information]]
 == General Information
@@ -45,11 +46,11 @@ stage and converted into a PDF file or sent directly for printing.
 [[installation]]
 === Installation
 
-A Zip archive “xylophone” and its Java library dependencies can be
+A Zip archive “xylophone...-bin.zip” with all the Java library dependencies can be
 downloaded at:
 
-* https://artifactory.corchestra.ru/artifactory/corchestra-dev/[Artifactory]
-* http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22xylophone%22[Maven
+* https://dl.bintray.com/courseorchestra/libs-release-local/ru/curs/xylophone/[Bintray]
+* https://repo1.maven.org/maven2/ru/curs/xylophone/[Maven
 Central]
 
 [[step-one-xls-and-xlsx-files-formation]]
