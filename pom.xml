@@ -92,6 +92,47 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.asciidoctor</groupId>
+                <artifactId>asciidoctor-maven-plugin</artifactId>
+                <version>1.5.7.1</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctorj-diagram</artifactId>
+                        <version>1.5.11</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <sourceDocumentName>userguide.adoc</sourceDocumentName>
+                    <requires>
+                        <require>asciidoctor-diagram</require>
+                    </requires>
+                    <outputFile>index.html</outputFile>
+                    <logHandler>
+                        <outputToConsole>true</outputToConsole>
+                        <failIf>
+                            <severity>WARN</severity>
+                        </failIf>
+                    </logHandler>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>asciidoc-to-html</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>process-asciidoc</goal>
+                        </goals>
+                        <configuration>
+                            <backend>html5</backend>
+                            <sourceHighlighter>coderay</sourceHighlighter>
+                            <attributes>
+                                <project-version>${project.version}</project-version>
+                            </attributes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven.compiler.plugin.version}</version>
@@ -233,7 +274,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.9.1</version>
+                        <version>3.0.1</version>
                         <configuration>
                             <show>public</show>
                             <attach>true</attach>
