@@ -6,6 +6,6 @@
 
 Excel reports generating library
 
-* Documentation (in Russian): https://corchestra.ru/wiki/index.php?title=Xylophone
+* [Documentation](https://courseorchestra.github.io/xylophone/)
 
-* Short overview (in Russian): https://habr.com/post/422059/
+* [Short overview (in Russian)](https://habr.com/post/422059/)
