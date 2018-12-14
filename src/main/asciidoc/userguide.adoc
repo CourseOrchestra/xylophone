@@ -90,8 +90,7 @@ output format, XLS or XLSX
 * sax — presence of this parameter defines if SAX parsing mode is to be
 used (more information below)
 * copytemplate — presence of this parameter defines if the template will
-be copied (backed up) in its entirely with all of the contents present
-before the process.
+be copied entirely to result with all of the contents present before the process.
 
 [[usage-as-a-library]]
 ==== Usage As a Library
@@ -478,9 +477,9 @@ learn more about it here
 https://www.w3schools.com/xml/xpath_intro.asp[[1]].
 
 Besides standard syntax you can also use some specific functions in
-Xpath expression:
+XPath expression:
 
-* *сurrent()* — will be replaced with a full XPath expression to the
+* *current()* — will be replaced with a full XPath expression to the
 current node during extraction. It is a full analogue of the XSLT’s
 current() function, essential for complex XPath expressions. The
 presence of this function is justified for the same reasons as in XSLT’s
