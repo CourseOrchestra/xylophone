@@ -31,6 +31,18 @@ node {
         oldWarnings = readYaml file: 'previous.yml'
     }
 
+
+    stage ('Spellcheck'){
+        result = sh (returnStdout: true,
+           script: """for f in \$(find . -name '*.adoc'); do cat \$f | sed "s/-/ /g" | aspell --master=en --personal=./dict list; done | sort | uniq""")
+              .trim()
+        if (result) {
+           echo "The following words are probaly misspelled:"
+           echo result
+           error "Please correct the spelling or add the words above to the local dictionary."
+        }
+    }
+
     try{
         stage ('Exec Maven') {
             rtMaven.run pom: 'pom.xml', goals: 'clean install', buildInfo: buildInfo
