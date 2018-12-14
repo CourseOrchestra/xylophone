@@ -13,6 +13,7 @@ gsprint
 InputStream
 LaserJet
 myfile
+OpenOffice
 OutputStream
 outputType
 pagebreak
@@ -52,4 +53,5 @@ Xpath
 XPath
 XQuery
 XSLT
+XSLT’s
 XSLX
