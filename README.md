@@ -8,4 +8,8 @@ Excel reports generating library
 
 * [Documentation](https://courseorchestra.github.io/xylophone/)
 
-* [Short overview (in Russian)](https://habr.com/post/422059/)
+* [Overview & Tutorial (DZone.com)](https://dzone.com/articles/producing-spreadsheet-reports-using-xylophone)
+
+* [Overview & Tutorial (in Russian, Habr.com)](https://habr.com/post/422059/)
+
+
