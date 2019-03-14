@@ -9,7 +9,7 @@
 
     <name>xylophone java library</name>
     <description>xylophone - LGPL Java library</description>
-    <url>https://corchestra.ru/wiki/index.php?title=Xylophone</url>
+    <url>https://courseorchestra.github.io/xylophone</url>
 
     <organization>
         <name>CURS</name>
@@ -43,13 +43,15 @@
         <mockito.version>2.10.0</mockito.version>
         <poi.version>3.17</poi.version>
         <xmlgraphics.version>2.1</xmlgraphics.version>
-        <maven.compiler.plugin.version>3.3</maven.compiler.plugin.version>
+        <maven.compiler.plugin.version>3.8.0</maven.compiler.plugin.version>
         <maven.appassembler.plugin.version>1.10</maven.appassembler.plugin.version>
         <maven.assembly.plugin.version>3.1.0</maven.assembly.plugin.version>
         <maven.jar.plugin.version>3.1.0</maven.jar.plugin.version>
         <spotbugs.maven.plugin.version>3.1.6</spotbugs.maven.plugin.version>
-        <checkstyle.version>8.10</checkstyle.version>
+        <checkstyle.version>8.18</checkstyle.version>
         <maven.checkstyle.plugin.version>3.0.0</maven.checkstyle.plugin.version>
+        <maven.source.plugin.version>2.2.1</maven.source.plugin.version>
+        <maven.javadoc.plugin.version>3.0.1</maven.javadoc.plugin.version>
     </properties>
 
     <dependencies>
@@ -258,7 +260,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>2.2.1</version>
+                        <version>${maven.source.plugin.version}</version>
                         <configuration>
                             <attach>true</attach>
                         </configuration>
@@ -274,7 +276,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.0.1</version>
+                        <version>${maven.javadoc.plugin.version}</version>
                         <configuration>
                             <show>public</show>
                             <attach>true</attach>
