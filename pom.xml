@@ -4,7 +4,7 @@
 
     <groupId>ru.curs</groupId>
     <artifactId>xylophone</artifactId>
-    <version>6.1.16</version>
+    <version>6.1.17-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>xylophone java library</name>
