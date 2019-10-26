@@ -1,6 +1,7 @@
 [[xylophone]]
 = Xylophone
 :toc: left
+:icons: font
 
 [[general-information]]
 == General Information
