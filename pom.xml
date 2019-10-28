@@ -44,7 +44,7 @@
         <poi.version>3.17</poi.version>
         <xmlgraphics.version>2.1</xmlgraphics.version>
         <maven.compiler.plugin.version>3.8.0</maven.compiler.plugin.version>
-        <maven.appassembler.plugin.version>1.10</maven.appassembler.plugin.version>
+        <maven.appassembler.plugin.version>2.1.0</maven.appassembler.plugin.version>
         <maven.assembly.plugin.version>3.1.0</maven.assembly.plugin.version>
         <maven.jar.plugin.version>3.1.2</maven.jar.plugin.version>
         <spotbugs.maven.plugin.version>3.1.12.2</spotbugs.maven.plugin.version>
