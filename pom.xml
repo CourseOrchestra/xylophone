@@ -42,7 +42,7 @@
         <junit.version>4.13</junit.version>
         <mockito.version>3.3.3</mockito.version>
         <poi.version>3.17</poi.version>
-        <xmlgraphics.version>2.1</xmlgraphics.version>
+        <xmlgraphics.version>2.4</xmlgraphics.version>
         <maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
         <maven.appassembler.plugin.version>2.1.0</maven.appassembler.plugin.version>
         <maven.assembly.plugin.version>3.3.0</maven.assembly.plugin.version>
