@@ -49,7 +49,7 @@
         <maven.jar.plugin.version>3.2.0</maven.jar.plugin.version>
         <spotbugs.maven.plugin.version>4.2.0</spotbugs.maven.plugin.version>
         <checkstyle.version>8.39</checkstyle.version>
-        <maven.checkstyle.plugin.version>3.1.1</maven.checkstyle.plugin.version>
+        <maven.checkstyle.plugin.version>3.1.2</maven.checkstyle.plugin.version>
         <maven.source.plugin.version>3.2.1</maven.source.plugin.version>
         <maven.javadoc.plugin.version>3.2.0</maven.javadoc.plugin.version>
     </properties>
