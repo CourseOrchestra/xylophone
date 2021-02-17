@@ -45,18 +45,8 @@ node {
     }
 
     stage ('Make release') {
-        rtMaven.run pom: 'pom.xml', goals: '-Dmaven.test.skip=true clean install -P corchestra-release', buildInfo: buildInfo
+        rtMaven.run pom: 'pom.xml', goals: '-DskipTests clean deploy -Ppublication,gpg', buildInfo: buildInfo
         server.publishBuildInfo buildInfo
-
-        def distributionConfig = [
-            // Mandatory parameters
-            'buildName'             : buildInfo.name,
-            'buildNumber'           : buildInfo.number,
-            'targetRepo'            : 'orchestra',
-            // Optional parameters
-            'overrideExistingFiles' : true // Default: false. If true, Artifactory overwrites builds already existing in the target path in Bintray.
-        ]
-        server.distribute distributionConfig
     }
 
     stage ('Update repository') {
@@ -81,25 +71,6 @@ node {
         sshagent(['cf816ae4-a98e-4eaa-98fd-18c588739711']) {
             sh '''git push origin dev'''
             sh '''git push --tags'''
-        }
-    }
-
-    stage ('Sync with maven central') {
-        def modules = ['xylophone']
-
-        withCredentials([usernamePassword(credentialsId: 'curs-bintray', passwordVariable: 'bintrayPassword', usernameVariable: 'bintrayUserName')]) {
-            for (module in modules) {
-                    def shScript = "\\" +
-                        "curl --verbose \\" +
-            			    "-s \\" +
-            			    "--connect-timeout 240 \\" +
-            			    "--max-time 2700 \\" +
-            			    "-u $bintrayUserName:$bintrayPassword \\" +
-            			    "-f \\" +
-            			    "-X \\" +
-            			    "POST \"https://api.bintray.com/maven_central_sync/courseorchestra/libs-release-local/" + module + "/versions/" + releaseVersion + "\""
-                    sh shScript
-            }
         }
     }
 }
