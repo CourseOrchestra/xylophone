@@ -36,7 +36,7 @@ node {
     }
 
     stage ('Make release') {
-        withMaven (maven: 'M3', mavenSettingsConfig: 'maven-settings') {
+        withMaven (maven: 'M3', mavenSettingsConfig: 'maven-settings', options: [artifactsPublisher(disabled: true)]) {
             sh 'mvn -DskipTests clean deploy -Ppublication,gpg'
         }
     }
