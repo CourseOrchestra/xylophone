@@ -36,7 +36,7 @@ node {
     }
 
     stage ('Make release') {
-        withMaven (maven: 'M3', mavenSettingsConfig: 'CorchestraArtifactory') {
+        withMaven (maven: 'M3', mavenSettingsConfig: 'maven-settings') {
             sh 'mvn -DskipTests clean deploy -Ppublication,gpg'
         }
     }
