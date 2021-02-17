@@ -12,9 +12,6 @@ properties(
 )
 
 node {
-    def server = Artifactory.server 'ART'
-    def rtMaven = Artifactory.newMavenBuild()
-    def buildInfo
     def descriptor
     def releaseVersion
 
@@ -29,13 +26,7 @@ node {
         }
     }
 
-    stage ('Artifactory configuration') {
-        rtMaven.tool = 'M3'
-        rtMaven.deployer releaseRepo: 'libs-release-local', snapshotRepo: 'libs-snapshot-local', server: server
-        rtMaven.resolver releaseRepo: 'libs-release', snapshotRepo: 'libs-snapshot', server: server
-        buildInfo = Artifactory.newBuildInfo()
-        buildInfo.env.capture = true
-
+    stage ('Modify version') {
         descriptor = Artifactory.mavenDescriptor()
         pom = readMavenPom file: 'pom.xml'
         releaseVersion = pom.version.split('-')[0]
@@ -45,8 +36,9 @@ node {
     }
 
     stage ('Make release') {
-        rtMaven.run pom: 'pom.xml', goals: '-DskipTests clean deploy -Ppublication,gpg', buildInfo: buildInfo
-        server.publishBuildInfo buildInfo
+        withMaven (maven: 'M3', mavenSettingsConfig: 'CorchestraArtifactory') {
+            sh 'mvn -DskipTests clean deploy -Ppublication,gpg'
+        }
     }
 
     stage ('Update repository') {
