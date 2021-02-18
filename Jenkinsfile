@@ -49,8 +49,6 @@ node {
         }
     } finally {
         junit 'target/surefire-reports/**/*.xml'
-        recordIssues tool: java()
-        recordIssues tool: javaDoc()
         recordIssues tool: checkStyle(pattern: 'target/checkstyle-result.xml')
         recordIssues tool: spotBugs(pattern: 'target/spotbugsXml.xml')
     }
