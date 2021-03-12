@@ -35,18 +35,51 @@
 */
 package ru.curs.xylophone;
 
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Sheet;
 
 import java.io.InputStream;
+
+//import com.github.miachm.sods.Sheet;
+import com.github.miachm.sods.SpreadSheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Реализация ReportWriter для вывода в формат OpenOffice (ODS).
  */
 final class ODSReportWriter extends ReportWriter {
 
-    ODSReportWriter(InputStream template, InputStream templateCopy) throws XML2SpreadSheetError {
+    private final int rows = 3;
+    private final int columns = 3;
+    private final com.github.miachm.sods.Sheet sheet = new com.github.miachm.sods.Sheet("A", rows, columns);
+    private SpreadSheet spread = new SpreadSheet();
+
+    private InputStream template;
+    private InputStream templateCopy;
+
+
+    ODSReportWriter(InputStream template, InputStream templateCopy) {
         // TODO Auto-generated constructor stub
-        throw new XML2SpreadSheetError("ODS is not implemented yet!..");
+        this.template = template;
+        this.templateCopy = templateCopy;
+        try {
+            sheet.getDataRange().setValues(1,2,3,4,5,6,7,8,9);
+
+            // Set the underline style in the (3,3) cell
+            sheet.getRange(2,2).setFontUnderline(true);
+
+            // Set a bold font to the first 2x2 grid
+            sheet.getRange(0,0,2,2).setFontBold(true);
+
+            spread.appendSheet(sheet);
+            spread.save(new File("Out.ods"));
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -54,6 +87,7 @@ final class ODSReportWriter extends ReportWriter {
             int startRepeatingColumn, int endRepeatingColumn,
             int startRepeatingRow, int endRepeatingRow) {
         // TODO Auto-generated method stub
+
 
     }
 
@@ -65,9 +99,13 @@ final class ODSReportWriter extends ReportWriter {
     }
 
     @Override
-    public void flush() {
+    public void flush() throws XML2SpreadSheetError {
         // TODO Auto-generated method stub
-
+        try {
+            spread.save(getOutput());
+        } catch (IOException e) {
+            throw new XML2SpreadSheetError(e.getMessage());
+        }
     }
 
     @Override
@@ -97,5 +135,12 @@ final class ODSReportWriter extends ReportWriter {
     @Override
     public Sheet getSheet() {
         throw new UnsupportedOperationException();
+//        Sheet activeResultSheet;
+//        Workbook result = createResultWb(templateCopy);
+//        activeResultSheet = result.getSheet(sheetName);
+
+
+        // cast from ODS sheet to POI sheet ???
+//        return activeResultSheet;
     }
 }
