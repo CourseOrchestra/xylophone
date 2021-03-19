@@ -19,7 +19,7 @@ public class TestOverall {
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
 	@Test
-	public void test1() throws XML2SpreadSheetError {
+	public void test1() throws XML2SpreadSheetError, Exception {
 		InputStream descrStream = TestReader.class
 				.getResourceAsStream("testdescriptor3.xml");
 		InputStream dataStream = TestReader.class
@@ -43,7 +43,7 @@ public class TestOverall {
 	}
 
 	@Test
-	public void test2() throws XML2SpreadSheetError {
+	public void test2() throws XML2SpreadSheetError, Exception {
 		InputStream descrStream = TestReader.class
 				.getResourceAsStream("testsaxdescriptor3.xml");
 		InputStream dataStream = TestReader.class

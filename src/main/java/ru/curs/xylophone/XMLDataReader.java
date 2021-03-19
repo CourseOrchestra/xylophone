@@ -296,7 +296,7 @@ abstract class XMLDataReader {
      *             В случае возникновения ошибок ввода-вывода или при
      *             интерпретации данных, шаблона или дескриптора.
      */
-    abstract void process() throws XML2SpreadSheetError;
+    abstract void process() throws XML2SpreadSheetError, Exception;
 
     /**
      * Общий для DOM и SAX реализации метод обработки вывода.

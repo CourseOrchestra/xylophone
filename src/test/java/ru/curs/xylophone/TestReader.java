@@ -120,7 +120,7 @@ public class TestReader {
 	}
 
 	@Test
-	public void testDOMReader1() throws XML2SpreadSheetError {
+	public void testDOMReader1() throws XML2SpreadSheetError, Exception {
 		descrStream = TestReader.class
 				.getResourceAsStream("testdescriptor.xml");
 		dataStream = TestReader.class.getResourceAsStream("testdata.xml");
@@ -136,7 +136,7 @@ public class TestReader {
 	}
 
 	@Test
-	public void testDOMReader2() throws XML2SpreadSheetError {
+	public void testDOMReader2() throws XML2SpreadSheetError, Exception {
 		descrStream = TestReader.class
 				.getResourceAsStream("testdescriptor2.xml");
 		dataStream = TestReader.class.getResourceAsStream("testdata.xml");
@@ -151,7 +151,7 @@ public class TestReader {
 	}
 
 	@Test
-	public void testSAXReader1() throws XML2SpreadSheetError {
+	public void testSAXReader1() throws XML2SpreadSheetError, Exception {
 		descrStream = TestReader.class
 				.getResourceAsStream("testdescriptor.xml");
 		dataStream = TestReader.class.getResourceAsStream("testdata.xml");
@@ -175,7 +175,7 @@ public class TestReader {
 	}
 
 	@Test
-	public void testSAXReader2() throws XML2SpreadSheetError {
+	public void testSAXReader2() throws XML2SpreadSheetError, Exception {
 		descrStream = TestReader.class
 				.getResourceAsStream("testsaxdescriptor.xml");
 		dataStream = TestReader.class.getResourceAsStream("testdata.xml");
@@ -190,7 +190,7 @@ public class TestReader {
 	}
 
 	@Test
-	public void testSAXReader3() throws XML2SpreadSheetError {
+	public void testSAXReader3() throws XML2SpreadSheetError, Exception {
 		descrStream = TestReader.class
 				.getResourceAsStream("testsaxdescriptor2.xml");
 		dataStream = TestReader.class.getResourceAsStream("testdata.xml");

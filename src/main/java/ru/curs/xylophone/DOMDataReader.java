@@ -69,7 +69,7 @@ final class DOMDataReader extends XMLDataReader {
 
     // В режиме итерации нашёлся подходящий элемент
     private void processElement(String elementPath, DescriptorElement de,
-            Element xe, int position) throws XML2SpreadSheetError {
+            Element xe, int position) throws XML2SpreadSheetError, Exception {
         XMLContext context = null;
         for (DescriptorSubelement se : de.getSubelements()) {
             if (se instanceof DescriptorIteration) {
@@ -89,7 +89,7 @@ final class DOMDataReader extends XMLDataReader {
 
     // По субэлементам текущего элемента надо провести итерацию
     private void processIteration(String elementPath, Element parent,
-            DescriptorIteration i, int position) throws XML2SpreadSheetError {
+            DescriptorIteration i, int position) throws XML2SpreadSheetError, Exception {
 
         final HashMap<String, Integer> elementIndices = new HashMap<>();
 
@@ -150,7 +150,7 @@ final class DOMDataReader extends XMLDataReader {
     }
 
     @Override
-    void process() throws XML2SpreadSheetError {
+    void process() throws XML2SpreadSheetError, Exception {
         // Обработка в DOM-режиме --- рекурсивная, управляемая дескриптором.
         if (getDescriptor().getElementName().equals(
                 xmlData.getDocumentElement().getNodeName())) {

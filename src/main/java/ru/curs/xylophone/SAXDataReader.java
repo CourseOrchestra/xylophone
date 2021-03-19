@@ -149,7 +149,7 @@ final class SAXDataReader extends XMLDataReader {
     }
 
     @Override
-    void process() throws XML2SpreadSheetError {
+    void process() throws XML2SpreadSheetError, Exception {
 
         final class Parser extends DefaultHandler {
             private final Deque<SAXElementDescriptor> elementsStack = new LinkedList<>();

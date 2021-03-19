@@ -91,7 +91,7 @@ abstract class ReportWriter {
      */
     static ReportWriter createWriter(InputStream template, OutputType type,
             boolean copyTemplate, OutputStream output)
-            throws XML2SpreadSheetError {
+            throws XML2SpreadSheetError, Exception {
         InputStream localTemplate = template;
         InputStream templateCopy = null;
         try {
@@ -326,7 +326,7 @@ abstract class ReportWriter {
      * @throws XML2SpreadSheetError
      *             при возникновении ошибки сохранения
      */
-    public abstract void flush() throws XML2SpreadSheetError;
+    public abstract void flush() throws Exception;
 
     public abstract Sheet getSheet();
 }

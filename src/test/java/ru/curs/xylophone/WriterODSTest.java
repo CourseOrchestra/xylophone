@@ -10,7 +10,7 @@ import static org.junit.Assert.assertTrue;
 public class WriterODSTest {
 
     @Test
-    public void WriterODS() throws XML2SpreadSheetError {
+    public void WriterODS() throws XML2SpreadSheetError, Exception {
         InputStream descrStream = TestReader.class
                 .getResourceAsStream("testdescriptor3.xml");
         InputStream dataStream = TestReader.class

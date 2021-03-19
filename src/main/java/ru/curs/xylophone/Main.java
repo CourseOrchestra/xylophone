@@ -67,7 +67,7 @@ public class Main {
      *             в случае, если файл не найден
      */
     public static void main(String[] args) throws FileNotFoundException,
-            XML2SpreadSheetError {
+            XML2SpreadSheetError, Exception {
 
         FileInputStream iff = null;
         File descr = null;

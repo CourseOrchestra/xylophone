@@ -69,7 +69,7 @@ public final class XML2Spreadsheet {
     public static void process(InputStream xmlData, InputStream xmlDescriptor,
                                InputStream template, OutputType outputType, boolean useSAX,
                                boolean copyTemplate, OutputStream output)
-            throws XML2SpreadSheetError {
+            throws XML2SpreadSheetError, Exception {
         ReportWriter writer = ReportWriter.createWriter(template, outputType,
                 copyTemplate, output);
         XMLDataReader reader = XMLDataReader.createReader(xmlData,
@@ -92,7 +92,7 @@ public final class XML2Spreadsheet {
      */
     public static Workbook toPOIWorkbook(InputStream xmlData,
                                          File xmlDescriptor, File template, boolean useSAX,
-                                         boolean copyTemplate) throws XML2SpreadSheetError, IOException {
+                                         boolean copyTemplate) throws XML2SpreadSheetError, IOException, Exception {
 
         OutputType outputType = getOutputType(template);
         if (!(outputType == OutputType.XLS || outputType == OutputType.XLSX))
@@ -130,7 +130,7 @@ public final class XML2Spreadsheet {
      */
     public static void process(InputStream xmlData, InputStream xmlDescriptor,
                                InputStream template, OutputType outputType, boolean useSAX,
-                               OutputStream output) throws XML2SpreadSheetError {
+                               OutputStream output) throws XML2SpreadSheetError, Exception {
         process(xmlData, xmlDescriptor, template, outputType, useSAX, false,
                 output);
     }
@@ -152,7 +152,7 @@ public final class XML2Spreadsheet {
     public static void process(InputStream xmlData, File xmlDescriptor,
                                File template, boolean useSAX, boolean copyTemplate,
                                OutputStream output) throws FileNotFoundException,
-            XML2SpreadSheetError {
+            XML2SpreadSheetError, Exception {
         OutputType outputType = getOutputType(template);
         try (
                 InputStream descr = new FileInputStream(xmlDescriptor);
@@ -202,7 +202,7 @@ public final class XML2Spreadsheet {
      */
     public static void process(InputStream xmlData, File xmlDescriptor,
                                File template, boolean useSAX, OutputStream output)
-            throws FileNotFoundException, XML2SpreadSheetError {
+            throws FileNotFoundException, XML2SpreadSheetError, Exception {
         process(xmlData, xmlDescriptor, template, useSAX, false, output);
     }
 }
