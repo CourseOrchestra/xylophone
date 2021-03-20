@@ -35,65 +35,39 @@
 */
 package ru.curs.xylophone;
 
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Sheet;
 
 import java.io.InputStream;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-
-import org.odftoolkit.odfdom.doc.OdfSpreadsheetDocument;
-import org.odftoolkit.odfdom.pkg.OdfElement;
-import org.odftoolkit.odfdom.doc.OdfDocument;
-import org.odftoolkit.odfdom.doc.OdfTextDocument;
-import org.odftoolkit.odfdom.dom.element.draw.DrawFrameElement;
-import org.odftoolkit.odfdom.dom.element.office.OfficeTextElement;
-import org.odftoolkit.odfdom.dom.element.text.TextPElement;
-
 
 /**
  * Реализация ReportWriter для вывода в формат OpenOffice (ODS).
  */
 final class ODSReportWriter extends ReportWriter {
 
-    private InputStream template;
-    private InputStream templateCopy;
-
-
-    ODSReportWriter(InputStream template, InputStream templateCopy) throws Exception {
+    ODSReportWriter(InputStream template, InputStream templateCopy) throws XML2SpreadSheetError {
         // TODO Auto-generated constructor stub
-        this.template = template;
-        this.templateCopy = templateCopy;
-
-
-        // get root of all content of a text document
-        OdfSpreadsheetDocument odt = OdfSpreadsheetDocument.newSpreadsheetDocument();
-
-        // Save file
-        odt.save("ImageOut.ods");
+        throw new XML2SpreadSheetError("ODS is not implemented yet!..");
     }
 
     @Override
     void newSheet(String sheetName, String sourceSheet,
-                  int startRepeatingColumn, int endRepeatingColumn,
-                  int startRepeatingRow, int endRepeatingRow) {
+            int startRepeatingColumn, int endRepeatingColumn,
+            int startRepeatingRow, int endRepeatingRow) {
         // TODO Auto-generated method stub
-
 
     }
 
     @Override
     void putSection(XMLContext context, CellAddress growthPoint2,
-                    String sourceSheet, RangeAddress range) {
+            String sourceSheet, RangeAddress range) {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    public void flush() throws Exception {
+    public void flush() {
         // TODO Auto-generated method stub
+
     }
 
     @Override
