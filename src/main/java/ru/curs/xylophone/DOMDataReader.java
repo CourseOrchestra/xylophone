@@ -37,10 +37,12 @@ package ru.curs.xylophone;
 
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -149,6 +151,7 @@ final class DOMDataReader extends XMLDataReader {
         getWriter().endSequence(i.getMerge(), i.getRegionName());
     }
 
+
     @Override
     void process() throws XML2SpreadSheetError, Exception {
         // Обработка в DOM-режиме --- рекурсивная, управляемая дескриптором.
@@ -157,7 +160,9 @@ final class DOMDataReader extends XMLDataReader {
             processElement("/" + getDescriptor().getElementName() + "[1]",
                     getDescriptor(), xmlData.getDocumentElement(), 1);
         }
-        MergeRegionContainer.getContainer().apply(getWriter().getSheet());
+//        MergeRegionContainer.getContainer().apply(getWriter().getSheet());
+        getWriter().applyMergedRegions(MergeRegionContainer.getContainer().getMergedRegions());
+
         getWriter().flush();
     }
 }

@@ -36,12 +36,15 @@
 package ru.curs.xylophone;
 
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.util.CellRangeAddress;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Класс, ответственный за формирование результирующего вывода в табличный
@@ -328,5 +331,7 @@ abstract class ReportWriter {
      */
     public abstract void flush() throws Exception;
 
-    public abstract Sheet getSheet();
+    abstract void applyMergedRegions(Stream<CellRangeAddress> mergedRegions);
+
+//    public abstract Sheet getSheet();
 }

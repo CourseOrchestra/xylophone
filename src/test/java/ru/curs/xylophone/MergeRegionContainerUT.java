@@ -6,6 +6,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +25,7 @@ public class MergeRegionContainerUT {
      * Should be success.
      */
     @Test
-    public void testMergeLeftOneShouldBeSuccess() {
+    public void testMergeLeftOneShouldBeSuccess() throws XML2SpreadSheetError {
         MergeRegionContainer container = MergeRegionContainer.getContainer();
 
         container.mergeLeft(new CellAddress(2, 1));
@@ -37,7 +38,9 @@ public class MergeRegionContainerUT {
             return actualRanges.size();
         });
 
-        container.apply(sheet);
+        //        container.apply(sheet);
+        container.getMergedRegions().forEach(sheet::addMergedRegion);
+        container.clear();
 
         assertTrue(actualRanges.size() == 1);
         assertTrue(new CellRangeAddress(0, 0, 0, 1).equals(actualRanges.get(0)));
@@ -62,7 +65,8 @@ public class MergeRegionContainerUT {
             return actualRanges.size();
         });
 
-        container.apply(sheet);
+        container.getMergedRegions().forEach(sheet::addMergedRegion);
+        container.clear();
 
         assertTrue(actualRanges.size() == 1);
         assertTrue(new CellRangeAddress(0, 1, 0, 0).equals(actualRanges.get(0)));
@@ -118,7 +122,8 @@ public class MergeRegionContainerUT {
             return actualRanges.size();
         });
 
-        container.apply(sheet);
+        container.getMergedRegions().forEach(sheet::addMergedRegion);
+        container.clear();
 
         assertTrue(actualRanges.size() == 1);
         assertTrue(new CellRangeAddress(0, 0, 0, 2).equals(actualRanges.get(0)));
@@ -144,7 +149,8 @@ public class MergeRegionContainerUT {
             return actualRanges.size();
         });
 
-        container.apply(sheet);
+        container.getMergedRegions().forEach(sheet::addMergedRegion);
+        container.clear();
 
         assertTrue(actualRanges.size() == 1);
         assertTrue(new CellRangeAddress(0, 2, 2, 2).equals(actualRanges.get(0)));
@@ -180,7 +186,8 @@ public class MergeRegionContainerUT {
             return actualRanges.size();
         });
 
-        container.apply(sheet);
+        container.getMergedRegions().forEach(sheet::addMergedRegion);
+        container.clear();
 
         assertTrue(actualRanges.size() == 4);
         assertTrue(new CellRangeAddress(0, 2, 2, 2).equals(actualRanges.get(0)));
@@ -213,7 +220,8 @@ public class MergeRegionContainerUT {
             return actualRanges.size();
         });
 
-        container.apply(sheet);
+        container.getMergedRegions().forEach(sheet::addMergedRegion);
+        container.clear();
 
         assertTrue(actualRanges.size() == 1);
         assertTrue(new CellRangeAddress(0, 2, 2, 2).equals(actualRanges.get(0)));
@@ -234,7 +242,8 @@ public class MergeRegionContainerUT {
             return actualRanges.size();
         });
 
-        container.apply(sheet);
+        container.getMergedRegions().forEach(sheet::addMergedRegion);
+        container.clear();
 
         assertTrue(actualRanges.size() == 1);
         assertTrue(new CellRangeAddress(0, 4, 0, 4).equals(actualRanges.get(0)));

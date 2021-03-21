@@ -8,8 +8,10 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.stream.Stream;
 
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -339,8 +341,7 @@ class DummyWriter extends ReportWriter {
 	}
 
 	@Override
-	public Sheet getSheet() {
-		return null;
+	void applyMergedRegions(Stream<CellRangeAddress> mergedRegions){
 	}
 
 }

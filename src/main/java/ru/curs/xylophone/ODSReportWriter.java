@@ -35,25 +35,51 @@
 */
 package ru.curs.xylophone;
 
-import org.apache.poi.ss.usermodel.Sheet;
+import com.github.miachm.sods.Range;
+import com.github.miachm.sods.Sheet;
+import com.github.miachm.sods.SpreadSheet;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddress;
+//import org.apache.poi.ss.usermodel.Sheet;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Реализация ReportWriter для вывода в формат OpenOffice (ODS).
  */
 final class ODSReportWriter extends ReportWriter {
 
-    ODSReportWriter(InputStream template, InputStream templateCopy) throws XML2SpreadSheetError {
-        // TODO Auto-generated constructor stub
-        throw new XML2SpreadSheetError("ODS is not implemented yet!..");
+    private final SpreadSheet template;
+    private final SpreadSheet result;
+    private Sheet activeTemplateSheet;
+    private Sheet activeResultSheet;
+
+    ODSReportWriter(InputStream template, InputStream templateCopy) throws ODS2SpreadSheetError, IOException {
+        try {
+            this.template = new SpreadSheet(template);
+            result = new SpreadSheet(templateCopy);
+
+        } catch ( IOException e) {
+            // хорошая ли это практика выбрасывать сове исключение на IOException ??
+            throw new ODS2SpreadSheetError(e.getMessage());
+        }
+
+
+        result.save(new File("Out.ods"));
+
     }
 
     @Override
     void newSheet(String sheetName, String sourceSheet,
             int startRepeatingColumn, int endRepeatingColumn,
             int startRepeatingRow, int endRepeatingRow) {
-        // TODO Auto-generated method stub
+
+
 
     }
 
@@ -65,9 +91,8 @@ final class ODSReportWriter extends ReportWriter {
     }
 
     @Override
-    public void flush() {
-        // TODO Auto-generated method stub
-
+    public void flush() throws IOException {
+        this.result.save(getOutput());
     }
 
     @Override
@@ -95,7 +120,8 @@ final class ODSReportWriter extends ReportWriter {
     }
 
     @Override
-    public Sheet getSheet() {
-        throw new UnsupportedOperationException();
+    void applyMergedRegions(Stream<CellRangeAddress> mergedRegions){
+//        mergedRegions.forEach(activeResultSheet::addMergedRegion);
     }
+
 }

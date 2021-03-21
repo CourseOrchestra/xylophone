@@ -83,6 +83,13 @@
             <version>${xmlgraphics.version}</version>
         </dependency>
 
+        <!--ODS Writer-->
+        <dependency>
+            <groupId>com.github.miachm.sods</groupId>
+            <artifactId>SODS</artifactId>
+            <version>1.3.0</version>
+        </dependency>
+
         <!--For Test-->
         <dependency>
             <groupId>junit</groupId>

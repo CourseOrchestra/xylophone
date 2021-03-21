@@ -35,55 +35,10 @@
 */
 package ru.curs.xylophone;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.stream.Stream;
+public class ODS2SpreadSheetError extends Exception{
+    private static final long serialVersionUID = 4382588062277186741L;
 
-import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.poi.ss.util.CellRangeAddress;
-
-/**
- * Реализация ReportWriter для вывода в формат MSOffice 97-2003 (XLS).
- */
-final class XLSReportWriter extends POIReportWriter {
-
-    private HSSFWorkbook wb;
-
-    XLSReportWriter(InputStream template, InputStream templateCopy)
-            throws XML2SpreadSheetError {
-        super(template, templateCopy);
-    }
-
-    @Override
-    Workbook createResultWb(InputStream templateCopy)
-            throws InvalidFormatException, IOException {
-        if (templateCopy == null) {
-            wb = new HSSFWorkbook();
-        } else {
-            wb = (HSSFWorkbook) WorkbookFactory.create(templateCopy);
-            //Remove all merged regions -- not to mess with copied templates
-            for (int i = 0; i < wb.getNumberOfSheets(); i++) {
-                HSSFSheet ws = wb.getSheetAt(0);
-                for (int j = ws.getNumMergedRegions() - 1; j >= 0; j--) {
-                    ws.removeMergedRegion(j);
-                }
-            }
-        }
-        return wb;
-    }
-
-    @Override
-    void evaluate() {
-        HSSFFormulaEvaluator.evaluateAllFormulaCells(wb);
-    }
-
-    @Override
-    void applyMergedRegions(Stream<CellRangeAddress> mergedRegions){
-        mergedRegions.forEach(getSheet()::addMergedRegion);
+    public ODS2SpreadSheetError(String string) {
+        super(string);
     }
 }

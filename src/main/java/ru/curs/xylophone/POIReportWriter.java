@@ -573,8 +573,7 @@ abstract class POIReportWriter extends ReportWriter {
         return result;
     }
 
-    @Override
-    public Sheet getSheet() {
+    protected Sheet getSheet() {
         return activeResultSheet;
     }
 }
