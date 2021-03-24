@@ -15,7 +15,10 @@ public class WriterODSTest {
         InputStream templateStream = TestReader.class
                 .getResourceAsStream("template.ods");
 
-        new ODSReportWriter(templateStream, templateStream);
+        InputStream templateCopyStream = TestReader.class
+                .getResourceAsStream("template.ods");
+
+        new ODSReportWriter(templateStream, templateCopyStream);
 
         assertTrue(true);
     }

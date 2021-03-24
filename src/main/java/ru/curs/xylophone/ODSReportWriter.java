@@ -38,15 +38,11 @@ package ru.curs.xylophone;
 import com.github.miachm.sods.Range;
 import com.github.miachm.sods.Sheet;
 import com.github.miachm.sods.SpreadSheet;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
-//import org.apache.poi.ss.usermodel.Sheet;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -62,27 +58,40 @@ final class ODSReportWriter extends ReportWriter {
     ODSReportWriter(InputStream template, InputStream templateCopy) throws ODS2SpreadSheetError, IOException {
         try {
             this.template = new SpreadSheet(template);
-            result = new SpreadSheet(templateCopy);
+            this.result = new SpreadSheet(templateCopy);
 
         } catch ( IOException e) {
             // хорошая ли это практика выбрасывать сове исключение на IOException ??
             throw new ODS2SpreadSheetError(e.getMessage());
         }
 
+        newSheet("pam", "Лист1", 0, 0, 0, 0);
 
-        result.save(new File("Out.ods"));
+        CellAddress a1 = new CellAddress(0, 0);
+        CellAddress a2 = new CellAddress(1, 0);
+        mergeUp(a1, a2);
 
+        this.result.save(new File("Out.ods"));
     }
 
+    // TODO имя в итоговом sheet наследуется от копируемого, а надо устанавливать sheetName
     @Override
     void newSheet(String sheetName, String sourceSheet,
             int startRepeatingColumn, int endRepeatingColumn,
             int startRepeatingRow, int endRepeatingRow) {
 
-
+        activeTemplateSheet = template.getSheet(sourceSheet);
+        activeResultSheet = result.getSheet(sheetName);
+        if (activeResultSheet != null) {
+            return;
+        }
+        result.appendSheet(activeTemplateSheet);
+//        activeResultSheet = result.getSheet(sheetName);
+        activeResultSheet = result.getSheet(sourceSheet);
 
     }
 
+    // XMLContext ??
     @Override
     void putSection(XMLContext context, CellAddress growthPoint2,
             String sourceSheet, RangeAddress range) {
@@ -97,8 +106,12 @@ final class ODSReportWriter extends ReportWriter {
 
     @Override
     void mergeUp(CellAddress a1, CellAddress a2) {
-        // TODO Auto-generated method stub
+        int countRowsToMerge = 1 + Math.abs(a1.getRow() - a2.getRow());
+        int countColumnsToMerge = 1 + Math.abs(a1.getCol() - a2.getCol());
+        Range toMerge = activeResultSheet.getRange(a1.getRow(), a1.getCol(),
+                countRowsToMerge, countColumnsToMerge);
 
+        toMerge.merge();
     }
 
     @Override
