@@ -114,24 +114,31 @@ final class ODSReportWriter extends ReportWriter {
         toMerge.merge();
     }
 
+    // пока не понял что эта функция делает
     @Override
     void addNamedRegion(String name, CellAddress a1, CellAddress a2) {
         // TODO Auto-generated method stub
 
     }
 
+    // from javadoc apache poi
+    // Sets a page break at the indicated row Breaks occur above
+    // the specified row and left of the specified column inclusive.
     @Override
     void putRowBreak(int rowNumber) {
         // TODO Auto-generated method stub
 
     }
 
+    // from javadoc apache poi
+    // Sets a page break at the indicated column.
     @Override
     void putColBreak(int colNumber) {
         // TODO Auto-generated method stub
 
     }
 
+    // import org.apache.poi.ss.util.CellRangeAddress;
     @Override
     void applyMergedRegions(Stream<CellRangeAddress> mergedRegions){
 //        mergedRegions.forEach(activeResultSheet::addMergedRegion);
