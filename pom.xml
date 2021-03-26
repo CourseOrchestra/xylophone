@@ -52,6 +52,7 @@
         <maven.checkstyle.plugin.version>3.1.2</maven.checkstyle.plugin.version>
         <maven.source.plugin.version>3.2.1</maven.source.plugin.version>
         <maven.javadoc.plugin.version>3.2.0</maven.javadoc.plugin.version>
+        <approval.version>9.5.0</approval.version>
     </properties>
 
     <distributionManagement>
@@ -94,6 +95,12 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.approvaltests</groupId>
+            <artifactId>approvaltests</artifactId>
+            <version>${approval.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

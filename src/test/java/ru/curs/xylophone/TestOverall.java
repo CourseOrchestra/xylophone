@@ -1,18 +1,17 @@
 package ru.curs.xylophone;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.poifs.filesystem.NPOIFSFileSystem;
+import org.approvaltests.Approvals;
+import org.approvaltests.writers.ApprovalBinaryFileWriter;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Paths;
-
-import static org.junit.Assert.assertTrue;
 
 public class TestOverall {
     @Rule
@@ -27,19 +26,16 @@ public class TestOverall {
 		InputStream templateStream = TestReader.class
 				.getResourceAsStream("template.xls");
 
-		XML2SpreadseetBLOB b = new XML2SpreadseetBLOB();
-		OutputStream fos = b.getOutStream();
+		// write results to binary buffer
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		XML2Spreadsheet.process(dataStream, descrStream, templateStream,
-				OutputType.XLS, false, fos);
+				OutputType.XLS, false, bos);
+		byte[] writtenData = bos.toByteArray();
 
-		assertTrue(b.size() > 6000);
-		/*
-		 * byte[] buffer = new byte[1024]; FileOutputStream out = new
-		 * FileOutputStream(new File( "c:/temp/!!!test1.xls")); try {
-		 * InputStream in = b.getInStream(); int len = in.read(buffer); while
-		 * (len != -1) { out.write(buffer, 0, len); len = in.read(buffer); } }
-		 * finally { out.close(); }
-		 */
+		// verify it
+		Approvals.verify(new ApprovalBinaryFileWriter(
+				new ByteArrayInputStream(writtenData), "xls"
+		));
 	}
 
 	@Test
@@ -51,44 +47,44 @@ public class TestOverall {
 		InputStream templateStream = TestReader.class
 				.getResourceAsStream("template.xls");
 
-		XML2SpreadseetBLOB b = new XML2SpreadseetBLOB();
-		OutputStream fos = b.getOutStream();
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		XML2Spreadsheet.process(dataStream, descrStream, templateStream,
-				OutputType.XLS, true, fos);
-		assertTrue(b.size() > 6000);
-		/*
-		 * byte[] buffer = new byte[1024]; FileOutputStream out = new
-		 * FileOutputStream(new File( "c:/temp/!!!test2.xls")); try {
-		 * InputStream in = b.getInStream(); int len = in.read(buffer); while
-		 * (len != -1) { out.write(buffer, 0, len); len = in.read(buffer); } }
-		 * finally { out.close(); }
-		 */
+				OutputType.XLS, true, bos);
+		byte[] writtenData = bos.toByteArray();
+
+		Approvals.verify(new ApprovalBinaryFileWriter(
+				new ByteArrayInputStream(writtenData), "xls"
+		));
 	}
 
 	@Test
-	public void checkGenerateResultXlsFileWithSpecialSymbolsInDataXmlShouldSuccess() throws Exception {
+	public void checkGenerateResultXlsFileWithSpecialSymbolsInDataXmlShouldSucceed() throws Exception {
 	    File descriptor = Paths.get(TestOverall.class.getResource("testdescriptor.xml").toURI()).toFile();
 	    InputStream dataStream = TestReader.class
 				.getResourceAsStream("test_data_with_spec_symbols.xml");
 	    File template = Paths.get(TestOverall.class.getResource("template.xls").toURI()).toFile();
 
-        File createdTempOutputFile = temporaryFolder.newFile("temp.xls");
 
-        try (OutputStream outputStream = new FileOutputStream(createdTempOutputFile)) {
-            XML2Spreadsheet.process(dataStream, descriptor, template,
-                    false, false, outputStream);
-        }
+		ByteArrayOutputStream excel_bos = new ByteArrayOutputStream();
+		XML2Spreadsheet.process(dataStream, descriptor, template, false, false, excel_bos);
+		byte[] writtenXLSData = excel_bos.toByteArray();
 
-        NPOIFSFileSystem fileSystem = new NPOIFSFileSystem(createdTempOutputFile);
-        HSSFWorkbook workbook = new HSSFWorkbook(fileSystem.getRoot(), false);
+		// verifying the XLS file
+		Approvals.verify(new ApprovalBinaryFileWriter(
+				new ByteArrayInputStream(writtenXLSData), "xls"
+		));
 
+        HSSFWorkbook workbook = new HSSFWorkbook(new ByteArrayInputStream(writtenXLSData));
         Excel2Print excelPrinter = new Excel2Print(workbook);
         excelPrinter.setFopConfig(Paths.get(TestFO.class.getResource("fop.xconf").toURI()).toFile());
 
-        File pdfResultFile = temporaryFolder.newFile("after_conversion_to_pdf.pdf");
-        excelPrinter.toPDF(new FileOutputStream(pdfResultFile));
+		ByteArrayOutputStream pdf_bos = new ByteArrayOutputStream();
+        excelPrinter.toPDF(pdf_bos);
+		byte[] writtenPDFData = pdf_bos.toByteArray();
 
-        assertTrue(createdTempOutputFile.length() > 0);
-        assertTrue(pdfResultFile.length() > 0);
+		// verifying the PDF file
+		Approvals.verify(new ApprovalBinaryFileWriter(
+				new ByteArrayInputStream(writtenXLSData), "pdf"
+		));
     }
 }

@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 
 import org.apache.poi.ss.usermodel.Sheet;
+import org.approvaltests.Approvals;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -130,9 +131,7 @@ public class TestReader {
 		XMLDataReader reader = XMLDataReader.createReader(dataStream,
 				descrStream, false, w);
 		reader.process();
-		assertEquals(
-				"Q{TCQ{CCbQ{CC}C}}Q{TCQh{CCC}Q{CQh{CCC}CQh{CCC}CQh{CCC}}TCQh{}Q{}}F",
-				w.getLog().toString());
+		Approvals.verify(w.getLog().toString());
 	}
 
 	@Test
@@ -146,8 +145,7 @@ public class TestReader {
 		XMLDataReader reader = XMLDataReader.createReader(dataStream,
 				descrStream, false, w);
 		reader.process();
-		assertEquals("Q{TCQ{CCQ{CC}C}}Q{TCQh{CCC}Q{CQh{CCC}}TCQh{}Q{}}F", w
-				.getLog().toString());
+		Approvals.verify(w.getLog().toString());
 	}
 
 	@Test
@@ -185,8 +183,7 @@ public class TestReader {
 		XMLDataReader reader = XMLDataReader.createReader(dataStream,
 				descrStream, false, w);
 		reader.process();
-		assertEquals("Q{TCQ{CCQ{CC}C}TQ{CQh{CCC}CQh{CCC}CQh{CCC}}TQ{}}F", w
-				.getLog().toString());
+		Approvals.verify(w.getLog().toString());
 	}
 
 	@Test
@@ -200,7 +197,7 @@ public class TestReader {
 		XMLDataReader reader = XMLDataReader.createReader(dataStream,
 				descrStream, false, w);
 		reader.process();
-		assertEquals("Q{TCQ{CCQ{CC}C}TQ{CQh{CCC}}TQ{}}F", w.getLog().toString());
+		Approvals.verify(w.getLog().toString());
 	}
 
 	@Test
@@ -254,17 +251,33 @@ public class TestReader {
 class DummyWriter extends ReportWriter {
 
 	private final String[] sheetNames = { "Титульный", "Раздел А", "Раздел Б" };
-	private int i;
+	private int sheetNo;
+	private int offsetSize = 0;
 	private final StringBuilder log = new StringBuilder();
+
+	public void writeLine(String line) {
+		for (int i = 0; i < offsetSize; i++)
+			log.append("\t");
+		log.append(line).append("\n");
+	}
+
+	public void startLogSection(String line) {
+		writeLine(line);
+		offsetSize += 1;
+	}
+
+	public void endLogSection(String line) {
+		offsetSize -= 1;
+		writeLine(line);
+	}
 
 	@Override
 	public void sheet(String sheetName, String sourceSheet,
-			int startRepeatingColumn, int endRepeatingColumn,
-			int startRepeatingRow, int endRepeatingRow) {
-		// sheeT
-		log.append("T");
-		assertEquals(sheetNames[i], sheetName);
-		i++;
+					  int startRepeatingColumn, int endRepeatingColumn,
+					  int startRepeatingRow, int endRepeatingRow) {
+		startLogSection("Creating sheet " + sheetName);
+		assertEquals(sheetNames[sheetNo], sheetName);
+		sheetNo++;
 
 		assertEquals(-1, startRepeatingColumn);
 		assertEquals(-1, endRepeatingColumn);
@@ -274,25 +287,30 @@ class DummyWriter extends ReportWriter {
 
 	@Override
 	public void startSequence(boolean horizontal) {
-		// seQuence
 		if (horizontal)
-			log.append("Qh{");
+			startLogSection("Starting horizontal sequence");
 		else
-			log.append("Q{");
+			startLogSection("Starting vertical sequence");
 	}
 
 	@Override
 	public void endSequence(int merge, String regionName) {
-		log.append("}");
+		endLogSection("Finalizing sequence");
 	}
 
 	@Override
 	public void section(XMLContext context, String sourceSheet,
-			RangeAddress range, boolean pagebreak) {
-		// seCtion
-		log.append("C");
+						RangeAddress range, boolean pagebreak) {
+		String message = "Section ";
+		if (sourceSheet != null && !sourceSheet.equals(""))
+			message += "from sheet " + sourceSheet + " ";
+		if (range != null) {
+			message += "(range " + range.getAddress() + ")";
+		}
 		if (pagebreak)
-			log.append("b");
+			message += " with page break";
+
+		writeLine(message);
 	}
 
 	StringBuilder getLog() {
@@ -301,40 +319,39 @@ class DummyWriter extends ReportWriter {
 
 	@Override
 	void newSheet(String sheetName, String sourceSheetint,
-			int startRepeatingColumn, int endRepeatingColumn,
-			int startRepeatingRow, int endRepeatingRow) {
+				  int startRepeatingColumn, int endRepeatingColumn,
+				  int startRepeatingRow, int endRepeatingRow) {
 	}
 
 	@Override
 	void putSection(XMLContext context, CellAddress growthPoint2,
-			String sourceSheet, RangeAddress range) {
+					String sourceSheet, RangeAddress range) {
 	}
 
 	@Override
 	public void flush() {
 		// Также проверяем, что последним всегда вызывается метод flush.
-		log.append("F");
+		writeLine("Flush");
 	}
 
 	@Override
 	void mergeUp(CellAddress a1, CellAddress a2) {
-		log.append("merge");
+		writeLine("Merging cells " + a1.getAddress() + " and " + a2.getAddress() + " up ");
 	}
 
 	@Override
 	void addNamedRegion(String name, CellAddress a1, CellAddress a2) {
-		log.append("addNamedRegion");
+		writeLine("Adding named region (" + a1.getAddress() + ":" + a2.getAddress() + ")");
 	}
 
 	@Override
 	void putRowBreak(int rowNumber) {
-		log.append(String.format("[rowbreak%d]", rowNumber));
-
+		writeLine("Putting row break at row number" + rowNumber);
 	}
 
 	@Override
 	void putColBreak(int colNumber) {
-		log.append(String.format("[colbreak%d]", colNumber));
+		writeLine("Putting column break at column number" + colNumber);
 
 	}
 
@@ -344,3 +361,4 @@ class DummyWriter extends ReportWriter {
 	}
 
 }
+

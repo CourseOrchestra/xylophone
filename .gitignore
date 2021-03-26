@@ -8,3 +8,4 @@
 /build
 /target
 /src/main/asciidoc/*.png
+*.received
