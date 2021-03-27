@@ -4,7 +4,7 @@
 :icons: font
 
 [[general-information]]
-== General Information
+== General Information asdfwee asdf wewew2
 
 https://github.com/CourseOrchestra/xylophone[Xylophone] provides reports with a complex structure
 in forms of spreadsheets (XLS or XLSX format), PDF files or direct output
