@@ -20,7 +20,7 @@ jobs:
       - name: Set up prerequisites
         run: sudo apt-get install -y aspell graphviz
       - name: Spellcheck
-        run: chmod +x spellcheck && spellcheck 
+        run: chmod +x spellcheck && ./spellcheck 
       - uses: actions/cache@v1
         with:
           path: ~/.m2/repository
