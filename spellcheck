@@ -1,0 +1,12 @@
+#!/bin/bash
+result=$(for f in $(find . -name '*.adoc'); do cat $f | sed "s/-/ /g" | aspell --master=en --personal=./dict list; done | sort | uniq)
+if [[ $result ]]; then
+	echo "The following words are probaly misspelled:" 
+	echo "-----"
+	echo $result
+	echo "-----"
+	echo "Please correct the spelling or add the words above to the local dictionary."
+	exit 1;
+else
+	echo "Spellchecking complete."
+fi
