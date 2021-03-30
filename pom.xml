@@ -4,7 +4,7 @@
 
     <groupId>ru.curs</groupId>
     <artifactId>xylophone</artifactId>
-    <version>6.1.51-SNAPSHOT</version>
+    <version>6.1.52-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>xylophone java library</name>
@@ -40,15 +40,15 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>4.13.1</junit.version>
-        <mockito.version>3.7.7</mockito.version>
+        <mockito.version>3.8.0</mockito.version>
         <poi.version>3.17</poi.version>
         <xmlgraphics.version>2.1</xmlgraphics.version>
         <maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
         <maven.appassembler.plugin.version>2.1.0</maven.appassembler.plugin.version>
         <maven.assembly.plugin.version>3.3.0</maven.assembly.plugin.version>
         <maven.jar.plugin.version>3.2.0</maven.jar.plugin.version>
-        <spotbugs.maven.plugin.version>4.2.0</spotbugs.maven.plugin.version>
-        <checkstyle.version>8.40</checkstyle.version>
+        <spotbugs.maven.plugin.version>4.2.2</spotbugs.maven.plugin.version>
+        <checkstyle.version>8.41.1</checkstyle.version>
         <maven.checkstyle.plugin.version>3.1.2</maven.checkstyle.plugin.version>
         <maven.source.plugin.version>3.2.1</maven.source.plugin.version>
         <maven.javadoc.plugin.version>3.2.0</maven.javadoc.plugin.version>
