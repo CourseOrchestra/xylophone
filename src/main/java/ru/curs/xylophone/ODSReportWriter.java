@@ -62,7 +62,7 @@ final class ODSReportWriter extends ReportWriter {
 
         } catch ( IOException e) {
             // хорошая ли это практика выбрасывать сове исключение на IOException ??
-            throw new ODS2SpreadSheetError(e.getMessage());
+            throw new ODS2SpreadSheetError(e.getMessage()); // TODO ПЕРЕДЕЛАТЬ ИМЯ
         }
 
         newSheet("pam", "Лист1", 0, 0, 0, 0);
