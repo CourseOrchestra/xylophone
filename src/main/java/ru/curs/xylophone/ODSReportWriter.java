@@ -50,48 +50,18 @@ import java.util.stream.Stream;
  */
 final class ODSReportWriter extends ReportWriter {
 
-    private final SpreadSheet template;
-    private final SpreadSheet result;
-    private Sheet activeTemplateSheet;
-    private Sheet activeResultSheet;
-
     ODSReportWriter(InputStream template, InputStream templateCopy) throws ODS2SpreadSheetError, IOException {
-        try {
-            this.template = new SpreadSheet(template);
-            this.result = new SpreadSheet(templateCopy);
-
-        } catch ( IOException e) {
-            // хорошая ли это практика выбрасывать сове исключение на IOException ??
-            throw new ODS2SpreadSheetError(e.getMessage()); // TODO ПЕРЕДЕЛАТЬ ИМЯ
-        }
-
-        newSheet("pam", "Лист1", 0, 0, 0, 0);
-
-        CellAddress a1 = new CellAddress(0, 0);
-        CellAddress a2 = new CellAddress(1, 0);
-        mergeUp(a1, a2);
-
-        this.result.save(new File("Out.ods"));
+            throw new ODS2SpreadSheetError("In work ...");
     }
 
-    // TODO имя в итоговом sheet наследуется от копируемого, а надо устанавливать sheetName
     @Override
     void newSheet(String sheetName, String sourceSheet,
             int startRepeatingColumn, int endRepeatingColumn,
             int startRepeatingRow, int endRepeatingRow) {
-
-        activeTemplateSheet = template.getSheet(sourceSheet);
-        activeResultSheet = result.getSheet(sheetName);
-        if (activeResultSheet != null) {
-            return;
-        }
-        result.appendSheet(activeTemplateSheet);
-//        activeResultSheet = result.getSheet(sheetName);
-        activeResultSheet = result.getSheet(sourceSheet);
+        // TODO Auto-generated method stub
 
     }
 
-    // XMLContext ??
     @Override
     void putSection(XMLContext context, CellAddress growthPoint2,
             String sourceSheet, RangeAddress range) {
@@ -101,17 +71,14 @@ final class ODSReportWriter extends ReportWriter {
 
     @Override
     public void flush() throws IOException {
-        this.result.save(getOutput());
+        // TODO Auto-generated method stub
+
     }
 
     @Override
     void mergeUp(CellAddress a1, CellAddress a2) {
-        int countRowsToMerge = 1 + Math.abs(a1.getRow() - a2.getRow());
-        int countColumnsToMerge = 1 + Math.abs(a1.getCol() - a2.getCol());
-        Range toMerge = activeResultSheet.getRange(a1.getRow(), a1.getCol(),
-                countRowsToMerge, countColumnsToMerge);
+        // TODO Auto-generated method stub
 
-        toMerge.merge();
     }
 
     // пока не понял что эта функция делает
@@ -121,27 +88,23 @@ final class ODSReportWriter extends ReportWriter {
 
     }
 
-    // from javadoc apache poi
-    // Sets a page break at the indicated row Breaks occur above
-    // the specified row and left of the specified column inclusive.
     @Override
     void putRowBreak(int rowNumber) {
         // TODO Auto-generated method stub
 
     }
 
-    // from javadoc apache poi
-    // Sets a page break at the indicated column.
     @Override
     void putColBreak(int colNumber) {
         // TODO Auto-generated method stub
 
     }
 
-    // import org.apache.poi.ss.util.CellRangeAddress;
     @Override
     void applyMergedRegions(Stream<CellRangeAddress> mergedRegions){
 //        mergedRegions.forEach(activeResultSheet::addMergedRegion);
+        // TODO Auto-generated method stub
+
     }
 
 }

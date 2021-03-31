@@ -153,14 +153,13 @@ final class DOMDataReader extends XMLDataReader {
 
 
     @Override
-    void process() throws XML2SpreadSheetError, Exception {
+    void process() throws Exception {
         // Обработка в DOM-режиме --- рекурсивная, управляемая дескриптором.
         if (getDescriptor().getElementName().equals(
                 xmlData.getDocumentElement().getNodeName())) {
             processElement("/" + getDescriptor().getElementName() + "[1]",
                     getDescriptor(), xmlData.getDocumentElement(), 1);
         }
-//        MergeRegionContainer.getContainer().apply(getWriter().getSheet());
         getWriter().applyMergedRegions(MergeRegionContainer.getContainer().getMergedRegions());
 
         getWriter().flush();
