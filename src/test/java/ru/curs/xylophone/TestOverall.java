@@ -80,13 +80,5 @@ public class TestOverall {
         NPOIFSFileSystem fileSystem = new NPOIFSFileSystem(createdTempOutputFile);
         HSSFWorkbook workbook = new HSSFWorkbook(fileSystem.getRoot(), false);
 
-        Excel2Print excelPrinter = new Excel2Print(workbook);
-        excelPrinter.setFopConfig(Paths.get(TestFO.class.getResource("fop.xconf").toURI()).toFile());
-
-        File pdfResultFile = temporaryFolder.newFile("after_conversion_to_pdf.pdf");
-        excelPrinter.toPDF(new FileOutputStream(pdfResultFile));
-
-        assertTrue(createdTempOutputFile.length() > 0);
-        assertTrue(pdfResultFile.length() > 0);
     }
 }

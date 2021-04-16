@@ -75,14 +75,6 @@
             <version>${poi.version}</version>
             <scope>compile</scope>
         </dependency>
-
-        <!--Apache xml-->
-        <dependency>
-            <groupId>org.apache.xmlgraphics</groupId>
-            <artifactId>fop</artifactId>
-            <version>${xmlgraphics.version}</version>
-        </dependency>
-
         <!--ODS writer-->
         <dependency>
             <groupId>org.odftoolkit</groupId>
