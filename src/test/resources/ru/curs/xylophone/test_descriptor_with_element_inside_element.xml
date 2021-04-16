@@ -18,9 +18,6 @@
                         </element>
                     </iteration>
                 </element>
-                <iteration>
-                    <element name="stub_element"/>
-                </iteration>
             </iteration>
         </element>
     </iteration>

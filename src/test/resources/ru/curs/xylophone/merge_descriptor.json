@@ -1,0 +1,19 @@
+{
+  "name" : "report",
+  "output-steps" : [ {
+    "output" : {
+      "worksheet" : "report"
+    }
+  }, {
+    "iteration" : {
+      "element" : [ {
+        "name" : "r",
+        "output-steps" : [ {
+          "output" : {
+            "range" : "A3:D3"
+          }
+        } ]
+      } ]
+    }
+  } ]
+}

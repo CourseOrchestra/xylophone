@@ -1,0 +1,99 @@
+{
+  "name" : "report",
+  "output-steps" : [ {
+    "iteration" : {
+      "index" : 0,
+      "element" : [ {
+        "name" : "titlepage",
+        "output-steps" : [ {
+          "output" : {
+            "worksheet" : "Титульный",
+            "range" : "A3:B4",
+            "sourcesheet" : "Лист1"
+          }
+        }, {
+          "iteration" : {
+            "element" : [ {
+              "name" : "line",
+              "output-steps" : [ {
+                "output" : {
+                  "range" : "A5:Z5"
+                }
+              } ]
+            }, {
+              "name" : "group",
+              "output-steps" : [ {
+                "output" : {
+                  "range" : "A6:Z6",
+                  "pagebreak" : "true"
+                }
+              }, {
+                "iteration" : {
+                  "element" : [ {
+                    "name" : "line",
+                    "output-steps" : [ {
+                      "output" : {
+                        "range" : "A7:Z7"
+                      }
+                    } ]
+                  } ]
+                }
+              } ]
+            } ]
+          }
+        } ]
+      } ]
+    }
+  }, {
+    "iteration" : {
+      "element" : [ {
+        "name" : "sheet",
+        "output-steps" : [ {
+          "output" : {
+            "worksheet" : "~{@name}",
+            "sourcesheet" : "Лист2"
+          }
+        }, {
+          "output" : {
+            "range" : "A1"
+          }
+        }, {
+          "iteration" : {
+            "mode" : "horizontal",
+            "element" : [ {
+              "name" : "column",
+              "output-steps" : [ {
+                "output" : {
+                  "range" : "B1"
+                }
+              } ]
+            } ]
+          }
+        }, {
+          "iteration" : {
+            "element" : [ {
+              "name" : "row",
+              "output-steps" : [ {
+                "output" : {
+                  "range" : "A2"
+                }
+              }, {
+                "iteration" : {
+                  "mode" : "horizontal",
+                  "element" : [ {
+                    "name" : "cell",
+                    "output-steps" : [ {
+                      "output" : {
+                        "range" : "B2"
+                      }
+                    } ]
+                  } ]
+                }
+              } ]
+            } ]
+          }
+        } ]
+      } ]
+    }
+  } ]
+}

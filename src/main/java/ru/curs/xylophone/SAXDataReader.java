@@ -35,22 +35,24 @@
 */
 package ru.curs.xylophone;
 
-import java.io.InputStream;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
+import ru.curs.xylophone.XMLContext.SAXContext;
+import ru.curs.xylophone.descriptor.DescriptorElement;
+import ru.curs.xylophone.descriptor.DescriptorIteration;
+import ru.curs.xylophone.descriptor.DescriptorOutput;
+import ru.curs.xylophone.descriptor.DescriptorOutputBase;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamSource;
-
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
-
-import ru.curs.xylophone.XMLContext.SAXContext;
+import java.io.InputStream;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Класс, ответственный за чтение из XML-файла и перенаправление команд на вывод
@@ -60,7 +62,9 @@ final class SAXDataReader extends XMLDataReader {
 
     private final Source xmlData;
 
-    SAXDataReader(InputStream xmlData, DescriptorElement xmlDescriptor,
+    SAXDataReader(
+            InputStream xmlData,
+            DescriptorElement xmlDescriptor,
             ReportWriter writer) {
         super(writer, xmlDescriptor);
         this.xmlData = new StreamSource(xmlData);
@@ -69,7 +73,6 @@ final class SAXDataReader extends XMLDataReader {
 
     /**
      * Адаптирует дескриптор элемента к SAX-парсингу.
-     *
      */
     private static final class SAXElementDescriptor {
         private int elementIndex = -1;
@@ -103,7 +106,7 @@ final class SAXDataReader extends XMLDataReader {
             int desiredIndex = -1;
             int merge = 0;
             String regionName = null;
-            for (DescriptorSubelement se : e.getSubelements())
+            for (DescriptorOutputBase se : e.getSubElements())
                 if (!iterate) {
                     // До тэга iteration
                     if (se instanceof DescriptorOutput)
@@ -111,15 +114,15 @@ final class SAXDataReader extends XMLDataReader {
                     else if (se instanceof DescriptorIteration) {
                         for (DescriptorElement de : ((DescriptorIteration) se)
                                 .getElements()) {
-                            if ("(before)".equals(de.getElementName())) {
-                                for (DescriptorSubelement se2 : de
-                                        .getSubelements())
+                            if ("(before)".equals(de.getName())) {
+                                for (DescriptorOutputBase se2 : de
+                                        .getSubElements())
                                     if (se2 instanceof DescriptorOutput)
                                         headerOutputs
                                                 .add((DescriptorOutput) se2);
-                            } else if ("(after)".equals(de.getElementName())) {
-                                for (DescriptorSubelement se2 : de
-                                        .getSubelements())
+                            } else if ("(after)".equals(de.getName())) {
+                                for (DescriptorOutputBase se2 : de
+                                        .getSubElements())
                                     if (se2 instanceof DescriptorOutput)
                                         footerOutputs
                                                 .add((DescriptorOutput) se2);
@@ -160,7 +163,7 @@ final class SAXDataReader extends XMLDataReader {
 
             @Override
             public void startElement(String uri, String localName, String name,
-                    Attributes atts) throws SAXException {
+                                     Attributes atts) throws SAXException {
                 SAXElementDescriptor curDescr = elementsStack.peek();
                 curDescr.elementIndex++;
                 if (compareIndices(curDescr.desiredIndex, curDescr.elementIndex)) {
@@ -169,8 +172,9 @@ final class SAXDataReader extends XMLDataReader {
                     for (int i = 0; i < atts.getLength(); i++)
                         attsmap.put(atts.getLocalName(i), atts.getValue(i));
 
-                    searchElements: for (DescriptorElement e : curDescr.expectedElements) {
-                        if (compareNames(e.getElementName(), localName, attsmap)) {
+                    searchElements:
+                    for (DescriptorElement e : curDescr.expectedElements) {
+                        if (compareNames(e.getName(), localName, attsmap)) {
 
                             XMLContext context = new SAXContext(atts,
                                     curDescr.position + 1);
