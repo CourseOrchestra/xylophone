@@ -42,11 +42,40 @@ public enum OutputType {
     /**
      * Формат OpenOffice.
      */
-    ODS, /**
+    ODS,
+
+    /**
      * Формат MS Office 97-2003.
      */
-    XLS, /**
+    XLS,
+
+    /**
      * Формат MS Office Open Document Format.
      */
-    XLSX,
+    XLSX;
+
+    private String extension;
+
+    static {
+        ODS.extension = "ods";
+        XLS.extension = "xls";
+        XLSX.extension = "xlsx";
+    }
+
+    public String getExtension() {
+        return extension;
+    }
+
+    public static OutputType fromExtension(String extension) throws XML2SpreadSheetError {
+        if ("ods".equalsIgnoreCase(extension)) {
+            return OutputType.ODS;
+        } else if ("xls".equalsIgnoreCase(extension)) {
+            return OutputType.XLS;
+        } else if ("xlsx".equalsIgnoreCase(extension)) {
+            return OutputType.XLSX;
+        } else {
+            throw new XML2SpreadSheetError(
+                    "Cannot define output format, template has non-standard extention.");
+        }
+    }
 }
