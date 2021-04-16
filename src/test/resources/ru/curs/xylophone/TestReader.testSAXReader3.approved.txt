@@ -1,26 +1,26 @@
-Starting vertical sequence
+{ vertical sequence
 	Creating sheet Титульный
-		Section (range A3:B4)
-		Starting vertical sequence
-			Section (range A5:Z5)
-			Section (range A6:Z6)
-			Starting vertical sequence
-				Section (range A7:Z7)
-				Section (range A7:Z7)
-			Finalizing sequence
-			Section (range A5:Z5)
-		Finalizing sequence
-		Creating sheet Раздел А
-			Starting vertical sequence
-				Section (range A12:A12)
-				Starting horizontal sequence
-					Section (range B12:B12)
-					Section (range B12:B12)
-					Section (range B12:B12)
-				Finalizing sequence
-			Finalizing sequence
-			Creating sheet Раздел Б
-				Starting vertical sequence
-				Finalizing sequence
-			Finalizing sequence
-			Flush
+	Section (range A3:B4)
+	{ vertical sequence
+		Section (range A5:Z5)
+		Section (range A6:Z6)
+		{ vertical sequence
+			Section (range A7:Z7)
+			Section (range A7:Z7)
+		} sequence
+		Section (range A5:Z5)
+	} sequence
+	Creating sheet Раздел А
+	{ vertical sequence
+		Section (range A12:A12)
+		{ horizontal sequence
+			Section (range B12:B12)
+			Section (range B12:B12)
+			Section (range B12:B12)
+		} sequence
+	} sequence
+	Creating sheet Раздел Б
+	{ vertical sequence
+	} sequence
+} sequence
+Flush
