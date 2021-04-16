@@ -1,6 +1,8 @@
 package ru.curs.xylophone;
 
-import org.apache.poi.ss.usermodel.Sheet;
+import java.util.stream.Stream;
+
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -68,7 +70,7 @@ public class TestReader {
 	}
 
 	@Test
-	public void testParseDescriptor() throws XML2SpreadSheetError {
+	public void testParseDescriptor() throws XylophoneError {
 		descrStream = TestReader.class
 				.getResourceAsStream("testdescriptor.json");
 		dataStream = TestReader.class.getResourceAsStream("testdata.xml");
@@ -116,7 +118,7 @@ public class TestReader {
 	}
 
 	@Test
-	public void testDOMReader1() throws XML2SpreadSheetError {
+	public void testDOMReader1() throws XylophoneError {
 		descrStream = TestReader.class
 				.getResourceAsStream("testdescriptor.json");
 		dataStream = TestReader.class.getResourceAsStream("testdata.xml");
@@ -132,7 +134,7 @@ public class TestReader {
 	}
 
 	@Test
-	public void testDOMReader2() throws XML2SpreadSheetError {
+	public void testDOMReader2() throws XylophoneError {
 		descrStream = TestReader.class
 				.getResourceAsStream("testdescriptor2.json");
 		dataStream = TestReader.class.getResourceAsStream("testdata.xml");
@@ -147,7 +149,7 @@ public class TestReader {
 	}
 
 	@Test
-	public void testSAXReader1() throws XML2SpreadSheetError {
+	public void testSAXReader1() throws XylophoneError {
 		descrStream = TestReader.class
 				.getResourceAsStream("testdescriptor.json");
 		dataStream = TestReader.class.getResourceAsStream("testdata.xml");
@@ -161,7 +163,7 @@ public class TestReader {
 		boolean itHappened = false;
 		try {
 			reader.process();
-		} catch (XML2SpreadSheetError e) {
+		} catch (XylophoneError e) {
 			itHappened = true;
 			assertTrue(e.getMessage().contains(
 					"only one iteration element is allowed"));
@@ -171,7 +173,7 @@ public class TestReader {
 	}
 
 	@Test
-	public void testSAXReader2() throws XML2SpreadSheetError {
+	public void testSAXReader2() throws XylophoneError {
 		descrStream = TestReader.class
 				.getResourceAsStream("testsaxdescriptor.json");
 		dataStream = TestReader.class.getResourceAsStream("testdata.xml");
@@ -186,7 +188,7 @@ public class TestReader {
 	}
 
 	@Test
-	public void testSAXReader3() throws XML2SpreadSheetError {
+	public void testSAXReader3() throws XylophoneError {
 		descrStream = TestReader.class
 				.getResourceAsStream("testsaxdescriptor2.json");
 		dataStream = TestReader.class.getResourceAsStream("testdata.xml");
@@ -200,12 +202,12 @@ public class TestReader {
 	}
 
 	@Test
-	public void testParsingDescriptorWithElementInsideElementShouldFail() throws XML2SpreadSheetError {
+	public void testParsingDescriptorWithElementInsideElementShouldFail() throws XylophoneError {
 		descrStream = TestReader.class
 				.getResourceAsStream("test_descriptor_with_element_inside_element.json");
 		dataStream = TestReader.class.getResourceAsStream("testdata.xml");
 
-		expectedException.expect(XML2SpreadSheetError.class);
+		expectedException.expect(XylophoneError.class);
 		expectedException.expectMessage("Error while processing json descriptor: " +
 				"Unrecognized field \"element\" (class ru.curs.xylophone.descriptor.DescriptorElement), not marked as ignorable (2 known properties: \"name\", \"output-steps\"])");
 
@@ -216,13 +218,13 @@ public class TestReader {
 	}
 
 	@Test
-	public void testParsingDescriptorWithIterationInsideIterationShouldFail() throws XML2SpreadSheetError {
+	public void testParsingDescriptorWithIterationInsideIterationShouldFail() throws XylophoneError {
 		descrStream = TestReader.class
 				.getResourceAsStream("test_descriptor_with_iteration_inside_iteration.json");
 		dataStream = TestReader.class.getResourceAsStream("testdata.xml");
 
-		expectedException.expect(XML2SpreadSheetError.class);
-        expectedException.expectMessage("Error while processing json descriptor: " +
+		expectedException.expect(XylophoneError.class);
+    expectedException.expectMessage("Error while processing json descriptor: " +
                 "Cannot deserialize instance of `ru.curs.xylophone.descriptor.DescriptorIteration` out of START_ARRAY token");
 
 		DummyWriter w = new DummyWriter();
@@ -232,13 +234,13 @@ public class TestReader {
 	}
 
 	@Test
-	public void testParsingDescriptorWithOutputInsideIterationShouldFail() throws XML2SpreadSheetError {
+	public void testParsingDescriptorWithOutputInsideIterationShouldFail() throws XylophoneError {
 		descrStream = TestReader.class
 				.getResourceAsStream("test_descriptor_with_output_inside_iteration.json");
 		dataStream = TestReader.class.getResourceAsStream("testdata.xml");
 
-		expectedException.expect(XML2SpreadSheetError.class);
-        expectedException.expectMessage("Error while processing json descriptor: " +
+  	expectedException.expect(XylophoneError.class);
+    expectedException.expectMessage("Error while processing json descriptor: " +
                 "Cannot deserialize instance of `ru.curs.xylophone.descriptor.DescriptorIteration` out of START_ARRAY token");
 
 		DummyWriter w = new DummyWriter();
@@ -336,8 +338,7 @@ class DummyWriter extends ReportWriter {
 	}
 
 	@Override
-	public Sheet getSheet() {
-		return null;
+	void applyMergedRegions(Stream<CellRangeAddress> mergedRegions){
 	}
 
 }

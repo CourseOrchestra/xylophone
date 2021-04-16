@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import ru.curs.xylophone.RangeAddress;
-import ru.curs.xylophone.XML2SpreadSheetError;
+import ru.curs.xylophone.XylophoneError;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,7 +36,7 @@ public final class DescriptorOutput extends DescriptorOutputBase {
             @JsonProperty("sourcesheet") String sourceSheet,
             @JsonProperty("repeatingcols") String repeatingCols,
             @JsonProperty("repeatingraws") String repeatingRows,
-            @JsonProperty("pagebreak") String pageBreak) throws XML2SpreadSheetError {
+            @JsonProperty("pagebreak") String pageBreak) throws XylophoneError {
         this(
                 worksheet,
                 range == null ? null : new RangeAddress(range),
@@ -51,7 +51,7 @@ public final class DescriptorOutput extends DescriptorOutputBase {
 
     public DescriptorOutput(String worksheet, RangeAddress range,
                             String sourceSheet, String repeatingCols, String repeatingRows,
-                            Boolean pageBreak) throws XML2SpreadSheetError {
+                            Boolean pageBreak) throws XylophoneError {
         this.worksheet = worksheet;
         this.range = range;
         this.sourceSheet = sourceSheet;
@@ -66,7 +66,7 @@ public final class DescriptorOutput extends DescriptorOutputBase {
             this.startRepeatingRow = Integer.parseInt(m2.group(1));
             this.endRepeatingRow = Integer.parseInt(m2.group(2));
         } else {
-            throw new XML2SpreadSheetError(String.format(
+            throw new XylophoneError(String.format(
                     "Invalid col/row range %s %s", repeatingCols,
                     repeatingRows));
         }

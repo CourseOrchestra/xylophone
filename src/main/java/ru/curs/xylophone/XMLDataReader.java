@@ -68,25 +68,25 @@ abstract class XMLDataReader {
      * @param descriptorStream Дескриптор отчёта.
      * @param useSAX           Режим обработки (DOM или SAX).
      * @param writer           Объект, осуществляющий вывод.
-     * @throws XML2SpreadSheetError В случае ошибки обработки дескриптора отчёта.
+     * @throws XylophoneError В случае ошибки обработки дескриптора отчёта.
      */
     static XMLDataReader createReader(
             InputStream xmlData,
             InputStream descriptorStream,
             boolean useSAX,
             ReportWriter writer)
-            throws XML2SpreadSheetError {
+            throws XylophoneError {
         if (xmlData == null)
-            throw new XML2SpreadSheetError("Data stream is null.");
+            throw new XylophoneError("Data stream is null.");
         if (descriptorStream == null)
-            throw new XML2SpreadSheetError("Descriptor stream is null.");
+            throw new XylophoneError("Descriptor stream is null.");
 
         // Сначала парсится дескриптор и строится его объектное представление.
         DescriptorElement root;
         try {
             root = DescriptorElement.jsonDeserialize(descriptorStream);
         } catch (Exception e) {
-            throw new XML2SpreadSheetError(
+            throw new XylophoneError(
                     "Error while processing json descriptor: " + e.getMessage());
         }
         // Затем инстанцируется конкретная реализация (DOM или SAX) ридера
@@ -99,21 +99,21 @@ abstract class XMLDataReader {
     /**
      * Осуществляет генерацию отчёта.
      *
-     * @throws XML2SpreadSheetError В случае возникновения ошибок ввода-вывода или при
+     * @throws XylophoneError В случае возникновения ошибок ввода-вывода или при
      *                              интерпретации данных, шаблона или дескриптора.
      */
-    abstract void process() throws XML2SpreadSheetError;
+    abstract void process() throws XylophoneError;
 
     /**
      * Общий для DOM и SAX реализации метод обработки вывода.
      *
      * @param c Контекст.
      * @param o Дескриптор секции.
-     * @throws XML2SpreadSheetError В случае возникновения ошибок ввода-вывода или при
+     * @throws XylophoneError В случае возникновения ошибок ввода-вывода или при
      *                              интерпретации шаблона.
      */
     final void processOutput(XMLContext c, DescriptorOutput o)
-            throws XML2SpreadSheetError {
+            throws XylophoneError {
         if (o.getWorksheet() != null) {
             String wsName = c.calc(o.getWorksheet());
             getWriter().sheet(wsName, o.getSourceSheet(),

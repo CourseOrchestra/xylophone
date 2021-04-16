@@ -36,7 +36,7 @@ class XMLDescriptorParser extends DefaultHandler {
                              final Attributes atts) throws SAXException {
 
         abstract class AttrReader<T> {
-            T getValue(String qName) throws XML2SpreadSheetError {
+            T getValue(String qName) throws XylophoneError {
                 String buf = atts.getValue(qName);
                 if (buf == null || "".equals(buf))
                     return getIfEmpty();
@@ -45,7 +45,7 @@ class XMLDescriptorParser extends DefaultHandler {
             }
 
             abstract T getIfNotEmpty(String value)
-                    throws XML2SpreadSheetError;
+                    throws XylophoneError;
 
             abstract T getIfEmpty();
         }
@@ -112,7 +112,7 @@ class XMLDescriptorParser extends DefaultHandler {
                         RangeAddress range = (new AttrReader<RangeAddress>() {
                             @Override
                             RangeAddress getIfNotEmpty(String value)
-                                    throws XML2SpreadSheetError {
+                                    throws XylophoneError {
                                 return new RangeAddress(value);
                             }
 
@@ -144,7 +144,7 @@ class XMLDescriptorParser extends DefaultHandler {
 
                         parserState = ParserState.OUTPUT;
                     } else {
-                        throw new XML2SpreadSheetError(String.format("Tag <element> is not allowed inside <element>. "
+                        throw new XylophoneError(String.format("Tag <element> is not allowed inside <element>. "
                                 + "Error inside element with name %s.", elementsStack.peek().getName()));
                     }
                     break;
@@ -168,14 +168,14 @@ class XMLDescriptorParser extends DefaultHandler {
                         elementsStack.push(currElement);
                         parserState = ParserState.ELEMENT;
                     } else {
-                        throw new XML2SpreadSheetError(
+                        throw new XylophoneError(
                                 String.format("Tag <%s> is not allowed inside <iteration>. "
                                                 + "Error inside element with name %s.",
                                         localName, elementsStack.peek().getName()));
                     }
                     break;
             }
-        } catch (XML2SpreadSheetError e) {
+        } catch (XylophoneError e) {
             throw new SAXException(e.getMessage());
         }
     }
@@ -196,7 +196,9 @@ class XMLDescriptorParser extends DefaultHandler {
         }
     }
 
-    public static DescriptorElement readXMLDescriptor(InputStream descriptorStream) throws XML2SpreadSheetError {
+
+    public static DescriptorElement readXMLDescriptor(InputStream descriptorStream) throws XylophoneError {
+
         XMLDescriptorParser parser = new XMLDescriptorParser();
         try {
             TransformerFactory
@@ -205,7 +207,9 @@ class XMLDescriptorParser extends DefaultHandler {
                     .transform(new StreamSource(descriptorStream),
                             new SAXResult(parser));
         } catch (Exception e) {
-            throw new XML2SpreadSheetError(
+
+            throw new XylophoneError(
+
                     "Error while processing XML descriptor: " + e.getMessage());
         }
         return parser.root;

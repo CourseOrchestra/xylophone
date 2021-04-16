@@ -83,6 +83,18 @@
             <version>${xmlgraphics.version}</version>
         </dependency>
 
+        <!--ODS writer-->
+        <dependency>
+            <groupId>org.odftoolkit</groupId>
+            <artifactId>odfdom-java</artifactId>
+            <version>1.0.0-BETA1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.odftoolkit</groupId>
+            <artifactId>simple-odf</artifactId>
+            <version>0.8.2-incubating</version>
+        </dependency>
+
         <!--For Test-->
         <dependency>
             <groupId>junit</groupId>

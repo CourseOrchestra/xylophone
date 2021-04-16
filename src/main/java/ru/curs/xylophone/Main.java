@@ -61,12 +61,15 @@ public class Main {
     /**
      * Главный метод класса.
      *
-     * @param args аргументы
-     * @throws XML2SpreadSheetError  в случае, если произошла ошибка конвертации
-     * @throws FileNotFoundException в случае, если файл не найден
+     * @param args
+     *            аргументы
+     * @throws XylophoneError
+     *             в случае, если произошла ошибка конвертации
+     * @throws FileNotFoundException
+     *             в случае, если файл не найден
      */
     public static void main(String[] args) throws FileNotFoundException,
-            XML2SpreadSheetError {
+            XylophoneError {
 
         FileInputStream iff = null;
         FileInputStream descr = null;       // json (or xml for conversion only) descriptor
@@ -145,12 +148,14 @@ public class Main {
         System.out.println("Spreadsheet created successfully.");
     }
 
-    private static void convertDescriptor(FileInputStream xmlDesc, FileOutputStream jsonDesc) throws XML2SpreadSheetError {
+
+    private static void convertDescriptor(FileInputStream xmlDesc, FileOutputStream jsonDesc) throws XylophoneError {
+
         try {
             DescriptorElement root = XMLDescriptorParser.readXMLDescriptor(xmlDesc);
             root.jsonSerialize(jsonDesc);
         } catch (Exception e) {
-            throw new XML2SpreadSheetError("Error while converting XML to JSON descriptor: " + e.getMessage());
+            throw new XylophoneError("Error while converting XML to JSON descriptor: " + e.getMessage());
         }
         System.out.println("XML descriptor was successfully converted to JSON format.");
     }

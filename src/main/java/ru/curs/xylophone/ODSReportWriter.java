@@ -35,31 +35,31 @@
 */
 package ru.curs.xylophone;
 
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.util.CellRangeAddress;
 
 import java.io.InputStream;
+import java.util.stream.Stream;
 
 /**
  * Реализация ReportWriter для вывода в формат OpenOffice (ODS).
  */
 final class ODSReportWriter extends ReportWriter {
 
-    ODSReportWriter(InputStream template, InputStream templateCopy) throws XML2SpreadSheetError {
-        // TODO Auto-generated constructor stub
-        throw new XML2SpreadSheetError("ODS is not implemented yet!..");
+    ODSReportWriter(InputStream template, InputStream templateCopy) throws XylophoneError {
+        throw new XylophoneError("In work ...");
     }
 
     @Override
     void newSheet(String sheetName, String sourceSheet,
-            int startRepeatingColumn, int endRepeatingColumn,
-            int startRepeatingRow, int endRepeatingRow) {
+                  int startRepeatingColumn, int endRepeatingColumn,
+                  int startRepeatingRow, int endRepeatingRow) {
         // TODO Auto-generated method stub
 
     }
 
     @Override
     void putSection(XMLContext context, CellAddress growthPoint2,
-            String sourceSheet, RangeAddress range) {
+                    String sourceSheet, RangeAddress range) {
         // TODO Auto-generated method stub
 
     }
@@ -76,6 +76,7 @@ final class ODSReportWriter extends ReportWriter {
 
     }
 
+    // пока не понял что эта функция делает
     @Override
     void addNamedRegion(String name, CellAddress a1, CellAddress a2) {
         // TODO Auto-generated method stub
@@ -95,7 +96,9 @@ final class ODSReportWriter extends ReportWriter {
     }
 
     @Override
-    public Sheet getSheet() {
-        throw new UnsupportedOperationException();
+    void applyMergedRegions(Stream<CellRangeAddress> mergedRegions){
+        // TODO Auto-generated method stub
+
     }
+
 }

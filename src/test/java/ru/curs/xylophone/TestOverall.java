@@ -16,7 +16,7 @@ public class TestOverall {
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
 	@Test
-	public void test1() throws XML2SpreadSheetError {
+	public void test1() throws XylophoneError {
 		InputStream descrStream = TestReader.class
 				.getResourceAsStream("testdescriptor3.json");
 		InputStream dataStream = TestReader.class
@@ -40,7 +40,7 @@ public class TestOverall {
 	}
 
 	@Test
-	public void test2() throws XML2SpreadSheetError {
+	public void test2() throws XylophoneError {
 		InputStream descrStream = TestReader.class
 				.getResourceAsStream("testsaxdescriptor3.json");
 		InputStream dataStream = TestReader.class

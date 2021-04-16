@@ -35,7 +35,7 @@ public class TestCellRangeAddress {
 	}
 
 	@Test
-	public void testRangeAddress1() throws XML2SpreadSheetError {
+	public void testRangeAddress1() throws XylophoneError {
 		RangeAddress ra = new RangeAddress("D11:G36");
 		assertEquals(new CellAddress("D11"), ra.topLeft());
 		assertEquals(new CellAddress("G36"), ra.bottomRight());
@@ -46,7 +46,7 @@ public class TestCellRangeAddress {
 	}
 
 	@Test
-	public void testRangeAddress2() throws XML2SpreadSheetError {
+	public void testRangeAddress2() throws XylophoneError {
 		// Автонормализация диапазона
 		RangeAddress ra = new RangeAddress("G36:D11");
 		assertEquals(new CellAddress("D11"), ra.topLeft());
@@ -59,7 +59,7 @@ public class TestCellRangeAddress {
 	}
 
 	@Test
-	public void testRangeAddress3() throws XML2SpreadSheetError {
+	public void testRangeAddress3() throws XylophoneError {
 		// Диапазон из одной ячейки
 		RangeAddress ra = new RangeAddress("E7");
 		assertEquals(new CellAddress("E7"), ra.topLeft());

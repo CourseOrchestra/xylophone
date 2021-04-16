@@ -39,11 +39,11 @@ package ru.curs.xylophone;
  * Ошибка, происходящая при работе построителя отчётов.
  *
  */
-public final class XML2SpreadSheetError extends Exception {
+public final class XylophoneError extends Exception {
 
     private static final long serialVersionUID = 4382588062277186741L;
 
-    public XML2SpreadSheetError(String string) {
+    public XylophoneError(String string) {
         super(string);
     }
 }

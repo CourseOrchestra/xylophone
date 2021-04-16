@@ -84,13 +84,13 @@ abstract class POIReportWriter extends ReportWriter {
     private final MergeRegionContainer mergeRegionContainer = MergeRegionContainer.getContainer();
 
     POIReportWriter(InputStream template, InputStream templateCopy)
-            throws XML2SpreadSheetError {
+            throws XylophoneError {
         try {
             this.template = WorkbookFactory.create(template);
             // Создаём новую книгу
             result = createResultWb(templateCopy);
         } catch (InvalidFormatException | IOException e) {
-            throw new XML2SpreadSheetError(e.getMessage());
+            throw new XylophoneError(e.getMessage());
         }
         final Map<Short, Font> fontMap = new HashMap<>();
 
@@ -164,7 +164,7 @@ abstract class POIReportWriter extends ReportWriter {
             throws InvalidFormatException, IOException;
 
     private void updateActiveTemplateSheet(String sourceSheet)
-            throws XML2SpreadSheetError {
+            throws XylophoneError {
         if (sourceSheet != null) {
             activeTemplateSheet = template.getSheet(sourceSheet);
         }
@@ -172,7 +172,7 @@ abstract class POIReportWriter extends ReportWriter {
             activeTemplateSheet = template.getSheetAt(0);
         }
         if (activeTemplateSheet == null) {
-            throw new XML2SpreadSheetError(String.format(
+            throw new XylophoneError(String.format(
                     "Sheet '%s' does not exist.", sourceSheet));
         }
     }
@@ -181,7 +181,7 @@ abstract class POIReportWriter extends ReportWriter {
     void newSheet(String sheetName, String sourceSheet,
             int startRepeatingColumn, int endRepeatingColumn,
             int startRepeatingRow, int endRepeatingRow)
-            throws XML2SpreadSheetError {
+            throws XylophoneError {
 
         updateActiveTemplateSheet(sourceSheet);
         activeResultSheet = result.getSheet(sheetName);
@@ -274,7 +274,7 @@ abstract class POIReportWriter extends ReportWriter {
 
     @Override
     void putSection(XMLContext context, CellAddress growthPoint,
-            String sourceSheet, RangeAddress range) throws XML2SpreadSheetError {
+            String sourceSheet, RangeAddress range) throws XylophoneError {
         updateActiveTemplateSheet(sourceSheet);
         if (activeResultSheet == null) {
             sheet("Sheet1", sourceSheet, -1, -1, -1, -1);
@@ -494,7 +494,7 @@ abstract class POIReportWriter extends ReportWriter {
     }
 
     private void arrangeMergedCells(CellAddress growthPoint, RangeAddress range)
-            throws XML2SpreadSheetError {
+            throws XylophoneError {
         int mr = activeTemplateSheet.getNumMergedRegions();
         for (int i = 0; i < mr; i++) {
             // Диапазон смёрдженных ячеек на листе шаблона
@@ -544,14 +544,14 @@ abstract class POIReportWriter extends ReportWriter {
     }
 
     @Override
-    public void flush() throws XML2SpreadSheetError {
+    public void flush() throws XylophoneError {
         if (needEval) {
             evaluate();
         }
         try {
             result.write(getOutput());
         } catch (IOException e) {
-            throw new XML2SpreadSheetError(e.getMessage());
+            throw new XylophoneError(e.getMessage());
         }
     }
 
@@ -573,8 +573,7 @@ abstract class POIReportWriter extends ReportWriter {
         return result;
     }
 
-    @Override
-    public Sheet getSheet() {
+    protected Sheet getSheet() {
         return activeResultSheet;
     }
 }

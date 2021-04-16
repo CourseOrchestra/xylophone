@@ -1,7 +1,6 @@
 package ru.curs.xylophone;
 
 import org.junit.Test;
-import ru.curs.xylophone.DynamicCellWithStyle;
 
 import java.util.HashMap;
 import java.util.Map;

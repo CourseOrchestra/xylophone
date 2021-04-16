@@ -37,6 +37,7 @@ package ru.curs.xylophone;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.stream.Stream;
 
 import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -44,6 +45,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.ss.util.CellRangeAddress;
 
 /**
  * Реализация ReportWriter для вывода в формат MSOffice 97-2003 (XLS).
@@ -53,7 +55,7 @@ final class XLSReportWriter extends POIReportWriter {
     private HSSFWorkbook wb;
 
     XLSReportWriter(InputStream template, InputStream templateCopy)
-            throws XML2SpreadSheetError {
+            throws XylophoneError {
         super(template, templateCopy);
     }
 
@@ -78,5 +80,10 @@ final class XLSReportWriter extends POIReportWriter {
     @Override
     void evaluate() {
         HSSFFormulaEvaluator.evaluateAllFormulaCells(wb);
+    }
+
+    @Override
+    void applyMergedRegions(Stream<CellRangeAddress> mergedRegions){
+        mergedRegions.forEach(getSheet()::addMergedRegion);
     }
 }

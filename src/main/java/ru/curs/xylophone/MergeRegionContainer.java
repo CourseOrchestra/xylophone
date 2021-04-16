@@ -1,12 +1,12 @@
 package ru.curs.xylophone;
 
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Container for merged regions.
@@ -91,16 +91,8 @@ public final class MergeRegionContainer {
         }
     }
 
-    /**
-     * Apply all merged regions to sheet.
-     * @param sheet sheet of docs
-     */
-    public void apply(Sheet sheet) {
-        if (sheet == null) {
-            return;
-        }
-        mergedRegions.stream().map(MutableCellRangeAddress::toCellRangeAddress).forEach(sheet::addMergedRegion);
-        clear();
+    Stream<CellRangeAddress> getMergedRegions(){
+        return mergedRegions.stream().map(MutableCellRangeAddress::toCellRangeAddress);
     }
 
     /**
@@ -122,7 +114,7 @@ public final class MergeRegionContainer {
     /**
      * Clear list.
      */
-    private void clear() {
+    public void clear() {
         mergedRegions.clear();
     }
 
