@@ -1,0 +1,75 @@
+{
+  "name" : "report",
+  "output-steps" : [ {
+    "iteration" : {
+      "element" : [ {
+        "name" : "titlepage",
+        "output-steps" : [ {
+          "output" : {
+            "worksheet" : "Титульный",
+            "range" : "A3:B4"
+          }
+        }, {
+          "iteration" : {
+            "element" : [ {
+              "name" : "line",
+              "output-steps" : [ {
+                "output" : {
+                  "range" : "A5:Z5"
+                }
+              } ]
+            }, {
+              "name" : "group",
+              "output-steps" : [ {
+                "output" : {
+                  "range" : "A6:Z6"
+                }
+              }, {
+                "iteration" : {
+                  "element" : [ {
+                    "name" : "line",
+                    "output-steps" : [ {
+                      "output" : {
+                        "range" : "A7:Z7"
+                      }
+                    } ]
+                  } ]
+                }
+              } ]
+            } ]
+          }
+        } ]
+      }, {
+        "name" : "sheet",
+        "output-steps" : [ {
+          "output" : {
+            "worksheet" : "~{@name}"
+          }
+        }, {
+          "iteration" : {
+            "element" : [ {
+              "name" : "row",
+              "output-steps" : [ {
+                "output" : {
+                  "range" : "A12"
+                }
+              }, {
+                "iteration" : {
+                  "mode" : "horizontal",
+                  "element" : [ {
+                    "name" : "cell",
+                    "output-steps" : [ {
+                      "output" : {
+                        "range" : "B12"
+                      }
+                    } ]
+                  } ]
+                }
+              } ]
+            } ]
+          }
+        } ]
+      } ]
+    }
+  } ]
+}

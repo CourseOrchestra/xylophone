@@ -6,10 +6,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.file.Paths;
 
 import static org.junit.Assert.assertTrue;
@@ -21,7 +18,7 @@ public class TestOverall {
 	@Test
 	public void test1() throws XML2SpreadSheetError {
 		InputStream descrStream = TestReader.class
-				.getResourceAsStream("testdescriptor3.xml");
+				.getResourceAsStream("testdescriptor3.json");
 		InputStream dataStream = TestReader.class
 				.getResourceAsStream("testdata.xml");
 		InputStream templateStream = TestReader.class
@@ -30,7 +27,7 @@ public class TestOverall {
 		XML2SpreadseetBLOB b = new XML2SpreadseetBLOB();
 		OutputStream fos = b.getOutStream();
 		XML2Spreadsheet.process(dataStream, descrStream, templateStream,
-				OutputType.XLS, false, fos);
+				OutputType.XLS, false, false, fos);
 
 		assertTrue(b.size() > 6000);
 		/*
@@ -45,7 +42,7 @@ public class TestOverall {
 	@Test
 	public void test2() throws XML2SpreadSheetError {
 		InputStream descrStream = TestReader.class
-				.getResourceAsStream("testsaxdescriptor3.xml");
+				.getResourceAsStream("testsaxdescriptor3.json");
 		InputStream dataStream = TestReader.class
 				.getResourceAsStream("testdata.xml");
 		InputStream templateStream = TestReader.class
@@ -54,7 +51,7 @@ public class TestOverall {
 		XML2SpreadseetBLOB b = new XML2SpreadseetBLOB();
 		OutputStream fos = b.getOutStream();
 		XML2Spreadsheet.process(dataStream, descrStream, templateStream,
-				OutputType.XLS, true, fos);
+				OutputType.XLS, true, false, fos);
 		assertTrue(b.size() > 6000);
 		/*
 		 * byte[] buffer = new byte[1024]; FileOutputStream out = new
@@ -67,7 +64,8 @@ public class TestOverall {
 
 	@Test
 	public void checkGenerateResultXlsFileWithSpecialSymbolsInDataXmlShouldSuccess() throws Exception {
-	    File descriptor = Paths.get(TestOverall.class.getResource("testdescriptor.xml").toURI()).toFile();
+		File descriptorFile = Paths.get(TestOverall.class.getResource("testdescriptor.json").toURI()).toFile();
+		FileInputStream descriptor = new FileInputStream(descriptorFile);
 	    InputStream dataStream = TestReader.class
 				.getResourceAsStream("test_data_with_spec_symbols.xml");
 	    File template = Paths.get(TestOverall.class.getResource("template.xls").toURI()).toFile();

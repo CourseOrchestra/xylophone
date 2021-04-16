@@ -4,10 +4,6 @@
 
 Excel reports generating library
 
-* [Documentation](https://courseorchestra.github.io/xylophone/)
+* [Documentation](https://atp-mipt.github.io/xylophone2)
 
-* [Overview & Tutorial (DZone.com)](https://dzone.com/articles/producing-spreadsheet-reports-using-xylophone)
-
-* [Overview & Tutorial (in Russian, Habr.com)](https://habr.com/post/422059/)
-
-
+This is a fork of original [Xylophone](https://github.com/CourseOrchestra/xylophone) tool
