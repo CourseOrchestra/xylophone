@@ -1,19 +1,59 @@
 package ru.curs.xylophone;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.poifs.filesystem.NPOIFSFileSystem;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import org.approvaltests.Approvals;
+import org.approvaltests.approvers.FileApprover;
+import org.approvaltests.core.Options;
+import org.approvaltests.writers.ApprovalBinaryFileWriter;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import java.io.*;
-import java.nio.file.Paths;
+import org.lambda.functions.Function2;
 
-import static org.junit.Assert.assertTrue;
+import java.io.*;
+
+import static bad.robot.excel.matchers.Matchers.sameWorkbook;
+
 
 public class TestOverall {
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+	/**
+	 * Функция, сравнивающая файлы с содержимым-таблицами.
+	 *
+	 *  Внутри вызывает matchesSafely нескольких классов в bad.robot.excel.matchers. Это
+	 * 		 WorkbookMatcher
+	 * 		   SheetsMatcher.hasSameSheetsAs
+	 * 		     SheetNumberMatcher.hasSameNumberOfSheetsAs
+	 * 		     SheetNameMatcher.containsSameNamedSheetsAs
+	 * 		   SheetsMatcher
+	 * 		     RowNumberMatcher.hasSameNumberOfRowAs
+	 * 		     RowsMatcher.hasSameRowsAs
+	 * 		       RowInSheetMatcher.hasSameRow
+	 * 		         RowMissingMatcher.rowIsPresent
+	 * 		         CellNumberMatcher.hasSameNumberOfCellsAs
+	 * 		         CellsMatcher.hasSameCellsAs
+	 * 		           CellInRowMatcher.hasSameCell
+	 * 		             bad.robot.excel.matchers.CellType.adaptPoi -> bad.robot.excel.cell.Cell
+	 * 		             Cell: StringCell->StyledCell
+	 * 		             StyledCell.equals = org.apache.commons.lang3.builder.EqualsBuilder.reflectionEquals
+	 *
+	 */
+	public Function2<File, File, Boolean> compareSpreadsheetFiles = (actualFile, expectedFile) -> {
+		try {
+			Workbook actual = new XSSFWorkbook(actualFile);
+			Workbook expected = new XSSFWorkbook(expectedFile);
+			return sameWorkbook(expected).matches(actual);
+		} catch (InvalidFormatException | IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+	};
 
 	@Test
 	public void test1() throws XylophoneError {
@@ -22,21 +62,25 @@ public class TestOverall {
 		InputStream dataStream = TestReader.class
 				.getResourceAsStream("testdata.xml");
 		InputStream templateStream = TestReader.class
-				.getResourceAsStream("template.xls");
+				.getResourceAsStream("template.xlsx");
 
-		XML2SpreadseetBLOB b = new XML2SpreadseetBLOB();
-		OutputStream fos = b.getOutStream();
+		// write results to binary buffer
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		XML2Spreadsheet.process(dataStream, descrStream, templateStream,
-				OutputType.XLS, false, false, fos);
+				OutputType.XLSX, false, false, bos);
+		byte[] writtenData = bos.toByteArray();
 
-		assertTrue(b.size() > 6000);
-		/*
-		 * byte[] buffer = new byte[1024]; FileOutputStream out = new
-		 * FileOutputStream(new File( "c:/temp/!!!test1.xls")); try {
-		 * InputStream in = b.getInStream(); int len = in.read(buffer); while
-		 * (len != -1) { out.write(buffer, 0, len); len = in.read(buffer); } }
-		 * finally { out.close(); }
-		 */
+		// verify it
+		Options options = new Options();
+		Approvals.verify(
+				new FileApprover(
+					new ApprovalBinaryFileWriter(new ByteArrayInputStream(writtenData),
+							"xlsx"),
+					options.forFile().getNamer(),
+					compareSpreadsheetFiles
+				),
+				options
+		);
 	}
 
 	@Test
@@ -46,39 +90,24 @@ public class TestOverall {
 		InputStream dataStream = TestReader.class
 				.getResourceAsStream("testdata.xml");
 		InputStream templateStream = TestReader.class
-				.getResourceAsStream("template.xls");
+				.getResourceAsStream("template.xlsx");
 
-		XML2SpreadseetBLOB b = new XML2SpreadseetBLOB();
-		OutputStream fos = b.getOutStream();
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		XML2Spreadsheet.process(dataStream, descrStream, templateStream,
-				OutputType.XLS, true, false, fos);
-		assertTrue(b.size() > 6000);
-		/*
-		 * byte[] buffer = new byte[1024]; FileOutputStream out = new
-		 * FileOutputStream(new File( "c:/temp/!!!test2.xls")); try {
-		 * InputStream in = b.getInStream(); int len = in.read(buffer); while
-		 * (len != -1) { out.write(buffer, 0, len); len = in.read(buffer); } }
-		 * finally { out.close(); }
-		 */
+				OutputType.XLSX, true, false, bos);
+		byte[] writtenData = bos.toByteArray();
+
+		// verify it
+		Options options = new Options();
+		Approvals.verify(
+				new FileApprover(
+						new ApprovalBinaryFileWriter(new ByteArrayInputStream(writtenData),
+								"xlsx"),
+						options.forFile().getNamer(),
+						compareSpreadsheetFiles
+				),
+				options
+		);
 	}
 
-	@Test
-	public void checkGenerateResultXlsFileWithSpecialSymbolsInDataXmlShouldSuccess() throws Exception {
-		File descriptorFile = Paths.get(TestOverall.class.getResource("testdescriptor.json").toURI()).toFile();
-		FileInputStream descriptor = new FileInputStream(descriptorFile);
-	    InputStream dataStream = TestReader.class
-				.getResourceAsStream("test_data_with_spec_symbols.xml");
-	    File template = Paths.get(TestOverall.class.getResource("template.xls").toURI()).toFile();
-
-        File createdTempOutputFile = temporaryFolder.newFile("temp.xls");
-
-        try (OutputStream outputStream = new FileOutputStream(createdTempOutputFile)) {
-            XML2Spreadsheet.process(dataStream, descriptor, template,
-                    false, false, outputStream);
-        }
-
-        NPOIFSFileSystem fileSystem = new NPOIFSFileSystem(createdTempOutputFile);
-        HSSFWorkbook workbook = new HSSFWorkbook(fileSystem.getRoot(), false);
-
-    }
 }
