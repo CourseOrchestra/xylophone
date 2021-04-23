@@ -1,10 +1,8 @@
 package ru.curs.xylophone.descriptor;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,14 +37,15 @@ public final class DescriptorElement {
         return sub_elements;
     }
 
-    public static DescriptorElement jsonDeserialize(InputStream json_stream) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(json_stream, DescriptorElement.class);
-    }
-
     public void jsonSerialize(OutputStream json_stream) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.writerWithDefaultPrettyPrinter().writeValue(json_stream, this);
+    }
+
+    //deserializes and json descriptors and yaml descriptors
+    public static DescriptorElement yamlDeserialize(InputStream yaml_stream) throws IOException {
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        return mapper.readValue(yaml_stream, DescriptorElement.class);
     }
 }

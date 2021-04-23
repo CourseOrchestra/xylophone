@@ -1,5 +1,7 @@
 package ru.curs.xylophone;
 
+import java.util.stream.Stream;
+
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.approvaltests.Approvals;
 import org.junit.After;
@@ -204,7 +206,7 @@ public class TestReader {
 		dataStream = TestReader.class.getResourceAsStream("testdata.xml");
 
 		expectedException.expect(XylophoneError.class);
-		expectedException.expectMessage("Error while processing json descriptor: " +
+		expectedException.expectMessage("Error while processing descriptor: " +
 				"Unrecognized field \"element\" (class ru.curs.xylophone.descriptor.DescriptorElement), not marked as ignorable (2 known properties: \"name\", \"output-steps\"])");
 
 		DummyWriter w = new DummyWriter();
@@ -220,7 +222,7 @@ public class TestReader {
 		dataStream = TestReader.class.getResourceAsStream("testdata.xml");
 
 		expectedException.expect(XylophoneError.class);
-    expectedException.expectMessage("Error while processing json descriptor: " +
+    expectedException.expectMessage("Error while processing descriptor: " +
                 "Cannot deserialize instance of `ru.curs.xylophone.descriptor.DescriptorIteration` out of START_ARRAY token");
 
 		DummyWriter w = new DummyWriter();
@@ -236,7 +238,7 @@ public class TestReader {
 		dataStream = TestReader.class.getResourceAsStream("testdata.xml");
 
   	expectedException.expect(XylophoneError.class);
-    expectedException.expectMessage("Error while processing json descriptor: " +
+    expectedException.expectMessage("Error while processing descriptor: " +
                 "Cannot deserialize instance of `ru.curs.xylophone.descriptor.DescriptorIteration` out of START_ARRAY token");
 
 		DummyWriter w = new DummyWriter();

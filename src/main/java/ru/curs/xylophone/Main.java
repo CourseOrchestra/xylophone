@@ -35,6 +35,7 @@
 */
 package ru.curs.xylophone;
 
+import org.apache.commons.io.FilenameUtils;
 import ru.curs.xylophone.descriptor.DescriptorElement;
 
 import java.io.File;
@@ -55,25 +56,22 @@ public class Main {
     private static final String CONVERT_DESCRIPTOR = "-dconv"; // converts XML descriptor into JSON one
 
     private enum State {
-        READTOKEN, READDATA, READTEMPLATE, READDESCR, READOUT, WRITEJSONDESCR,
+        READTOKEN, READDATA, READTEMPLATE, READDESCR, READOUT, WRITEDESCR,
     }
 
     /**
      * Главный метод класса.
      *
-     * @param args
-     *            аргументы
-     * @throws XylophoneError
-     *             в случае, если произошла ошибка конвертации
-     * @throws FileNotFoundException
-     *             в случае, если файл не найден
+     * @param args аргументы
+     * @throws XylophoneError        в случае, если произошла ошибка конвертации
+     * @throws FileNotFoundException в случае, если файл не найден
      */
     public static void main(String[] args) throws FileNotFoundException,
             XylophoneError {
 
         FileInputStream iff = null;
-        FileInputStream descr = null;       // json (or xml for conversion only) descriptor
-        FileOutputStream xmlDescr = null;  // for xml->json converted descriptor
+        String descrFileName = null;     // for descriptor converter
+        String outDescrFileName = null;     // for descriptor converter
         File template = null;
         FileOutputStream output = null;
         boolean useSAX = false;
@@ -104,7 +102,7 @@ public class Main {
                     else if (COPYTEMPLATE.equalsIgnoreCase(s))
                         copyTemplate = true;
                     else if (CONVERT_DESCRIPTOR.equalsIgnoreCase(s))
-                        state = State.WRITEJSONDESCR;
+                        state = State.WRITEDESCR;
                     else {
                         showHelp();
                         return;
@@ -119,27 +117,27 @@ public class Main {
                     state = State.READTOKEN;
                     break;
                 case READDESCR:
-                    descr = new FileInputStream(s);
+                    descrFileName = s;
                     state = State.READTOKEN;
                     break;
                 case READOUT:
                     output = new FileOutputStream(s);
                     state = State.READTOKEN;
                     break;
-                case WRITEJSONDESCR:
-                    xmlDescr = new FileOutputStream(s);
+                case WRITEDESCR:
                     convDescriptor = true;
+                    outDescrFileName = s;
                     state = State.READTOKEN;
                     break;
                 default:
                     break;
             }
 
-        if (convDescriptor && descr != null && xmlDescr != null) {
-            convertDescriptor(descr, xmlDescr);
+        if (convDescriptor && descrFileName != null && outDescrFileName != null) {
+            convertDescriptor(descrFileName, outDescrFileName);
             return;
-        } else if (iff != null && descr != null && template != null && output != null)
-            XML2Spreadsheet.process(iff, descr, template, useSAX, copyTemplate, output);
+        } else if (iff != null && descrFileName != null && template != null && output != null)
+            XML2Spreadsheet.process(iff, new FileInputStream(descrFileName), template, useSAX, copyTemplate, output);
         else {
             showHelp();
             return;
@@ -149,27 +147,45 @@ public class Main {
     }
 
 
-    private static void convertDescriptor(FileInputStream xmlDesc, FileOutputStream jsonDesc) throws XylophoneError {
-
+    private static void convertDescriptor(String inName, String outName) throws XylophoneError {
+        String inExt = FilenameUtils.getExtension(inName).toLowerCase();
+        String outExt = FilenameUtils.getExtension(outName).toLowerCase();
+        DescriptorElement root;
         try {
-            DescriptorElement root = XMLDescriptorParser.readXMLDescriptor(xmlDesc);
-            root.jsonSerialize(jsonDesc);
+            FileInputStream inFileStream = new FileInputStream(inName);
+            if (inExt.equals("xml")) {
+                root = XMLDescriptorParser.readXMLDescriptor(inFileStream);
+            } else
+                throw new XylophoneError("Invalid file name extension for " +
+                        "input descriptor file: \"" + inName + "\"");
+
+            FileOutputStream outFileStream = new FileOutputStream(outName);
+            if (outExt.equals("json")) {
+                root.jsonSerialize(outFileStream);
+            } else
+                throw new XylophoneError("Invalid file name extension for " +
+                        "output descriptor file: \"" + inName + "\"");
+
+            FileOutputStream outDescriptor = new FileOutputStream(outName);
+            root.jsonSerialize(outDescriptor);
         } catch (Exception e) {
             throw new XylophoneError("Error while converting XML to JSON descriptor: " + e.getMessage());
         }
-        System.out.println("XML descriptor was successfully converted to JSON format.");
+        System.out.println(inExt.toUpperCase() + " descriptor was successfully converted to " +
+                outExt.toUpperCase() + " format.");
     }
 
     private static void showHelp() {
-        System.out
-                .println("Xylophone should be called with the following parameters (any order):");
-        System.out.println(DATA + " XML data file");
-        System.out.println(TEMPLATE + " XLS/XLSX template file");
-        System.out.println(DESCR + " descriptor file");
-        System.out.println("[" + SAX
+        System.out.println();
+        System.out.println("  Xylophone should be called with the following parameters (any order):");
+        System.out.println("    " + DATA + " XML data file");
+        System.out.println("    " + TEMPLATE + " XLS/XLSX template file");
+        System.out.println("    " + DESCR + " descriptor file");
+        System.out.println("    [" + SAX
                 + "] use SAX engine (instead of DOM) to parse data file");
-        System.out.println("[" + COPYTEMPLATE
+        System.out.println("    [" + COPYTEMPLATE
                 + "] copy the template file to output before processing");
-        System.out.println("[" + CONVERT_DESCRIPTOR + " xml_descriptor_file] converts XML descriptor into JSON one");
+        System.out.println("    [" + CONVERT_DESCRIPTOR + " in_descriptor_file] converts descriptor from ");
+        System.out.println("      XML type into JSON type");
     }
 }

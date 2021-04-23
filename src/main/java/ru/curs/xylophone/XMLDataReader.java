@@ -84,10 +84,10 @@ abstract class XMLDataReader {
         // Сначала парсится дескриптор и строится его объектное представление.
         DescriptorElement root;
         try {
-            root = DescriptorElement.jsonDeserialize(descriptorStream);
+            root = DescriptorElement.yamlDeserialize(descriptorStream);
         } catch (Exception e) {
             throw new XylophoneError(
-                    "Error while processing json descriptor: " + e.getMessage());
+                    "Error while processing descriptor: " + e.getMessage());
         }
         // Затем инстанцируется конкретная реализация (DOM или SAX) ридера
         if (useSAX)

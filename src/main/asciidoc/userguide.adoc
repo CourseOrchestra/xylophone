@@ -37,7 +37,7 @@ The system’s input accepts:
 * XML file with the source data.
 * .XLS or .XSLX template which defines the layout and format of the
 output document.
-* XML descriptor designating the input data traversal.
+* YAML descriptor designating the input data traversal.
 
 The output of the system is a file featuring the file extension and
 format corresponding to the input template (.XLS in case the template was .XLS or
@@ -77,14 +77,14 @@ Execute the following command:
 [source,bash]
 ----
 xylophone -data datafile.xml -template template.xls[x] \
-  -descr descriptor.xml -out result.xls [-sax] [-copytemplate]
+  -descr descriptor.yaml -out result.xls [-sax] [-copytemplate]
 ----
 
 where
 
 * datafile.xml — a file with the source XML data
 * template.xls[x] — a template with XLS or XLSX format
-* descriptor.xml — configuration file (previously mentioned as
+* descriptor.yaml — configuration file (previously mentioned as
 “descriptor”)
 * result.xls — output file name. Its file extension determines the
 output format, XLS or XLSX
@@ -102,12 +102,12 @@ called `process`: `XML2Spredsheet.process(...)`. There are several
 overloaded versions of this method with the following parameters.
 
 * File/InputStream *xmlData* — source data.
-* File/InputStream *xmlDescriptor* — descriptor data, describing the
+* File/InputStream *yamlDescriptor* — descriptor data, describing the
 order of data iteration.
 * File/InputStream *template* — the report template.
 * ru.curs.flute.xml2spreadsheet.OutputType *outputType* — report
 template type (OpenOffice, XLS, XLSX). _This argument is omitted if the
-arguments xmlData, xmlDescriptor, template are of type File. In such
+arguments xmlData, yamlDescriptor, template are of type File. In such
 case, the value of the argument is deduced by the template’s file
 extension._
 * boolean *useSAX* — parsing mode, DOM if false, SAX if true, the
@@ -120,7 +120,7 @@ output. For instance, existing diagrams, graphics, and other things.
 will be written into.
 
 Additionally there is the *XML2Spreadsheet.toPOIWorkbook(xmlData,
-xmlDescriptor, template, useSAX, copyTemplate)* method, which returns an
+yamlDescriptor, template, useSAX, copyTemplate)* method, which returns an
 instance of org.apache.poi.ss.usermodel.Workbook, serving an
 object-based report representation. This method will be useful in cases
 where a report is to go through additional post-processing step prior to
@@ -139,7 +139,7 @@ new File(baseDir, 'testdata.xml').withInputStream {
         new File(baseDir, 'report.xlsx').withOutputStream {
             output ->
                 XML2Spreadsheet.process(input,
-                        new File(baseDir, 'descriptor.xml'),
+                        new File(baseDir, 'descriptor.yaml'),
                         new File(baseDir, 'template.xlsx'),
                         false, output)
         }
@@ -168,7 +168,7 @@ modes:
 
 The mode transition graph:
 
-[plantuml, diagram-state, png]     
+[plantuml, diagram-state, png]
 ....
 [*] --> element : process root element
 element --> iteration : process child elements
@@ -306,63 +306,53 @@ order, then in order to process `<a>` and `<b>` tags in the same
 sequence as they go in the data file, the configuration file should look
 like:
 
-[source,xml]
-----
-<element name="root">
-    <iteration>
-        <element name="a">
-        </element>
-        <element name="b">
-        </element>
-    </iteration>
-</element>
-----
+[source,yaml]
+---
+name: root
+output-steps:
+- iteration:
+    element:
+    - name: a
+    - name: b
 
 or
 
-[source,xml]
-----
-<element name="root">
-    <iteration>
-        <element name="*">
-        </element>
-    </iteration>
-</element>
-----
-
+[source,yaml]
+---
+name: root
+output-steps:
+- iteration:
+    element:
+    - name: "*"
 and in order to process all the `<a>` tags first, and then all the `<b>`
 tags
 
-[source,xml]
-----
-<element name="root">
-    <iteration>
-        <element name="a">
-        </element>
-    </iteration>
-    <iteration>
-        <element name="b">
-        </element>
-    </iteration>
-</element>
-----
+[source,yaml]
+---
+name: root
+output-steps:
+- iteration:
+    element:
+    - name: a
+- iteration:
+    element:
+    - name: b
 
 In order to process the zero and then the first tag, regardless of the
 names of these tags, the configuration file should look like this:
 
-[source,xml]
-----
-<element name="root">
-    <iteration index="0">
-        <element name="*">
-        </element>
-    </iteration>
-    <iteration index="1">
-        <element name="*">
-        </element>
-    </iteration>
-</element>
-----
+[source,yaml]
+---
+name: root
+output-steps:
+- iteration:
+    index: 0
+    element:
+    - name: "*"
+- iteration:
+    index: 1
+    element:
+    - name: "*"
 
 [[output-mode]]
 ==== Output Mode
@@ -498,64 +488,56 @@ improvements easier.
 
 The descriptor file managing the XML traverse might look like this:
 
-[source,xml]
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<element name="report">
-    <!-- Output of the sole title sheet with hierarchy -->
-    <iteration index="0">
-        <element name="titlepage">
-            <!-- Static name of sheet -->
-            <output worksheet="Title" range="A3:B4"/>
-            <iteration>
-                <element name="line">
-                    <output range="A5:B5"/>
-                </element>
-                <element name="group">
-                    <output range="A6:B6"/>
-                    <iteration>
-                        <element name="line">
-                            <output range="A7:B7"/>
-                        </element>
-                    </iteration>
-                </element>
-            </iteration>
-        </element>
-    </iteration>
-    <!-- Output of all other sheets with summary tables -->
-    <iteration>
-        <element name="sheet">
-            <!-- A dynamical name of sheet -->
-            <output worksheet="~{@name}"/>
-            <!-- Columns’ titles from left to right after that -->
-            <iteration mode="horizontal">
-                <element name="(before)">
-                    <!-- Output of an empty cell to the top left corner of a summary table -->
-                    <output sourcesheet="src" range="A11"/>
-                </element>
-                <element name="column">
-                    <output sourcesheet="src" range="B11"/>
-                </element>
-            </iteration>
-            <!-- Output of lines: iteration with default output mode (from top to bottom) -->
-            <iteration>
-                <element name="row">
-                    <!-- Line output, left to right -->
-                    <iteration mode="horizontal">
-                        <!-- Line’s title -->
-                        <element name="(before)">
-                            <output range="A12"/>
-                        </element>
-                        <element name="cell">
-                            <output range="B12"/>
-                        </element>
-                    </iteration>
-                </element>
-            </iteration>
-        </element>
-    </iteration>
-</element>
-----
+[source,yaml]
+---
+output-steps:
+- iteration:
+    element:
+    - output-steps:
+      - output:
+          worksheet: Title
+          range: A3:B4
+      - iteration:
+          element:
+          - output-steps:
+            - output:
+                range: A5:B5
+          - output-steps:
+            - output:
+                range: A6:B6
+            - iteration:
+                element:
+                - output-steps:
+                  - output:
+                      range: A7:B7
+- iteration:
+    element:
+    - output-steps:
+      - output:
+          worksheet: "~{@name}"
+      - iteration:
+          mode: horizontal
+          element:
+          - output-steps:
+            - output:
+                range: A11
+                sourcesheet: src
+          - output-steps:
+            - output:
+                range: B11
+                sourcesheet: src
+      - iteration:
+          element:
+          - output-steps:
+            - iteration:
+                mode: horizontal
+                element:
+                - output-steps:
+                  - output:
+                      range: A12
+                - output-steps:
+                  - output:
+                      range: B12
 
 [[the-sax-mode-for-huge-reports]]
 === The SAX Mode For Huge Reports
