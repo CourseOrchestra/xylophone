@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<report>
+	<header period="2016-2018"/>
+	<table>
+		<column year="2016"/>
+		<column year="2017"/>
+		<column year="2018"/>
+		<item name="Item 1">
+			<year amount="365"/>
+			<year amount="286"/>
+			<year amount="207"/>
+		</item>
+		<item name="Item 2">
+			<year amount="95"/>
+			<year amount="606"/>
+			<year amount="840"/>
+		</item>
+		<item name="Item 3">
+			<year amount="710"/>
+			<year amount="437"/>
+			<year amount="100"/>
+		</item>
+		<totals>
+			<year amount="1170"/>
+			<year amount="1329"/>
+			<year amount="1147"/>
+		</totals>
+	</table>
+</report>

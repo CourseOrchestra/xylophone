@@ -1,0 +1,85 @@
+{
+  "name" : "report",
+  "output-steps" : [ {
+    "output" : {
+      "worksheet" : "Report",
+      "sourcesheet" : "Sheet1"
+    }
+  }, {
+    "iteration" : {
+      "mode" : "horizontal",
+      "element" : [ {
+        "name" : "(before)",
+        "output-steps" : [ {
+          "output" : {
+            "range" : "A1"
+          }
+        } ]
+      }, {
+        "name" : "column",
+        "output-steps" : [ {
+          "output" : {
+            "range" : "B1"
+          }
+        } ]
+      } ],
+      "horizontal" : true
+    }
+  }, {
+    "iteration" : {
+      "element" : [ {
+        "name" : "item",
+        "output-steps" : [ {
+          "iteration" : {
+            "mode" : "horizontal",
+            "element" : [ {
+              "name" : "(before)",
+              "output-steps" : [ {
+                "output" : {
+                  "range" : "A2"
+                }
+              } ]
+            }, {
+              "name" : "year",
+              "output-steps" : [ {
+                "output" : {
+                  "range" : "B2"
+                }
+              } ]
+            } ],
+            "horizontal" : true
+          }
+        } ]
+      } ],
+      "horizontal" : false
+    }
+  }, {
+    "iteration" : {
+      "element" : [ {
+        "name" : "totals",
+        "output-steps" : [ {
+          "iteration" : {
+            "mode" : "horizontal",
+            "element" : [ {
+              "name" : "(before)",
+              "output-steps" : [ {
+                "output" : {
+                  "range" : "A3"
+                }
+              } ]
+            }, {
+              "name" : "year",
+              "output-steps" : [ {
+                "output" : {
+                  "range" : "B3"
+                }
+              } ]
+            } ],
+            "horizontal" : true
+          }
+        } ]
+      } ],
+      "horizontal" : false
+    }
+  } ]
+}

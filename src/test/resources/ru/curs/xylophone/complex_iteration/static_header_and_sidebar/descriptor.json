@@ -1,0 +1,127 @@
+{
+  "name" : "report",
+  "output-steps" : [ {
+    "output" : {
+      "worksheet" : "Отчет",
+      "sourcesheet" : "Лист1"
+    }
+  }, {
+    "iteration" : {
+      "mode" : "horizontal",
+      "element" : [ {
+        "name" : "header",
+        "output-steps" : [ {
+          "output" : {
+            "range" : "A1:D5"
+          }
+        } ]
+      } ],
+      "horizontal" : true
+    }
+  }, {
+    "iteration" : {
+      "mode": "horizontal",
+      "element" : [ {
+        "name" : "(before)",
+        "output-steps" : [ {
+          "iteration" : {
+            "element" : [ {
+              "name" : "(before)",
+              "output-steps" : [ {
+                "output" : {
+                  "range" : "A6:A7"
+                }
+              } ]
+            } ],
+            "horizontal" : false
+          }
+        }, {
+          "iteration" : {
+            "element" : [ {
+              "name" : "table",
+              "output-steps" : [ {
+                "iteration" : {
+                  "mode" : "horizontal",
+                  "element" : [ {
+                    "name" : "(before)",
+                    "output-steps" : [ {
+                      "output" : {
+                        "range" : "B6"
+                      }
+                    } ]
+                  }, {
+                    "name" : "column",
+                    "output-steps" : [ {
+                      "output" : {
+                        "range" : "C6"
+                      }
+                    } ]
+                  } ],
+                  "horizontal" : true
+                }
+              }, {
+                "iteration" : {
+                  "element" : [ {
+                    "name" : "item",
+                    "output-steps" : [ {
+                      "iteration" : {
+                        "mode" : "horizontal",
+                        "element" : [ {
+                          "name" : "(before)",
+                          "output-steps" : [ {
+                            "output" : {
+                              "range" : "B7"
+                            }
+                          } ]
+                        }, {
+                          "name" : "year",
+                          "output-steps" : [ {
+                            "output" : {
+                              "range" : "C7"
+                            }
+                          } ]
+                        } ],
+                        "horizontal" : true
+                      }
+                    } ]
+                  } ],
+                  "horizontal" : false
+                }
+              }, {
+                "iteration" : {
+                  "element" : [ {
+                    "name" : "totals",
+                    "output-steps" : [ {
+                      "iteration" : {
+                        "mode" : "horizontal",
+                        "element" : [ {
+                          "name" : "(before)",
+                          "output-steps" : [ {
+                            "output" : {
+                              "range" : "B8"
+                            }
+                          } ]
+                        }, {
+                          "name" : "year",
+                          "output-steps" : [ {
+                            "output" : {
+                              "range" : "C8"
+                            }
+                          } ]
+                        } ],
+                        "horizontal" : true
+                      }
+                    } ]
+                  } ],
+                  "horizontal" : false
+                }
+              } ]
+            } ],
+            "horizontal" : false
+          }
+        } ]
+      } ],
+      "horizontal" : true
+    }
+  } ]
+}

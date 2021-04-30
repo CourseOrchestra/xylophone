@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<element name="report">
+    <!-- Создаём лист -->
+    <output worksheet="Отчет" sourcesheet="Лист1"/>
+    <!-- Заголовок листа -->
+    <iteration mode="horizontal">
+        <element name="header">
+            <output range="A1:D5"/>
+        </element>
+    </iteration>
+
+    <iteration mode="horizontal">
+        <element name="(before)">
+            <!-- Статическая информация слева от таблицы -->
+            <iteration>
+                <element name="(before)">
+                    <output range="A6:A7"/>
+                </element>
+            </iteration>
+            <!-- Таблица -->
+            <iteration>
+                <element name="table">
+                    <!-- Заголовки столбцов -->
+                    <iteration mode="horizontal">
+                        <element name="(before)">
+                            <!-- Выводим пустую ячейку в ЛВУ сводной таблицы -->
+                            <output range="B6"/>
+                        </element>
+                        <element name="column">
+                            <output range="C6"/>
+                        </element>
+                    </iteration>
+                    <!-- Выводим строки: итерация с режимом вывода умолчанию, сверху вниз -->
+                    <iteration mode="vertical">
+                        <element name="item">
+                            <!-- И по строке - слева направо -->
+                            <iteration mode="horizontal">
+                                <element name="(before)">
+                                    <!-- Заголовок строки -->
+                                    <output range="B7"/>
+                                </element>
+                                <!-- И за ним слева направо строку с данными -->
+                                <element name="year">
+                                    <output range="C7"/>
+                                </element>
+                            </iteration>
+                        </element>
+                    </iteration>
+                    <iteration>
+                        <element name="totals">
+                            <iteration mode="horizontal">
+                                <element name="(before)">
+                                    <!-- Заголовок строки -->
+                                    <output range="B8"/>
+                                </element>
+                                <!-- И за ним слева направо строку с данными -->
+                                <element name="year">
+                                    <output range="C8"/>
+                                </element>
+                            </iteration>
+                        </element>
+                    </iteration>
+                </element>
+            </iteration>
+        </element>
+    </iteration>
+</element>
