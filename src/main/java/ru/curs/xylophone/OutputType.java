@@ -66,7 +66,7 @@ public enum OutputType {
         return extension;
     }
 
-    public static OutputType fromExtension(String extension) throws XML2SpreadSheetError {
+    public static OutputType fromExtension(String extension) throws XylophoneError {
         if ("ods".equalsIgnoreCase(extension)) {
             return OutputType.ODS;
         } else if ("xls".equalsIgnoreCase(extension)) {
@@ -74,7 +74,7 @@ public enum OutputType {
         } else if ("xlsx".equalsIgnoreCase(extension)) {
             return OutputType.XLSX;
         } else {
-            throw new XML2SpreadSheetError(
+            throw new XylophoneError(
                     "Cannot define output format, template has non-standard extention.");
         }
     }

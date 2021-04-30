@@ -48,14 +48,14 @@ public class FullApprovalsTester {
 
     public void approvalTest(String descriptorPath, String dataPath, String templatePath,
                              OutputType outputType, boolean useSax)
-            throws XML2SpreadSheetError {
+            throws XylophoneError {
         InputStream descrStream = TestReader.class.getResourceAsStream(descriptorPath);
         InputStream dataStream = TestReader.class.getResourceAsStream(dataPath);
         InputStream templateStream = TestReader.class.getResourceAsStream(templatePath);
 
         // write results to binary buffer
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        XML2Spreadsheet.process(dataStream, descrStream, templateStream, outputType, useSax, bos);
+        XML2Spreadsheet.process(dataStream, descrStream, templateStream, outputType, useSax, false, bos);
         byte[] writtenData = bos.toByteArray();
 
         // verify it
