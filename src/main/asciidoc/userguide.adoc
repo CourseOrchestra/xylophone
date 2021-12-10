@@ -2,6 +2,7 @@
 = Xylophone
 :toc: left
 :icons: font
+:!imagesdir:
 
 [[general-information]]
 == General Information
@@ -30,7 +31,7 @@ and printing output.
 
 The general system’s data flow is showcased on the diagram:
 
-image::Xml2spreadsheet.png[]
+image::images/Xml2spreadsheet.png[]
 
 The system’s input accepts:
 
@@ -270,12 +271,6 @@ template fragments composition in the output file. Possible values are:
 are arranged from top to bottom in the resulting document.
 ** *horizontal* – template fragments are arranged from left to right in
 the resulting document.
-* The `<iteration>` tag can have a *merge* attribute. If the integer
-value of this attribute is greater than zero and equals N, then the N
-first columns (or N first rows, depending on the vertical or horizontal
-mode) of the iteration-formed block will be merged into one cell. It is
-useful for building reports in which the merged cell must cover an
-alternating number of rows or columns.
 * The `<iteration>` tag can have the *regionName* attribute. If this
 attribute is set, then the iteration-formed block at the end of the
 iteration will be converted to a named range with the specified name.
@@ -402,20 +397,20 @@ instant printing (without manual adjustment), the pagination should be
 performed correctly at once.
 
 [[representative-example]]
-=== Representative Example
+=== Example
 
 Let’s say we need a report consisting of a title sheet and
 several section sheets (names of those are defined by input data). Suppose
 the title sheet has a hierarchical list of elements that belong to
 different levels and require different render.
 
-image::pic1.png[]
+image::images/pic1.png[]
 
 There may be any amount of sections, this is specified by the input
 data. Those sections contain tables with different numbers of lines and
 columns:
 
-image::pic2.png[]
+image::images/pic2.png[]
 
 Data presented in the XML file has the following structure:
 
@@ -460,7 +455,7 @@ Data presented in the XML file has the following structure:
 In this case the template containing layout and substitutionfields for
 the title sheet and sections might look like this:
 
-image::pic3.png[]
+image::images/pic3.png[]
 
 Substitution fields have the following format:
 
@@ -471,7 +466,7 @@ Substitution fields have the following format:
 (tilde, opening curly brace, Xpath expression relative to the current XML
 context, closing brace)
 
-WARNING: The key to creating reports via Xylophone successfully is writing
+NOTE: The key to creating reports via Xylophone successfully is writing
 correct Xpath expressions. Those expressions are extracting data from
 current XML file’s context; if you’re not familiar with Xpath you can
 learn more about it here
@@ -490,6 +485,26 @@ distinction from . (dot)).
 of a current iteration during extraction. Helps with simple sequential
 numeration of steps in the report (you can use it instead of placing
 numeration to file’s tags).
+
+==== Helpers
+
+You may use helpers to further specify cell behaviour. Helpers should be separted with vertical bar from the cell contents.
+
+For example `Some text ~{foo}|mergeup:"ifequals";` will merge cell with the upper cell if its content is equal to that of the upper cell.
+
+Currently supported helpers:
+
+* mergeup, mergeleft
+** ifequals
+** yes
+** no
+* backgroundcolor
+* color
+* fontfamily
+* fontsize
+* margin -- specifies left margin of the cell. The simplest way to introduce hierarcy to the report column.
+
+==== Illustrative information
 
 Please note that the template may contain some illustrative information
 that won’t end up in the resulting document. It’s a good practice to
