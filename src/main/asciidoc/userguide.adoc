@@ -488,7 +488,7 @@ numeration to file’s tags).
 
 ==== Helpers
 
-You may use helpers to further specify cell behaviour. Helpers should be separted with vertical bar from the cell contents.
+You may use helpers to further specify cell behaviour. Helpers should be separated with vertical bar from the cell contents.
 
 For example `Some text ~{foo}|mergeup:"ifequals";` will merge cell with the upper cell if its content is equal to that of the upper cell.
 
