@@ -25,7 +25,7 @@ public class MergeRegionContainerUT {
      */
     @Test
     public void testMergeLeftOneShouldBeSuccess() {
-        MergeRegionContainer container = MergeRegionContainer.getContainer();
+        MergeRegionContainer container = new MergeRegionContainer();
 
         container.mergeLeft(new CellAddress(2, 1));
 
@@ -50,7 +50,7 @@ public class MergeRegionContainerUT {
      */
     @Test
     public void testMergeUpOneShouldBeSuccess() {
-        MergeRegionContainer container = MergeRegionContainer.getContainer();
+        MergeRegionContainer container = new MergeRegionContainer();
 
         container.mergeUp(new CellAddress(1, 2));
 
@@ -78,7 +78,7 @@ public class MergeRegionContainerUT {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("Cannot merge cell with address A3. It is out of range for left merge");
 
-        MergeRegionContainer container = MergeRegionContainer.getContainer();
+        MergeRegionContainer container = new MergeRegionContainer();
 
         container.mergeLeft(new CellAddress(1, 3));
     }
@@ -93,7 +93,7 @@ public class MergeRegionContainerUT {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("Cannot merge cell with address D1. It is out of range for up merge");
 
-        MergeRegionContainer container = MergeRegionContainer.getContainer();
+        MergeRegionContainer container = new MergeRegionContainer();
 
         container.mergeUp(new CellAddress(4, 1));
     }
@@ -105,7 +105,7 @@ public class MergeRegionContainerUT {
      */
     @Test
     public void testMergeLeftSeveralCellsShouldBeSuccess() {
-        MergeRegionContainer container = MergeRegionContainer.getContainer();
+        MergeRegionContainer container = new MergeRegionContainer();
 
         container.mergeLeft(new CellAddress(2, 1));
         container.mergeLeft(new CellAddress(3, 1));
@@ -131,7 +131,7 @@ public class MergeRegionContainerUT {
      */
     @Test
     public void testMergeUpSeveralCellsShouldBeSuccess() {
-        MergeRegionContainer container = MergeRegionContainer.getContainer();
+        MergeRegionContainer container = new MergeRegionContainer();
 
         container.mergeUp(new CellAddress(3, 2));
         container.mergeUp(new CellAddress(3, 3));
@@ -160,7 +160,7 @@ public class MergeRegionContainerUT {
      */
     @Test
     public void testSeveralMergeUpAndSeveralMergeLeftShouldBeSuccess() {
-        MergeRegionContainer container = MergeRegionContainer.getContainer();
+        MergeRegionContainer container = new MergeRegionContainer();
 
         container.mergeUp(new CellAddress(3, 2));
         container.mergeUp(new CellAddress(3, 3));
@@ -198,7 +198,7 @@ public class MergeRegionContainerUT {
      */
     @Test
     public void testSeveralMergeUpAndSeveralMergeWithNoRectangleFormShouldFail() {
-        MergeRegionContainer container = MergeRegionContainer.getContainer();
+        MergeRegionContainer container = new MergeRegionContainer();
 
         container.mergeUp(new CellAddress(3, 2));
         container.mergeUp(new CellAddress(3, 3));
@@ -221,7 +221,7 @@ public class MergeRegionContainerUT {
 
     @Test
     public void testAddMergionRegion() {
-        MergeRegionContainer container = MergeRegionContainer.getContainer();
+        MergeRegionContainer container = new MergeRegionContainer();
 
         CellRangeAddress rangeAddress = new CellRangeAddress(0, 4, 0, 4);
         container.addMergedRegion(rangeAddress);

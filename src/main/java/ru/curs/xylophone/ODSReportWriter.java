@@ -94,8 +94,4 @@ final class ODSReportWriter extends ReportWriter {
 
     }
 
-    @Override
-    public Sheet getSheet() {
-        throw new UnsupportedOperationException();
-    }
 }

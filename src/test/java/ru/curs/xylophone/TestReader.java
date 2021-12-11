@@ -338,9 +338,4 @@ class DummyWriter extends ReportWriter {
 
 	}
 
-	@Override
-	public Sheet getSheet() {
-		return null;
-	}
-
 }
