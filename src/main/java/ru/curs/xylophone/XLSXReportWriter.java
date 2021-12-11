@@ -35,14 +35,14 @@
 */
 package ru.curs.xylophone;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Реализация ReportWriter для вывода в формат MSOffice (XLSX).

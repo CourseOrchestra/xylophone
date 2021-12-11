@@ -35,14 +35,14 @@
 */
 package ru.curs.xylophone;
 
+import org.apache.poi.ss.usermodel.Workbook;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import org.apache.poi.ss.usermodel.Workbook;
 
 /**
  * Основной класс построителя отчётов из XML данных в формате электронных

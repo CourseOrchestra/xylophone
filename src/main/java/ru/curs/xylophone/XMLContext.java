@@ -35,17 +35,16 @@
 */
 package ru.curs.xylophone;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import org.w3c.dom.Node;
+import org.xml.sax.Attributes;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-
-import org.w3c.dom.Node;
-import org.xml.sax.Attributes;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Указывает на контекст XML файла, в котором могут быть вычислены
