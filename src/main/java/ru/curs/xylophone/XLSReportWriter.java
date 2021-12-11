@@ -35,15 +35,15 @@
 */
 package ru.curs.xylophone;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Реализация ReportWriter для вывода в формат MSOffice 97-2003 (XLS).

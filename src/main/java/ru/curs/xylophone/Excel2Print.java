@@ -36,12 +36,17 @@
 
 package ru.curs.xylophone;
 
-import java.awt.print.PrinterJob;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import org.apache.fop.apps.FOPException;
+import org.apache.fop.apps.FOUserAgent;
+import org.apache.fop.apps.Fop;
+import org.apache.fop.apps.FopFactory;
+import org.apache.fop.apps.MimeConstants;
+import org.apache.poi.hssf.converter.ExcelToFoConverter;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 import javax.print.PrintService;
 import javax.xml.parsers.DocumentBuilder;
@@ -55,18 +60,12 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamResult;
-
-import org.apache.fop.apps.FOPException;
-import org.apache.fop.apps.FOUserAgent;
-import org.apache.fop.apps.Fop;
-import org.apache.fop.apps.FopFactory;
-import org.apache.fop.apps.MimeConstants;
-import org.apache.poi.hssf.converter.ExcelToFoConverter;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
+import java.awt.print.PrinterJob;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Класс-обёртка, осуществляющий конвертацию книги Excel в форматы XSL-FO и PDF

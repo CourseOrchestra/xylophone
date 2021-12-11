@@ -13,29 +13,8 @@ import java.util.stream.Collectors;
  * After process sheet merge cells.
  */
 public final class MergeRegionContainer {
-    private static MergeRegionContainer container;
 
-    private List<MutableCellRangeAddress> mergedRegions = new ArrayList<>();
-
-    /**
-     * Private constructor.
-     * It's singleton.
-     */
-    private MergeRegionContainer() {
-
-    }
-
-    /**
-     * Singleton getInstance() method.
-     * @return instance
-     */
-    public static MergeRegionContainer getContainer() {
-        if (container == null) {
-            container = new MergeRegionContainer();
-        }
-
-        return container;
-    }
+    private final List<MutableCellRangeAddress> mergedRegions = new ArrayList<>();
 
     /**
      * Merge with up cell.
@@ -51,7 +30,7 @@ public final class MergeRegionContainer {
                 address.getRow() - 1, address.getCol() - 1, address.getCol() - 1);
         List<MutableCellRangeAddress> intersectedRegion = findIntersectedRegion(res);
 
-        addMergedRegion(res, (List<MutableCellRangeAddress>) intersectedRegion);
+        addMergedRegion(res, intersectedRegion);
     }
 
     /**

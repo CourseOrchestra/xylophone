@@ -35,14 +35,6 @@
 */
 package ru.curs.xylophone;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -57,6 +49,16 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.util.CellRangeAddress;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Класс, ответственный за формирование результирующего вывода в документ при
@@ -81,7 +83,8 @@ abstract class POIReportWriter extends ReportWriter {
     private Sheet activeResultSheet;
     private boolean needEval = false;
     private final Map<CellStyle, CellStyle> stylesMap = new HashMap<>();
-    private final MergeRegionContainer mergeRegionContainer = MergeRegionContainer.getContainer();
+
+    private final Map<Sheet, MergeRegionContainer> mergeRegionContainers = new HashMap<>();
 
     POIReportWriter(InputStream template, InputStream templateCopy)
             throws XML2SpreadSheetError {
@@ -179,8 +182,8 @@ abstract class POIReportWriter extends ReportWriter {
 
     @Override
     void newSheet(String sheetName, String sourceSheet,
-            int startRepeatingColumn, int endRepeatingColumn,
-            int startRepeatingRow, int endRepeatingRow)
+                  int startRepeatingColumn, int endRepeatingColumn,
+                  int startRepeatingRow, int endRepeatingRow)
             throws XML2SpreadSheetError {
 
         updateActiveTemplateSheet(sourceSheet);
@@ -274,7 +277,7 @@ abstract class POIReportWriter extends ReportWriter {
 
     @Override
     void putSection(XMLContext context, CellAddress growthPoint,
-            String sourceSheet, RangeAddress range) throws XML2SpreadSheetError {
+                    String sourceSheet, RangeAddress range) throws XML2SpreadSheetError {
         updateActiveTemplateSheet(sourceSheet);
         if (activeResultSheet == null) {
             sheet("Sheet1", sourceSheet, -1, -1, -1, -1);
@@ -321,64 +324,64 @@ abstract class POIReportWriter extends ReportWriter {
                 String val;
                 String buf;
                 switch (sourceCell.getCellTypeEnum()) {
-                case BOOLEAN:
-                    resultCell.setCellValue(sourceCell.getBooleanCellValue());
-                    break;
-                case NUMERIC:
-                    resultCell.setCellValue(sourceCell.getNumericCellValue());
-                    break;
-                case STRING:
-                    // ДЛЯ СТРОКОВЫХ ЯЧЕЕК ВЫЧИСЛЯЕМ ПОДСТАНОВКИ!!
-                    val = sourceCell.getStringCellValue();
-                    buf = context.calc(val);
-                    DynamicCellWithStyle cellWithStyle = DynamicCellWithStyle.defineCellStyle(sourceCell, buf);
-                    // Если ячейка содержит строковое представление числа и при
-                    // этом содержит плейсхолдер --- меняем его на число.
-                    if (!cellWithStyle.isStylesPresent()) {
-                        writeTextOrNumber(resultCell, buf,
-                                context.containsPlaceholder(val));
-                    } else {
-                        Map<String, String> properties = cellWithStyle.getProperties();
-                        for (Map.Entry<String, String> entry : properties.entrySet()) {
-                            switch (entry.getKey().toUpperCase()) {
-                                case CellPropertyType.MERGE_LEFT_VALUE:
-                                    mergeLeft(entry.getValue(), resultCell, cellWithStyle);
-                                    break;
-                                case CellPropertyType.MERGE_UP_VALUE:
-                                    mergeUp(entry.getValue(), resultCell, cellWithStyle);
-                                    break;
-                                case CellPropertyType.MERGE_UP_LEFT_VALUE:
-                                    mergeUp(entry.getValue(), resultCell, cellWithStyle);
-                                    mergeLeft(entry.getValue(), resultCell, cellWithStyle);
-                                    break;
-                                case CellPropertyType.MERGE_LEFT_UP_VALUE:
-                                    mergeLeft(entry.getValue(), resultCell, cellWithStyle);
-                                    mergeUp(entry.getValue(), resultCell, cellWithStyle);
-                                    break;
-                                default:
-                                    break;
+                    case BOOLEAN:
+                        resultCell.setCellValue(sourceCell.getBooleanCellValue());
+                        break;
+                    case NUMERIC:
+                        resultCell.setCellValue(sourceCell.getNumericCellValue());
+                        break;
+                    case STRING:
+                        // ДЛЯ СТРОКОВЫХ ЯЧЕЕК ВЫЧИСЛЯЕМ ПОДСТАНОВКИ!!
+                        val = sourceCell.getStringCellValue();
+                        buf = context.calc(val);
+                        DynamicCellWithStyle cellWithStyle = DynamicCellWithStyle.defineCellStyle(sourceCell, buf);
+                        // Если ячейка содержит строковое представление числа и при
+                        // этом содержит плейсхолдер --- меняем его на число.
+                        if (!cellWithStyle.isStylesPresent()) {
+                            writeTextOrNumber(resultCell, buf,
+                                    context.containsPlaceholder(val));
+                        } else {
+                            Map<String, String> properties = cellWithStyle.getProperties();
+                            for (Map.Entry<String, String> entry : properties.entrySet()) {
+                                switch (entry.getKey().toUpperCase()) {
+                                    case CellPropertyType.MERGE_LEFT_VALUE:
+                                        mergeLeft(entry.getValue(), resultCell, cellWithStyle);
+                                        break;
+                                    case CellPropertyType.MERGE_UP_VALUE:
+                                        mergeUp(entry.getValue(), resultCell, cellWithStyle);
+                                        break;
+                                    case CellPropertyType.MERGE_UP_LEFT_VALUE:
+                                        mergeUp(entry.getValue(), resultCell, cellWithStyle);
+                                        mergeLeft(entry.getValue(), resultCell, cellWithStyle);
+                                        break;
+                                    case CellPropertyType.MERGE_LEFT_UP_VALUE:
+                                        mergeLeft(entry.getValue(), resultCell, cellWithStyle);
+                                        mergeUp(entry.getValue(), resultCell, cellWithStyle);
+                                        break;
+                                    default:
+                                        break;
+                                }
                             }
+                            writeTextOrNumber(resultCell, cellWithStyle.getValue(),
+                                    context.containsPlaceholder(val));
                         }
-                        writeTextOrNumber(resultCell, cellWithStyle.getValue(),
-                                context.containsPlaceholder(val));
-                    }
-                    break;
-                case FORMULA:
-                    // Обрабатываем формулу
-                    val = sourceCell.getCellFormula();
-                    val = FormulaModifier
-                            .modifyFormula(
-                                    val,
-                                    resultCell.getColumnIndex()
-                                            - sourceCell.getColumnIndex(),
-                                    resultCell.getRowIndex()
-                                            - sourceCell.getRowIndex());
-                    resultCell.setCellFormula(val);
-                    needEval = true;
-                    break;
-                // Остальные типы ячеек пока игнорируем
-                default:
-                    break;
+                        break;
+                    case FORMULA:
+                        // Обрабатываем формулу
+                        val = sourceCell.getCellFormula();
+                        val = FormulaModifier
+                                .modifyFormula(
+                                        val,
+                                        resultCell.getColumnIndex()
+                                                - sourceCell.getColumnIndex(),
+                                        resultCell.getRowIndex()
+                                                - sourceCell.getRowIndex());
+                        resultCell.setCellFormula(val);
+                        needEval = true;
+                        break;
+                    // Остальные типы ячеек пока игнорируем
+                    default:
+                        break;
                 }
             }
         }
@@ -389,8 +392,7 @@ abstract class POIReportWriter extends ReportWriter {
 
     private void mergeUp(String attribute, Cell resultCell, DynamicCellWithStyle cellWithStyle) {
         if (!CellPropertyType.MERGE_UP.contains(attribute.toLowerCase())) {
-            String propertyValues = Arrays.stream(CellPropertyType.MERGE_UP.getValues())
-                    .collect(Collectors.joining(", "));
+            String propertyValues = String.join(", ", CellPropertyType.MERGE_UP.getValues());
             throw new IllegalArgumentException(
                     String.format("There are no such value: %s. Please choice one of %s",
                             attribute, propertyValues));
@@ -398,7 +400,7 @@ abstract class POIReportWriter extends ReportWriter {
 
         switch (attribute.toLowerCase()) {
             case CellPropertyType.MERGE_YES:
-                mergeRegionContainer.mergeUp(
+                mergeContainer().mergeUp(
                         new CellAddress(resultCell.getAddress().formatAsString()));
                 break;
             case CellPropertyType.MERGE_IFEQUALS:
@@ -407,7 +409,7 @@ abstract class POIReportWriter extends ReportWriter {
                         resultCell.getColumnIndex(), resultCell.getColumnIndex());
 
                 if (ifEquals(rangeAddress, cellWithStyle)) {
-                    mergeRegionContainer.mergeUp(
+                    mergeContainer().mergeUp(
                             new CellAddress(resultCell.getAddress().formatAsString()));
                 }
                 break;
@@ -419,8 +421,7 @@ abstract class POIReportWriter extends ReportWriter {
 
     private void mergeLeft(String attribute, Cell resultCell, DynamicCellWithStyle cellWithStyle) {
         if (!CellPropertyType.MERGE_LEFT.contains(attribute.toLowerCase())) {
-            String propertyValues = Arrays.stream(CellPropertyType.MERGE_LEFT.getValues())
-                    .collect(Collectors.joining(", "));
+            String propertyValues = String.join(", ", CellPropertyType.MERGE_LEFT.getValues());
             throw new RuntimeException(
                     String.format("There are no such value: %s. Please choice one of %s",
                             attribute, propertyValues));
@@ -428,7 +429,7 @@ abstract class POIReportWriter extends ReportWriter {
 
         switch (attribute.toLowerCase()) {
             case CellPropertyType.MERGE_YES:
-                mergeRegionContainer.mergeLeft(
+                mergeContainer().mergeLeft(
                         new CellAddress(resultCell.getAddress().formatAsString()));
                 break;
             case CellPropertyType.MERGE_IFEQUALS:
@@ -437,7 +438,7 @@ abstract class POIReportWriter extends ReportWriter {
                         resultCell.getColumnIndex() - 1, resultCell.getColumnIndex());
 
                 if (ifEquals(rangeAddress, cellWithStyle)) {
-                    mergeRegionContainer.mergeLeft(
+                    mergeContainer().mergeLeft(
                             new CellAddress(resultCell.getAddress().formatAsString()));
                 }
                 break;
@@ -449,9 +450,9 @@ abstract class POIReportWriter extends ReportWriter {
     private boolean ifEquals(CellRangeAddress rangeAddress, DynamicCellWithStyle cellWithStyle) {
         try {
             CellRangeAddress mergedRegion =
-                    mergeRegionContainer.findIntersectedRange(rangeAddress);
+                    mergeContainer().findIntersectedRange(rangeAddress);
 
-            Cell cell =  activeResultSheet.getRow(mergedRegion.getFirstRow())
+            Cell cell = activeResultSheet.getRow(mergedRegion.getFirstRow())
                     .getCell(mergedRegion.getFirstColumn());
             switch (cell.getCellTypeEnum()) {
                 case STRING:
@@ -459,7 +460,7 @@ abstract class POIReportWriter extends ReportWriter {
                 case BOOLEAN:
                     return cell.getBooleanCellValue() && Boolean.parseBoolean(cellWithStyle.getValue());
                 case NUMERIC:
-                    return new BigDecimal(cell.getNumericCellValue()).equals(new BigDecimal(cellWithStyle.getValue().trim()));
+                    return BigDecimal.valueOf(cell.getNumericCellValue()).equals(new BigDecimal(cellWithStyle.getValue().trim()));
                 default:
                     break;
             }
@@ -477,7 +478,7 @@ abstract class POIReportWriter extends ReportWriter {
             // может, число?
             if (numberMatcher.matches())
                 resultCell.setCellValue(Double.parseDouble(buf));
-            // может, дата?
+                // может, дата?
             else if (dateMatcher.matches()) {
                 Calendar c = Calendar.getInstance();
                 c.clear();
@@ -516,7 +517,7 @@ abstract class POIReportWriter extends ReportWriter {
             CellRangeAddress res = new CellRangeAddress(firstRow, lastRow,
                     firstCol, lastCol);
 
-            mergeRegionContainer.addMergedRegion(res);
+            mergeContainer().addMergedRegion(res);
         }
     }
 
@@ -526,7 +527,7 @@ abstract class POIReportWriter extends ReportWriter {
     void mergeUp(CellAddress a1, CellAddress a2) {
         CellRangeAddress res = new CellRangeAddress(a1.getRow() - 1,
                 a2.getRow() - 1, a1.getCol() - 1, a2.getCol() - 1);
-        mergeRegionContainer.addMergedRegion(res);
+        mergeContainer().addMergedRegion(res);
     }
 
     @Override
@@ -545,6 +546,9 @@ abstract class POIReportWriter extends ReportWriter {
 
     @Override
     public void flush() throws XML2SpreadSheetError {
+        for (Map.Entry<Sheet, MergeRegionContainer> e : mergeRegionContainers.entrySet()) {
+            e.getValue().apply(e.getKey());
+        }
         if (needEval) {
             evaluate();
         }
@@ -573,9 +577,9 @@ abstract class POIReportWriter extends ReportWriter {
         return result;
     }
 
-    @Override
-    public Sheet getSheet() {
-        return activeResultSheet;
+    private MergeRegionContainer mergeContainer() {
+        return mergeRegionContainers.computeIfAbsent(activeResultSheet,
+                s -> new MergeRegionContainer());
     }
 }
 
@@ -593,7 +597,7 @@ enum CellPropertyType {
     public static final String MERGE_IFEQUALS = "ifequals";
     public static final String MERGE_NO = "no";
 
-    private String[] values;
+    private final String[] values;
 
     CellPropertyType(String[] values) {
         this.values = values;
