@@ -454,6 +454,9 @@ abstract class POIReportWriter extends ReportWriter {
 
             Cell cell = activeResultSheet.getRow(mergedRegion.getFirstRow())
                     .getCell(mergedRegion.getFirstColumn());
+            if (cell == null) {
+                return false;
+            }
             switch (cell.getCellTypeEnum()) {
                 case STRING:
                     return cell.getStringCellValue().equalsIgnoreCase(cellWithStyle.getValue());
