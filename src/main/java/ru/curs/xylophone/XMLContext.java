@@ -73,7 +73,7 @@ abstract class XMLContext {
         StringBuffer sb = new StringBuffer();
         while (m.find()) {
             String val = getXPathValue(m.group(1));
-            m.appendReplacement(sb, val == null ? "" : val);
+            m.appendReplacement(sb, val == null ? "" : val.replaceAll("\\\\", "\\\\\\\\"));
         }
         m.appendTail(sb);
         return sb.toString();

@@ -59,7 +59,7 @@ final class SAXDataReader extends XMLDataReader {
     private final Source xmlData;
 
     SAXDataReader(InputStream xmlData, DescriptorElement xmlDescriptor,
-            ReportWriter writer) {
+                  ReportWriter writer) {
         super(writer, xmlDescriptor);
         this.xmlData = new StreamSource(xmlData);
 
@@ -67,7 +67,6 @@ final class SAXDataReader extends XMLDataReader {
 
     /**
      * Адаптирует дескриптор элемента к SAX-парсингу.
-     *
      */
     private static final class SAXElementDescriptor {
         private int elementIndex = -1;
@@ -158,7 +157,7 @@ final class SAXDataReader extends XMLDataReader {
 
             @Override
             public void startElement(String uri, String localName, String name,
-                    Attributes atts) throws SAXException {
+                                     Attributes atts) throws SAXException {
                 SAXElementDescriptor curDescr = elementsStack.peek();
                 curDescr.elementIndex++;
                 if (compareIndices(curDescr.desiredIndex, curDescr.elementIndex)) {
@@ -167,7 +166,8 @@ final class SAXDataReader extends XMLDataReader {
                     for (int i = 0; i < atts.getLength(); i++)
                         attsmap.put(atts.getLocalName(i), atts.getValue(i));
 
-                    searchElements: for (DescriptorElement e : curDescr.expectedElements) {
+                    searchElements:
+                    for (DescriptorElement e : curDescr.expectedElements) {
                         if (compareNames(e.getElementName(), localName, attsmap)) {
 
                             XMLContext context = new SAXContext(atts,
@@ -234,9 +234,9 @@ final class SAXDataReader extends XMLDataReader {
             TransformerFactory.newInstance().newTransformer()
                     .transform(xmlData, new SAXResult(parser));
         } catch (Exception e) {
-            throw new XML2SpreadSheetError("Error while processing XML data: "
-                    + e.getMessage());
-
+            throw (XML2SpreadSheetError)
+                    new XML2SpreadSheetError("Error while processing XML data: "
+                    + e.getMessage()).initCause(e);
         }
         getWriter().flush();
     }
