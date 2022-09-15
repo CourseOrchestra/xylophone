@@ -65,15 +65,15 @@ abstract class XMLContext {
     /**
      * Вычисляет значение строки, содержащей, возможно, xpath-выражение.
      *
-     * @param formatString
-     *            строка, содержащая, возможно, xpath-выражения.
+     * @param formatString строка, содержащая, возможно, xpath-выражения.
      */
     final String calc(String formatString) {
         Matcher m = P.matcher(formatString);
         StringBuffer sb = new StringBuffer();
         while (m.find()) {
             String val = getXPathValue(m.group(1));
-            m.appendReplacement(sb, val == null ? "" : val.replaceAll("\\\\", "\\\\\\\\"));
+            val = val == null ? "" : Matcher.quoteReplacement(val);
+            m.appendReplacement(sb, val);
         }
         m.appendTail(sb);
         return sb.toString();
